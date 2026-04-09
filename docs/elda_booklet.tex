@@ -1,0 +1,1632 @@
+\documentclass[11pt,a4paper,openany]{book}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage{booktabs,array,longtable,tabularx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{caption}
+
+\definecolor{eldaBlue}{HTML}{16324F}
+\definecolor{eldaGold}{HTML}{B5872C}
+\definecolor{eldaSlate}{HTML}{374151}
+\definecolor{eldaLight}{HTML}{F5F7FA}
+\definecolor{eldaCode}{HTML}{F7F7F8}
+\definecolor{eldaGreen}{HTML}{2F6B53}
+\definecolor{eldaRed}{HTML}{8B2E2E}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=eldaBlue,
+    urlcolor=eldaBlue,
+    citecolor=eldaBlue,
+    pdftitle={ELDA Linear Algebra Library Booklet},
+    pdfauthor={Codex for the ELDA project}
+}
+
+\pdfstringdefDisableCommands{%
+  \def\code#1{#1}%
+  \def\ELDA{ELDA}%
+}
+
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{3}
+\setlength{\headheight}{14pt}
+
+\newcommand{\ELDA}{\textsc{ELDA}}
+\DeclareRobustCommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\R}{\mathbb{R}}
+\DeclareMathOperator{\rankop}{rank}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\adj}{adj}
+
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\color{eldaBlue}}
+  {\filleft\Huge\thechapter}
+  {1ex}
+  {\Huge}
+  [\vspace{1ex}\titlerule]
+
+\titleformat{\section}
+  {\Large\bfseries\color{eldaBlue}}
+  {\thesection}{0.75em}{}
+
+\titleformat{\subsection}
+  {\large\bfseries\color{eldaSlate}}
+  {\thesubsection}{0.75em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\color{eldaSlate}\thepage}
+\fancyhead[LO]{\color{eldaSlate}\nouppercase{\rightmark}}
+\fancyhead[RE]{\color{eldaSlate}\nouppercase{\leftmark}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\lstdefinestyle{eldaCpp}{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{eldaBlue}\bfseries,
+    commentstyle=\color{eldaGreen},
+    stringstyle=\color{eldaRed},
+    showstringspaces=false,
+    frame=single,
+    rulecolor=\color{black!20},
+    backgroundcolor=\color{eldaCode},
+    columns=fullflexible,
+    keepspaces=true
+}
+
+\newtcolorbox{mathbox}[1][]{
+    enhanced,
+    breakable,
+    colback=eldaLight,
+    colframe=eldaBlue,
+    boxrule=0.8pt,
+    left=8pt,
+    right=8pt,
+    top=8pt,
+    bottom=8pt,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+\newtcolorbox{examplebox}[1][]{
+    enhanced,
+    breakable,
+    colback=white,
+    colframe=eldaGold,
+    boxrule=0.8pt,
+    left=8pt,
+    right=8pt,
+    top=8pt,
+    bottom=8pt,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+\newtcolorbox{techbox}[1][]{
+    enhanced,
+    breakable,
+    colback=eldaCode,
+    colframe=eldaSlate,
+    boxrule=0.8pt,
+    left=8pt,
+    right=8pt,
+    top=8pt,
+    bottom=8pt,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    {\Huge\bfseries\color{eldaBlue} ELDA \\[0.35cm]}
+    {\LARGE\bfseries Linear Algebra Library Booklet \\[0.8cm]}
+    {\large Mathematical reference, engineering guide, and practical starter manual\par}
+    \vfill
+    \rule{0.82\textwidth}{1.4pt}\\[0.5cm]
+    {\Large\color{eldaSlate} Dense matrix operations, elimination algorithms, system solving, \\[0.15cm]
+    norms, characteristic polynomials, and homogeneous transforms\par}
+    \rule{0.82\textwidth}{1.4pt}
+    \vfill
+    \begin{minipage}{0.82\textwidth}
+        \centering
+        \begin{techbox}[Document Scope]
+            This booklet documents the current ELDA C++17 library found under \code{include/elda/} and \code{src/}. It explains the mathematics used by the library, the engineering structure of the codebase, and the intended usage of every major public API entry point.
+        \end{techbox}
+    \end{minipage}
+    \vfill
+    {\large Prepared for the project repository}\\[0.2cm]
+    {\large \today}
+\end{titlepage}
+
+\frontmatter
+
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+\ELDA{} is a compact linear algebra library written in modern C++ and organized as a CMake project. The library exposes a dense matrix type, arithmetic helpers, elimination-based routines, structural invariants such as determinant and rank, and 2D/3D transformation generators based on homogeneous coordinates.
+
+This booklet serves three purposes:
+\begin{enumerate}[label=\arabic*.]
+    \item It acts as a starter guide for someone who wants to build and use the library quickly.
+    \item It explains the mathematics that justify each public function, so the code is tied back to linear algebra rather than treated as a black box.
+    \item It records technical structure and implementation behavior so future maintenance work can stay coherent.
+\end{enumerate}
+
+\tableofcontents
+
+\mainmatter
+
+\chapter{Library Overview and Starter Guide}
+
+\section{What ELDA provides}
+At its core, \ELDA{} provides a \code{linalg::matrix} type whose entries are stored as \code{double} values in a row-major \code{std::vector<std::vector<double>>}. The public API is grouped into three headers:
+\begin{itemize}
+    \item \code{elda/matrix.hpp}: the matrix type and core algebraic routines,
+    \item \code{elda/transforms.hpp}: 2D and 3D homogeneous transformation matrices,
+    \item \code{elda/vector_utils.hpp}: one library-specific comparison helper.
+\end{itemize}
+
+\begin{techbox}[Project Layout]
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+Path & Purpose \\
+\midrule
+\code{CMakeLists.txt} & Defines the static library target \code{elda} and the demo executable \code{main}. \\
+\code{include/elda/matrix.hpp} & Public declaration of the matrix type and most free functions. \\
+\code{include/elda/transforms.hpp} & Public declaration of 2D and 3D transform helpers. \\
+\code{include/elda/vector_utils.hpp} & Public declaration of \code{check_similar}. \\
+\code{include/elda/linalg.hpp} & Umbrella header that includes the whole public API. \\
+\code{src/matrix.cpp} & Implementation of matrix arithmetic, elimination, determinant, inverse, and spectral helpers. \\
+\code{src/transforms.cpp} & Implementation of translation, scaling, and rotation matrices. \\
+\code{src/vector_utils.cpp} & Implementation of the zero-row filtered comparison utility. \\
+\code{main.cpp} & Small demo program that constructs a matrix, runs Gaussian elimination, and prints the result. \\
+\bottomrule
+\end{tabularx}
+\end{techbox}
+
+\section{Build the project}
+The library is configured with CMake and targets C++17.
+
+\begin{lstlisting}[style=eldaCpp,caption={Build commands}]
+cmake -S . -B build
+cmake --build build
+\end{lstlisting}
+
+After a successful build, the main artifacts are:
+\begin{itemize}
+    \item \code{build/libelda.a}: the static library,
+    \item \code{build/main}: the demo executable.
+\end{itemize}
+
+\section{Minimal usage example}
+The fastest way to start is to include the umbrella header and work with a small dense matrix.
+
+\begin{lstlisting}[style=eldaCpp,caption={Minimal ELDA program}]
+#include <elda/linalg.hpp>
+#include <iostream>
+
+using namespace linalg;
+
+int main() {
+    matrix a(2, 2);
+    a.arr = {{1, 2}, {3, 4}};
+
+    matrix b = identity(2);
+    matrix c = a + b;
+
+    c.print();
+}
+\end{lstlisting}
+
+\begin{examplebox}[Starter interpretation]
+The matrix
+\[
+A = \begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}
+\]
+is added to the identity matrix
+\[
+I_2 = \begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix},
+\]
+which yields
+\[
+A + I_2 =
+\begin{bmatrix}
+2 & 2 \\
+3 & 5
+\end{bmatrix}.
+\]
+This is entrywise matrix addition, so each diagonal entry increases by one.
+\end{examplebox}
+
+\section{Who this booklet is for}
+This document is written for three audiences:
+\begin{itemize}
+    \item users who want to apply the library correctly,
+    \item maintainers who need to understand why an algorithm exists,
+    \item learners who want the code tied back to linear algebra concepts.
+\end{itemize}
+
+\chapter{Mathematical and Technical Foundations}
+
+\section{Notation used in this booklet}
+Unless stated otherwise, a matrix
+\[
+A = (a_{ij}) \in \R^{m \times n}
+\]
+has \(m\) rows and \(n\) columns. In the C++ code, the dimensions are stored in the public members \code{row} and \code{col}, and indexing is zero-based because the underlying storage is a C++ vector.
+
+\begin{mathbox}[Indexing convention]
+Mathematics often writes \(a_{11}\) for the first element of a matrix. ELDA stores that same element at \code{arr[0][0]}. In formulas below we use the standard mathematical notation, but examples mention the corresponding C++ indices whenever confusion is possible.
+\end{mathbox}
+
+\section{Dense storage model}
+The matrix class stores data as
+\[
+\texttt{std::vector<std::vector<double>>}.
+\]
+This is easy to inspect, easy to print, and convenient for educational code. The tradeoff is that it is not as cache-friendly as a flat contiguous buffer. For the scale of a teaching-oriented or small library, the design is reasonable and transparent.
+
+\section{Mutating versus non-mutating operations}
+\ELDA{} has two styles of API:
+\begin{itemize}
+    \item \textbf{return-a-copy helpers}: arithmetic operators, row and column operations, transpose, inverse, adjoint, and transform factories return new matrices;
+    \item \textbf{in-place reducers}: \code{echelon()}, \code{gaussian()}, \code{gauss_jordan()}, and \code{canonical()} mutate the matrix object and return an integer that records the sign change induced by row swaps.
+\end{itemize}
+
+\section{Core linear algebra ideas}
+\subsection{Elementary row operations}
+Three row operations preserve the solution set of a linear system:
+\begin{enumerate}[label=\arabic*.]
+    \item swap two rows,
+    \item multiply a row by a nonzero scalar,
+    \item replace one row by itself plus a multiple of another row.
+\end{enumerate}
+
+These operations are the engine behind Gaussian elimination, rank computation, determinant reduction, and matrix inversion. ELDA also exposes column analogues of the same operations.
+
+\subsection{Homogeneous coordinates}
+The transformation helpers in \code{transforms.hpp} use homogeneous coordinates. A 2D point \((x, y)\) is encoded as
+\[
+\begin{bmatrix}
+x \\ y \\ 1
+\end{bmatrix},
+\]
+and a 3D point \((x, y, z)\) is encoded as
+\[
+\begin{bmatrix}
+x \\ y \\ z \\ 1
+\end{bmatrix}.
+\]
+This lets translation, scaling, and rotation all be represented as matrix multiplication.
+
+\chapter{Matrix Type, Constructors, and Basic API}
+
+\section{Constructors}
+
+\subsection{\code{matrix()}}
+The default constructor builds a \(3 \times 3\) zero matrix.
+
+\begin{mathbox}[Mathematical meaning]
+The zero matrix \(0_{3 \times 3}\) is the additive identity in the vector space of \(3 \times 3\) real matrices. For every \(A \in \R^{3 \times 3}\),
+\[
+A + 0_{3 \times 3} = A.
+\]
+\end{mathbox}
+
+\begin{lstlisting}[style=eldaCpp,caption={Default constructor example}]
+matrix z;
+z.print();
+\end{lstlisting}
+
+\begin{examplebox}[Example]
+The code above prints a \(3 \times 3\) grid of zeros.
+\end{examplebox}
+
+\subsection{\code{matrix(int r, int c)}}
+This constructor builds the zero matrix \(0_{r \times c}\).
+
+\begin{lstlisting}[style=eldaCpp,caption={Sized constructor example}]
+matrix a(2, 3);
+a.arr = {{1, 2, 3}, {4, 5, 6}};
+\end{lstlisting}
+
+\begin{examplebox}[Example]
+Before assigning entries, \code{a} is
+\[
+\begin{bmatrix}
+0 & 0 & 0 \\
+0 & 0 & 0
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{Element access and I/O}
+
+\subsection{\code{get_element(i, j)}}
+This returns the entry \(a_{ij}\) with no bounds check. The mathematics is direct: it selects one coordinate of the matrix.
+
+\begin{examplebox}[Example]
+If
+\[
+A = \begin{bmatrix}
+7 & 8 \\
+9 & 10
+\end{bmatrix},
+\]
+then \code{get_element(1, 0)} returns \(9\), because C++ index \((1,0)\) is the second row, first column.
+\end{examplebox}
+
+\subsection{\code{ref_element(i, j)}}
+This returns a mutable pointer to the selected element. In mathematical terms it gives write access to one coordinate of the matrix.
+
+\begin{lstlisting}[style=eldaCpp,caption={Pointer-based update}]
+matrix a(2, 2);
+*a.ref_element(0, 1) = 5.0;
+\end{lstlisting}
+
+\subsection{\code{input()}}
+This reads all entries row by row from standard input. Mathematically it populates a matrix by specifying the coordinates \(a_{ij}\) in row-major order.
+
+\subsection{\code{print()}}
+This writes the matrix one row per line. It is a presentation helper rather than a mathematical operation.
+
+\section{Assignment and comparisons}
+
+\subsection{\code{operator=(matrix m2)}}
+The library defines assignment as a shape-preserving copy. If the dimensions of the left-hand side and right-hand side differ, an exception is thrown.
+
+\begin{techbox}[Important implementation note]
+Standard C++ assignment usually resizes the destination object when needed. ELDA's current assignment operator instead requires equal dimensions. That is a library design decision, not a language requirement.
+\end{techbox}
+
+\begin{lstlisting}[style=eldaCpp,caption={Assignment example}]
+matrix a(2, 2), b(2, 2);
+b.arr = {{1, 0}, {0, 1}};
+a = b;
+\end{lstlisting}
+
+\begin{examplebox}[Example]
+After assignment, \(A = B = I_2\).
+\end{examplebox}
+
+\subsection{\code{operator==(matrix m1, matrix m2)}}
+This function checks exact entrywise equality:
+\[
+A = B \quad \Longleftrightarrow \quad a_{ij} = b_{ij} \text{ for all } i,j.
+\]
+
+\begin{examplebox}[Example]
+\[
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix},
+\]
+so the comparison returns \code{true}.
+\end{examplebox}
+
+\subsection{\code{shape_comp(matrix m1, matrix m2)}}
+This tests only the dimensions. It corresponds to the statement \(A, B \in \R^{m \times n}\) for the same \(m,n\).
+
+\begin{examplebox}[Example]
+A \(2 \times 3\) matrix and another \(2 \times 3\) matrix are shape-compatible even if their entries are different.
+\end{examplebox}
+
+\section{Identity and structure helpers}
+
+\subsection{\code{identity(int n)}}
+This builds the identity matrix
+\[
+I_n =
+\begin{bmatrix}
+1 & 0 & \cdots & 0 \\
+0 & 1 & \cdots & 0 \\
+\vdots & \vdots & \ddots & \vdots \\
+0 & 0 & \cdots & 1
+\end{bmatrix}.
+\]
+
+\begin{mathbox}[Why it matters]
+The identity matrix is the multiplicative identity:
+\[
+AI_n = A, \qquad I_nA = A.
+\]
+It is central to inversion, matrix powers, and transform construction.
+\end{mathbox}
+
+\begin{examplebox}[Example]
+\code{identity(3)} returns \(I_3\), the matrix with ones on the main diagonal and zeros elsewhere.
+\end{examplebox}
+
+\subsection{\code{get_row(int r)}}
+This returns a matrix with row \(r\) preserved and all other rows set to zero. If \(A\) is \(m \times n\), the result is also \(m \times n\), not a \(1 \times n\) row vector.
+
+\begin{examplebox}[Example]
+If
+\[
+A = \begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix},
+\]
+then \code{get_row(1)} returns
+\[
+\begin{bmatrix}
+0 & 0 \\
+3 & 4
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\subsection{\code{get_col(int c)}}
+This returns a matrix with column \(c\) preserved and all other columns set to zero.
+
+\begin{examplebox}[Example]
+For the same matrix \(A\),
+\[
+\code{get_col(0)} =
+\begin{bmatrix}
+1 & 0 \\
+3 & 0
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\chapter{Arithmetic Operations}
+
+\section{\code{operator+(matrix m2)}}
+Matrix addition is defined entrywise:
+\[
+(A+B)_{ij} = a_{ij} + b_{ij}.
+\]
+The operation is valid only when both matrices have the same dimensions.
+
+\begin{examplebox}[Example]
+\[
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}
++
+\begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix}
+=
+\begin{bmatrix}
+6 & 8 \\
+10 & 12
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{\code{operator-(matrix m2)}}
+Subtraction is also entrywise:
+\[
+(A-B)_{ij} = a_{ij} - b_{ij}.
+\]
+
+\begin{examplebox}[Example]
+\[
+\begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix}
+-
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}
+=
+\begin{bmatrix}
+4 & 4 \\
+4 & 4
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{\code{operator*(double d)}}
+Scalar multiplication rescales every entry:
+\[
+(dA)_{ij} = d \cdot a_{ij}.
+\]
+
+\begin{examplebox}[Example]
+\[
+2
+\begin{bmatrix}
+1 & -1 \\
+3 & 0
+\end{bmatrix}
+=
+\begin{bmatrix}
+2 & -2 \\
+6 & 0
+\end{bmatrix}.
+\]
+In ELDA this is written as \code{A * 2.0}.
+\end{examplebox}
+
+\section{\code{operator*(matrix m2)}}
+Matrix multiplication is defined by row-column pairing:
+\[
+(AB)_{ij} = \sum_{k=1}^{n} a_{ik} b_{kj},
+\]
+where \(A \in \R^{m \times n}\) and \(B \in \R^{n \times p}\). The result lies in \(\R^{m \times p}\).
+
+\begin{mathbox}[Interpretation]
+The entry \((i,j)\) of \(AB\) is the dot product of row \(i\) of \(A\) with column \(j\) of \(B\). This is why the inner dimensions must match.
+\end{mathbox}
+
+\begin{examplebox}[Example]
+\[
+A =
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix},
+\qquad
+B =
+\begin{bmatrix}
+2 & 0 \\
+1 & 5
+\end{bmatrix}.
+\]
+Then
+\[
+AB =
+\begin{bmatrix}
+1\cdot2 + 2\cdot1 & 1\cdot0 + 2\cdot5 \\
+3\cdot2 + 4\cdot1 & 3\cdot0 + 4\cdot5
+\end{bmatrix}
+=
+\begin{bmatrix}
+4 & 10 \\
+10 & 20
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\chapter{Elementary Row and Column Operations}
+
+\section{\code{row_op(int i, double coeff, int j)}}
+This performs the elementary row replacement
+\[
+R_i \leftarrow R_i + \text{coeff} \cdot R_j.
+\]
+
+\begin{mathbox}[Why this matters]
+Row replacement preserves the solution set of a linear system and preserves the determinant. It is the workhorse operation in elimination.
+\end{mathbox}
+
+\begin{examplebox}[Example]
+Start with
+\[
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}.
+\]
+Applying \code{row_op(1, -3, 0)} means
+\[
+R_2 \leftarrow R_2 - 3R_1,
+\]
+so the result is
+\[
+\begin{bmatrix}
+1 & 2 \\
+0 & -2
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{\code{col_op(int i, double coeff, int j)}}
+This is the column analogue:
+\[
+C_i \leftarrow C_i + \text{coeff} \cdot C_j.
+\]
+Column operations are useful in canonical forms and matrix equivalence arguments.
+
+\begin{examplebox}[Example]
+For
+\[
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix},
+\]
+applying \code{col_op(1, -2, 0)} gives
+\[
+C_2 \leftarrow C_2 - 2C_1,
+\qquad
+\begin{bmatrix}
+1 & 0 \\
+3 & -2
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{\code{row_swap(int i, int j)} and \code{col_swap(int i, int j)}}
+Swapping rows or columns permutes the matrix.
+
+\begin{mathbox}[Determinant effect]
+Swapping two rows multiplies the determinant by \(-1\). Swapping two columns does the same. This sign flip is why the elimination routines keep track of swap parity.
+\end{mathbox}
+
+\begin{examplebox}[Example]
+\[
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}
+\xrightarrow{\text{swap rows}}
+\begin{bmatrix}
+3 & 4 \\
+1 & 2
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{\code{row_multi(int i, double factor)} and \code{col_multi(int i, double factor)}}
+These scale one row or one column:
+\[
+R_i \leftarrow \lambda R_i,
+\qquad
+C_j \leftarrow \lambda C_j.
+\]
+
+\begin{mathbox}[Determinant effect]
+If a row of a square matrix is multiplied by \(\lambda\), then the determinant is multiplied by \(\lambda\). Gaussian elimination uses row scaling to normalize pivots.
+\end{mathbox}
+
+\begin{examplebox}[Example]
+\[
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}
+\xrightarrow{R_1 \leftarrow 2R_1}
+\begin{bmatrix}
+2 & 4 \\
+3 & 4
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\chapter{Elimination, Rank, and Linear Systems}
+
+\section{\code{echelon()}}
+This mutates the matrix into row-echelon form by searching for a nonzero pivot in each column, swapping that row upward if necessary, and eliminating entries below the pivot.
+
+\begin{mathbox}[Row-echelon form]
+A matrix is in row-echelon form when:
+\begin{enumerate}[label=\arabic*.]
+    \item every nonzero row starts with a leading nonzero entry called a pivot,
+    \item pivot positions move strictly to the right as you move downward,
+    \item entries below each pivot are zero.
+\end{enumerate}
+\end{mathbox}
+
+\begin{examplebox}[Example]
+Let
+\[
+A =
+\begin{bmatrix}
+2 & 1 \\
+4 & 3
+\end{bmatrix}.
+\]
+After \code{echelon()}, ELDA performs
+\[
+R_2 \leftarrow R_2 - 2R_1,
+\]
+which produces
+\[
+\begin{bmatrix}
+2 & 1 \\
+0 & 1
+\end{bmatrix}.
+\]
+This is already in row-echelon form.
+\end{examplebox}
+
+\section{\code{gaussian()}}
+This is a normalized Gaussian elimination. It first creates a pivot, then scales the pivot row so the pivot becomes \(1\), and finally clears entries below it.
+
+\begin{mathbox}[Gaussian elimination with normalized pivots]
+For pivot position \((k,k)\), ELDA applies
+\[
+R_k \leftarrow \frac{1}{a_{kk}}R_k
+\]
+when \(a_{kk} \neq 0\), then uses row replacement to zero all entries below the pivot. The resulting form is upper row-echelon with leading ones whenever possible.
+\end{mathbox}
+
+\begin{examplebox}[Example]
+For
+\[
+\begin{bmatrix}
+3 & 6 \\
+6 & 15
+\end{bmatrix},
+\]
+the first pivot row is scaled by \(1/3\), giving
+\[
+\begin{bmatrix}
+1 & 2 \\
+6 & 15
+\end{bmatrix},
+\]
+then \(R_2 \leftarrow R_2 - 6R_1\), yielding
+\[
+\begin{bmatrix}
+1 & 2 \\
+0 & 3
+\end{bmatrix},
+\]
+and the second pivot row is scaled to obtain
+\[
+\begin{bmatrix}
+1 & 2 \\
+0 & 1
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{\code{gauss_jordan()}}
+This calls \code{gaussian()} first, then eliminates the entries above each pivot to obtain reduced row-echelon form.
+
+\begin{mathbox}[Reduced row-echelon form]
+A matrix is in reduced row-echelon form when it is in row-echelon form and every pivot column contains a single \(1\) with zeros everywhere else.
+\end{mathbox}
+
+\begin{examplebox}[Example]
+Starting from
+\[
+\begin{bmatrix}
+1 & 2 \\
+0 & 1
+\end{bmatrix},
+\]
+the routine clears the entry above the second pivot:
+\[
+R_1 \leftarrow R_1 - 2R_2,
+\]
+producing
+\[
+\begin{bmatrix}
+1 & 0 \\
+0 & 1
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{\code{canonical()}}
+This routine first runs normalized Gaussian elimination, then applies column operations to clear entries to the right of each pivot. The effect is a mixed row-column reduction that pushes the matrix toward a diagonal or canonical pattern.
+
+\begin{mathbox}[Conceptual role]
+Row operations preserve the solution set of a linear system, while column operations change the coordinate representation of the domain. Combining them is natural when studying matrix equivalence or canonical forms, rather than only solving systems.
+\end{mathbox}
+
+\begin{examplebox}[Example]
+If Gaussian elimination has already produced
+\[
+\begin{bmatrix}
+1 & 2 \\
+0 & 1
+\end{bmatrix},
+\]
+then a column operation
+\[
+C_2 \leftarrow C_2 - 2C_1
+\]
+transforms it into the identity matrix. This is the kind of diagonal-cleaning behavior that \code{canonical()} performs.
+\end{examplebox}
+
+\section{\code{rank()}}
+The rank of a matrix is the dimension of its row space, equivalently the number of pivots in row-echelon form:
+\[
+\rankop(A) = \text{number of nonzero rows in an echelon form of } A.
+\]
+ELDA computes this by applying \code{gaussian()} to a copy and counting nonzero rows.
+
+\begin{examplebox}[Example]
+For
+\[
+\begin{bmatrix}
+1 & 2 \\
+2 & 4
+\end{bmatrix},
+\]
+the second row is a multiple of the first, so there is only one pivot. Hence \(\rankop(A)=1\).
+\end{examplebox}
+
+\section{\code{free_variable()}}
+For a square coefficient matrix \(A \in \R^{n \times n}\), this returns
+\[
+n - \rankop(A).
+\]
+This matches the nullity of \(A\) for square systems, by the rank-nullity theorem.
+
+\begin{examplebox}[Example]
+If a \(3 \times 3\) matrix has rank \(2\), then the routine returns \(3-2=1\), meaning one free variable in the homogeneous system \(Ax=0\).
+\end{examplebox}
+
+\section{\code{solve()}}
+This function expects an augmented matrix of size \(n \times (n+1)\):
+\[
+\left[\begin{array}{c|c}
+A & b
+\end{array}\right].
+\]
+It runs normalized Gaussian elimination and then performs back substitution to produce the solution vector.
+
+\begin{mathbox}[Back substitution]
+If the reduced system is upper triangular,
+\[
+\begin{aligned}
+x_n &= b_n, \\
+x_{n-1} &= b_{n-1} - a_{n-1,n}x_n, \\
+x_{n-2} &= b_{n-2} - a_{n-2,n-1}x_{n-1} - a_{n-2,n}x_n,
+\end{aligned}
+\]
+and so on upward.
+\end{mathbox}
+
+\begin{examplebox}[Example]
+Solve
+\[
+\begin{cases}
+x + y = 3, \\
+2x + 3y = 8.
+\end{cases}
+\]
+The augmented matrix is
+\[
+\left[
+\begin{array}{cc|c}
+1 & 1 & 3 \\
+2 & 3 & 8
+\end{array}
+\right].
+\]
+Gaussian elimination gives
+\[
+\left[
+\begin{array}{cc|c}
+1 & 1 & 3 \\
+0 & 1 & 2
+\end{array}
+\right].
+\]
+Back substitution yields \(y=2\) and \(x=1\).
+\end{examplebox}
+
+\chapter{Determinants, Cofactors, and Inverses}
+
+\section{\code{trace()}}
+The trace is the sum of diagonal entries:
+\[
+\tr(A) = \sum_{i=1}^{\min(m,n)} a_{ii}.
+\]
+For square matrices, the trace equals the sum of eigenvalues counted with algebraic multiplicity.
+
+\begin{examplebox}[Example]
+\[
+\tr\left(
+\begin{bmatrix}
+2 & 1 \\
+5 & 3
+\end{bmatrix}
+\right) = 2 + 3 = 5.
+\]
+\end{examplebox}
+
+\section{\code{diag_product()}}
+This returns the product of the diagonal entries:
+\[
+\prod_{i=1}^{\min(m,n)} a_{ii}.
+\]
+For triangular square matrices, this product is exactly the determinant.
+
+\begin{examplebox}[Example]
+For
+\[
+\begin{bmatrix}
+2 & 7 \\
+0 & 5
+\end{bmatrix},
+\]
+\code{diag_product()} returns \(2 \cdot 5 = 10\).
+\end{examplebox}
+
+\section{\code{det()}}
+The determinant of a square matrix is computed by converting a copy of the matrix to row-echelon form and then multiplying the diagonal entries, adjusted by the sign of row swaps.
+
+\begin{mathbox}[Why elimination works]
+Two determinant facts make the algorithm valid:
+\begin{enumerate}[label=\arabic*.]
+    \item replacing one row by itself plus a multiple of another row leaves the determinant unchanged,
+    \item swapping two rows changes the sign of the determinant.
+\end{enumerate}
+Once the matrix is upper triangular,
+\[
+\det(A) = \prod_i u_{ii}.
+\]
+\end{mathbox}
+
+\begin{examplebox}[Example]
+For
+\[
+A =
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix},
+\]
+perform
+\[
+R_2 \leftarrow R_2 - 3R_1
+\]
+to get
+\[
+\begin{bmatrix}
+1 & 2 \\
+0 & -2
+\end{bmatrix}.
+\]
+No row swap occurred, so
+\[
+\det(A) = 1 \cdot (-2) = -2.
+\]
+\end{examplebox}
+
+\section{\code{minor(int x, int y)}}
+The minor of entry \((x,y)\) is the determinant of the submatrix obtained by deleting row \(x\) and column \(y\).
+
+\begin{examplebox}[Example]
+For
+\[
+\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+7 & 8 & 9
+\end{bmatrix},
+\]
+the minor of the center entry is
+\[
+\det
+\begin{bmatrix}
+1 & 3 \\
+7 & 9
+\end{bmatrix}
+= 9 - 21 = -12.
+\]
+\end{examplebox}
+
+\section{\code{cofactor(int x, int y)}}
+The cofactor adds the alternating sign pattern:
+\[
+C_{xy} = (-1)^{x+y} M_{xy},
+\]
+where \(M_{xy}\) is the minor.
+
+\begin{examplebox}[Example]
+If the minor at \((1,1)\) equals \(-12\), then the cofactor is
+\[
+(-1)^{1+1}(-12) = -12.
+\]
+If the same minor were at \((1,2)\), the cofactor would flip sign.
+\end{examplebox}
+
+\section{\code{adjoint()}}
+The classical adjoint, also called the adjugate, is the transpose of the cofactor matrix:
+\[
+\adj(A) = C^\top.
+\]
+
+\begin{mathbox}[Inverse connection]
+For a nonsingular square matrix,
+\[
+A^{-1} = \frac{1}{\det(A)} \adj(A).
+\]
+ELDA does not use this identity to compute the inverse, but the formula explains why the adjoint is mathematically important.
+\end{mathbox}
+
+\begin{examplebox}[Example]
+For
+\[
+A =
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix},
+\]
+the adjugate is
+\[
+\adj(A) =
+\begin{bmatrix}
+4 & -2 \\
+-3 & 1
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{\code{transpose()}}
+The transpose exchanges rows and columns:
+\[
+(A^\top)_{ij} = a_{ji}.
+\]
+It is fundamental for symmetric matrices, orthogonality checks, and the Frobenius inner product.
+
+\begin{examplebox}[Example]
+\[
+\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6
+\end{bmatrix}^\top
+=
+\begin{bmatrix}
+1 & 4 \\
+2 & 5 \\
+3 & 6
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{\code{inverse()}}
+The inverse \(A^{-1}\) of a square matrix satisfies
+\[
+AA^{-1} = A^{-1}A = I.
+\]
+ELDA computes it through Gauss-Jordan elimination on the augmented block matrix
+\[
+\left[\begin{array}{c|c}
+A & I
+\end{array}\right].
+\]
+When the left block is reduced to \(I\), the right block becomes \(A^{-1}\).
+
+\begin{examplebox}[Example]
+For
+\[
+A =
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix},
+\]
+augment with the identity:
+\[
+\left[
+\begin{array}{cc|cc}
+1 & 2 & 1 & 0 \\
+3 & 4 & 0 & 1
+\end{array}
+\right].
+\]
+After Gauss-Jordan elimination, the result is
+\[
+\left[
+\begin{array}{cc|cc}
+1 & 0 & -2 & 1 \\
+0 & 1 & \frac{3}{2} & -\frac{1}{2}
+\end{array}
+\right],
+\]
+so
+\[
+A^{-1} =
+\begin{bmatrix}
+-2 & 1 \\
+\frac{3}{2} & -\frac{1}{2}
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\chapter{Norms, Inner Products, Matrix Powers, and Characteristic Polynomials}
+
+\section{\code{norm()}}
+ELDA uses the Frobenius norm:
+\[
+\|A\|_F = \sqrt{\sum_{i,j} a_{ij}^2}.
+\]
+This is the Euclidean norm of the matrix entries viewed as one long vector.
+
+\begin{examplebox}[Example]
+For
+\[
+A =
+\begin{bmatrix}
+1 & 2 \\
+2 & 1
+\end{bmatrix},
+\]
+\[
+\|A\|_F = \sqrt{1^2 + 2^2 + 2^2 + 1^2} = \sqrt{10}.
+\]
+\end{examplebox}
+
+\section{\code{inner_product(matrix a, matrix b)}}
+The function computes the Frobenius inner product:
+\[
+\langle A, B \rangle_F = \tr(A^\top B) = \sum_{i,j} a_{ij}b_{ij}.
+\]
+
+\begin{examplebox}[Example]
+If
+\[
+A =
+\begin{bmatrix}
+1 & 2 \\
+0 & 1
+\end{bmatrix},
+\qquad
+B =
+\begin{bmatrix}
+3 & 4 \\
+5 & 6
+\end{bmatrix},
+\]
+then
+\[
+\langle A, B \rangle_F = 1\cdot3 + 2\cdot4 + 0\cdot5 + 1\cdot6 = 17.
+\]
+\end{examplebox}
+
+\section{\code{angle(matrix a, matrix b)}}
+The angle between two matrices is defined through the Frobenius inner product:
+\[
+\theta = \cos^{-1}\left(\frac{\langle A, B \rangle_F}{\|A\|_F \|B\|_F}\right).
+\]
+This generalizes the Euclidean angle between vectors.
+
+\begin{examplebox}[Example]
+If \(A = I_2\) and \(B = I_2\), then the numerator equals the product of the norms, so the cosine is \(1\) and the angle is \(0\).
+\end{examplebox}
+
+\section{\code{matpow(matrix mat, long long expo)}}
+This computes \(A^k\) for a nonnegative integer \(k\) using repeated squaring.
+
+\begin{mathbox}[Repeated squaring]
+Instead of multiplying \(A\) by itself \(k\) times in sequence, repeated squaring uses the binary expansion of \(k\). For example,
+\[
+A^{13} = A^{8}A^{4}A.
+\]
+This reduces the number of matrix multiplications from \(O(k)\) to \(O(\log k)\).
+\end{mathbox}
+
+\begin{examplebox}[Example]
+For
+\[
+A =
+\begin{bmatrix}
+1 & 1 \\
+0 & 1
+\end{bmatrix},
+\]
+one gets
+\[
+A^2 =
+\begin{bmatrix}
+1 & 2 \\
+0 & 1
+\end{bmatrix},
+\qquad
+A^3 =
+\begin{bmatrix}
+1 & 3 \\
+0 & 1
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{\code{char_poly()}}
+This routine implements the Faddeev-LeVerrier recurrence to compute the coefficients of the characteristic polynomial
+\[
+p_A(\lambda) = \det(\lambda I - A)
+= \lambda^n + c_1\lambda^{n-1} + \cdots + c_n
+\]
+for an \(n \times n\) matrix.
+
+\begin{mathbox}[Faddeev-LeVerrier recurrence]
+The algorithm used by ELDA follows the pattern
+\[
+B_0 = I,
+\qquad
+c_k = -\frac{1}{k}\tr(AB_{k-1}),
+\qquad
+B_k = AB_{k-1} + c_k I.
+\]
+Each \(c_k\) becomes one coefficient of the characteristic polynomial.
+\end{mathbox}
+
+\begin{examplebox}[Example]
+For
+\[
+A =
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix},
+\]
+the characteristic polynomial is
+\[
+\lambda^2 - 5\lambda - 2.
+\]
+So the returned row vector is
+\[
+\begin{bmatrix}
+1 & -5 & -2
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\section{\code{check_ortho(matrix mat)}}
+An orthogonal real matrix satisfies
+\[
+A^\top A = I,
+\]
+which is equivalent to
+\[
+A^{-1} = A^\top.
+\]
+ELDA checks the second formulation by comparing the transpose and inverse directly.
+
+\begin{examplebox}[Example]
+The planar rotation matrix
+\[
+R(\theta) =
+\begin{bmatrix}
+\cos\theta & -\sin\theta \\
+\sin\theta & \cos\theta
+\end{bmatrix}
+\]
+is orthogonal for all real \(\theta\).
+\end{examplebox}
+
+\section{\code{check_unitary(matrix mat)}}
+In standard linear algebra, a complex matrix is unitary when
+\[
+U^\ast U = I,
+\]
+where \(U^\ast\) is the conjugate transpose. ELDA's current helper compares \code{transpose()} and \code{adjoint()}, where \code{adjoint()} means the classical adjugate, not the conjugate transpose.
+
+\begin{techbox}[Important terminology note]
+This means \code{check_unitary()} should be understood as a legacy project helper rather than a standard mathematical unitary test.
+\end{techbox}
+
+\begin{examplebox}[Example]
+For the identity matrix, the transpose and adjugate are both equal to the identity, so the helper returns \code{true}. That does not validate the helper as a complete unitary predicate in the usual mathematical sense.
+\end{examplebox}
+
+\chapter{Transformation Helpers}
+
+\section{2D transformation matrices}
+\subsection{\code{shift(double dx, double dy)}}
+This returns the homogeneous translation matrix
+\[
+T(dx,dy) =
+\begin{bmatrix}
+1 & 0 & dx \\
+0 & 1 & dy \\
+0 & 0 & 1
+\end{bmatrix}.
+\]
+
+\begin{examplebox}[Example]
+Applying this matrix to the homogeneous point \((x,y,1)^\top\) gives
+\[
+\begin{bmatrix}
+1 & 0 & dx \\
+0 & 1 & dy \\
+0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+x \\ y \\ 1
+\end{bmatrix}
+=
+\begin{bmatrix}
+x + dx \\ y + dy \\ 1
+\end{bmatrix}.
+\]
+\end{examplebox}
+
+\subsection{\code{scale(double kx, double ky)}}
+This returns
+\[
+S(k_x,k_y) =
+\begin{bmatrix}
+k_x & 0 & 0 \\
+0 & k_y & 0 \\
+0 & 0 & 1
+\end{bmatrix},
+\]
+which scales the \(x\)-coordinate by \(k_x\) and the \(y\)-coordinate by \(k_y\).
+
+\begin{examplebox}[Example]
+If \((x,y)=(2,3)\) and \((k_x,k_y)=(4,5)\), then the scaled point is \((8,15)\).
+\end{examplebox}
+
+\subsection{\code{rotate(double angle)}}
+This returns the standard planar rotation matrix in homogeneous form:
+\[
+R(\theta) =
+\begin{bmatrix}
+\cos\theta & -\sin\theta & 0 \\
+\sin\theta & \cos\theta & 0 \\
+0 & 0 & 1
+\end{bmatrix}.
+\]
+Angles are measured in radians. The header also defines the convenience constant \code{PI = 3.141593}.
+
+\begin{examplebox}[Example]
+When \(\theta=\pi/2\),
+\[
+R(\pi/2)
+\begin{bmatrix}
+1 \\ 0 \\ 1
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\ 1 \\ 1
+\end{bmatrix},
+\]
+so the point \((1,0)\) rotates to \((0,1)\).
+\end{examplebox}
+
+\section{3D transformation matrices}
+
+\subsection{\code{shift(double dx, double dy, double dz)}}
+This returns
+\[
+\begin{bmatrix}
+1 & 0 & 0 & dx \\
+0 & 1 & 0 & dy \\
+0 & 0 & 1 & dz \\
+0 & 0 & 0 & 1
+\end{bmatrix}.
+\]
+It translates points in \(\R^3\) by the vector \((dx,dy,dz)\).
+
+\subsection{\code{scale(double kx, double ky, double kz)}}
+This returns the diagonal homogeneous scaling matrix
+\[
+\begin{bmatrix}
+k_x & 0 & 0 & 0 \\
+0 & k_y & 0 & 0 \\
+0 & 0 & k_z & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}.
+\]
+
+\subsection{\code{rot_x(double angle)}}
+Rotation about the \(x\)-axis is
+\[
+R_x(\theta) =
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & \cos\theta & -\sin\theta & 0 \\
+0 & \sin\theta & \cos\theta & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}.
+\]
+
+\subsection{\code{rot_y(double angle)}}
+Rotation about the \(y\)-axis is
+\[
+R_y(\theta) =
+\begin{bmatrix}
+\cos\theta & 0 & -\sin\theta & 0 \\
+0 & 1 & 0 & 0 \\
+\sin\theta & 0 & \cos\theta & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}.
+\]
+
+\subsection{\code{rot_z(double angle)}}
+Rotation about the \(z\)-axis is
+\[
+R_z(\theta) =
+\begin{bmatrix}
+\cos\theta & -\sin\theta & 0 & 0 \\
+\sin\theta & \cos\theta & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}.
+\]
+
+\begin{examplebox}[Composite transform example]
+Suppose a point \(p=(1,2,3)\) is represented as \((1,2,3,1)^\top\). If you first rotate around the \(z\)-axis and then translate by \((5,0,-1)\), the combined transform is
+\[
+T(5,0,-1)R_z(\theta).
+\]
+Matrix multiplication composes transformations from right to left when column vectors are used.
+\end{examplebox}
+
+\chapter{Library-Specific Utilities and Numerical Notes}
+
+\section{\code{check_similar(matrix mat1, matrix mat2)}}
+This helper is specific to ELDA. It removes all-zero rows from each matrix and then compares the remaining row sequences exactly.
+
+\begin{techbox}[Not the standard notion of matrix similarity]
+In mathematics, two square matrices \(A\) and \(B\) are called similar if there exists an invertible matrix \(P\) such that
+\[
+B = P^{-1}AP.
+\]
+ELDA's \code{check_similar()} does \emph{not} test that condition.
+\end{techbox}
+
+\begin{examplebox}[Example]
+If
+\[
+A =
+\begin{bmatrix}
+1 & 2 \\
+0 & 0 \\
+3 & 4
+\end{bmatrix},
+\qquad
+B =
+\begin{bmatrix}
+1 & 2 \\
+3 & 4 \\
+0 & 0
+\end{bmatrix},
+\]
+then both reduce to the row list
+\[
+\{[1,2], [3,4]\},
+\]
+so the helper returns \code{true}.
+\end{examplebox}
+
+\section{\code{neg_zero(matrix\& m)}}
+This is a display cleanup helper that replaces \(-0\) with \(0\). The mathematics is trivial because \(-0 = 0\), but floating-point output sometimes preserves the signed zero bit.
+
+\section{Constants}
+The header defines two public constants:
+\begin{itemize}
+    \item \code{PI = 3.141593}, used naturally in trigonometric transform examples,
+    \item \code{EPS = 1e-9}, intended as a floating-point tolerance constant.
+\end{itemize}
+At present, \code{EPS} is more of a reserved utility constant than a value consistently used across all comparisons.
+
+\section{Numerical caveats}
+The current library uses exact comparisons against zero in several places. That is simple and readable, but in floating-point numerical linear algebra it can be fragile.
+
+\begin{mathbox}[Practical warning]
+If a pivot is extremely small rather than exactly zero, elimination without tolerance checks can amplify roundoff error. The header defines \code{EPS = 1e-9}, but the current implementation does not consistently use it for pivot tests or equality checks.
+\end{mathbox}
+
+\section{Shape prerequisites summary}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+Function family & Required shape or condition \\
+\midrule
+\code{operator+}, \code{operator-}, \code{operator==}, \code{shape_comp} & Same dimensions \\
+\code{operator*(matrix)} & Left columns = right rows \\
+\code{det}, \code{minor}, \code{cofactor}, \code{adjoint}, \code{inverse} & Square matrix \\
+\code{solve} & Augmented matrix of shape \(n \times (n+1)\) \\
+\code{free_variable} & Current implementation expects a square coefficient matrix \\
+\code{char_poly} & Mathematically intended for square matrices \\
+\bottomrule
+\end{tabularx}
+
+\chapter{Engineering Structure and Maintenance Notes}
+
+\section{Header organization}
+\begin{itemize}
+    \item \code{matrix.hpp} centralizes both the class interface and several free functions.
+    \item \code{transforms.hpp} keeps geometry-related factories separate from algebraic routines.
+    \item \code{linalg.hpp} provides one include point for consumers who want the entire API.
+\end{itemize}
+
+\section{Implementation organization}
+The implementation is split by responsibility:
+\begin{itemize}
+    \item \code{src/matrix.cpp} handles the heavy mathematical work,
+    \item \code{src/transforms.cpp} stays focused on transformation matrix construction,
+    \item \code{src/vector_utils.cpp} contains the one auxiliary comparison helper.
+\end{itemize}
+
+\section{Mutability policy}
+One of the main design ideas in ELDA is the distinction between:
+\begin{itemize}
+    \item operations that conceptually create a new matrix, such as \(A+B\), \(A^\top\), or \(A^{-1}\),
+    \item operations that conceptually reduce a matrix in place, such as Gaussian elimination.
+\end{itemize}
+This policy keeps the user-facing code readable, but maintainers should be explicit in documentation about which functions mutate state.
+
+\section{Starter checklist for contributors}
+\begin{enumerate}[label=\arabic*.]
+    \item Build the project with CMake and run the demo executable.
+    \item Read \code{include/elda/matrix.hpp} and map each declaration to its implementation in \code{src/matrix.cpp}.
+    \item Test shape preconditions before extending any algorithm.
+    \item For numerically sensitive features, prefer tolerance-based comparisons over exact floating-point equality.
+    \item Keep mathematics and naming aligned: if a helper is library-specific rather than standard, document that fact clearly.
+\end{enumerate}
+
+\appendix
+
+\chapter{Quick Reference}
+
+\section{Public API map}
+\begin{longtable}{@{}p{0.28\textwidth}p{0.28\textwidth}p{0.34\textwidth}@{}}
+\toprule
+Function or helper & Main mathematical idea & Short usage note \\
+\midrule
+\endhead
+\code{matrix()}, \code{matrix(r,c)} & Zero matrix construction & Allocates a matrix of the requested shape. \\
+\code{get_element}, \code{ref_element} & Coordinate selection & Direct access to one entry. \\
+\code{operator+}, \code{operator-} & Entrywise vector space operations & Requires equal shapes. \\
+\code{operator*(double)} & Scalar multiplication & Multiplies every entry by the scalar. \\
+\code{operator*(matrix)} & Composition of linear maps & Requires matching inner dimension. \\
+\code{row_op}, \code{row_swap}, \code{row_multi} & Elementary row operations & Basis of elimination routines. \\
+\code{col_op}, \code{col_swap}, \code{col_multi} & Elementary column operations & Useful for canonical forms. \\
+\code{echelon}, \code{gaussian}, \code{gauss_jordan} & Elimination & Mutates the matrix in place. \\
+\code{canonical} & Mixed row/column reduction & Produces a more diagonalized pattern. \\
+\code{rank} & Dimension of row space & Counts nonzero rows after elimination. \\
+\code{free_variable} & Rank-nullity on square systems & Returns \(n-\rankop(A)\). \\
+\code{trace} & Sum of diagonal & Spectral invariant for square matrices. \\
+\code{diag_product} & Product of diagonal & Equals determinant for triangular matrices. \\
+\code{det} & Signed volume scaling & Computed through elimination. \\
+\code{minor}, \code{cofactor}, \code{adjoint} & Cofactor expansion machinery & Defined for square matrices. \\
+\code{transpose} & Reflection across the main diagonal & Swaps rows and columns. \\
+\code{inverse} & Undoing a linear map & Uses Gauss-Jordan elimination. \\
+\code{solve} & Solve \(Ax=b\) & Input must be an augmented matrix. \\
+\code{norm}, \code{inner_product}, \code{angle} & Frobenius geometry & Treats matrices as vectors in entry space. \\
+\code{matpow} & Fast repeated multiplication & Uses exponentiation by squaring. \\
+\code{char_poly} & Characteristic polynomial coefficients & Uses Faddeev-LeVerrier recurrence. \\
+\code{check_ortho} & Orthogonality test & Checks \(A^{-1}=A^\top\). \\
+\code{check_unitary} & Legacy project helper & Not a standard unitary predicate. \\
+\code{shift}, \code{scale}, \code{rotate}, \code{rot_x}, \code{rot_y}, \code{rot_z} & Homogeneous transforms & Angles are in radians. \\
+\code{check_similar} & Zero-row filtered comparison & Library-specific behavior. \\
+\bottomrule
+\end{longtable}
+
+\chapter{Build This Booklet}
+
+\section{Command line}
+From the repository root, run:
+
+\begin{lstlisting}[style=eldaCpp]
+make -C docs pdf
+\end{lstlisting}
+
+The generated PDF is placed in \code{docs/build/elda_booklet.pdf}.
+
+\section{Why this format works well}
+LaTeX is a strong fit for mathematical library documentation because it combines precise equations, technical prose, code listings, page structure, and stable PDF output in one source format. That makes it appropriate for a library like \ELDA{}, where understanding the theory behind each function is part of understanding the software.
+
+\backmatter
+
+\chapter*{Closing Note}
+\addcontentsline{toc}{chapter}{Closing Note}
+The strongest documentation for a numerical library is documentation that respects both mathematics and code. ELDA already has a coherent educational core: matrices, elimination, determinants, inverses, and transforms. This booklet formalizes that core into a reference that can support further work, testing, refactoring, and extension.
+
+\end{document}
