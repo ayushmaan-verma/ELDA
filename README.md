@@ -10,9 +10,10 @@ The public headers live under `include/elda/`. The library target is `elda`, and
 - Matrix addition, subtraction, multiplication, and scalar multiplication
 - Elementary row and column operations
 - Gaussian, Gauss-Jordan, echelon, and canonical-style reduction helpers
-- Determinant, inverse, transpose, adjoint, rank, norm, and characteristic polynomial helpers
+- Determinant, inverse, transpose, adjoint, rank, norm, characteristic polynomial, QR decomposition, and eigenvalue helpers
 - 2D and 3D homogeneous transformation matrix builders
-- `vec1` through `vec5` helpers for constructing column vectors
+- `vec1` through `vec5` helpers for constructing zero or value-filled column vectors
+- `check_lin_comb` overloads for span-membership checks on small column-vector sets
 - Near-zero floating-point cleanup through `fpg()`
 
 ## Repository Layout
@@ -62,7 +63,7 @@ This produces:
 ./build/main
 ```
 
-The demo constructs the homogeneous point `vec4(1, 0, 0, 1)`, applies `rot_y(PI / 2)`, and prints the rotated result.
+The demo constructs a sample `3 x 3` matrix, prints it, and then prints the eigenvalue estimates returned by `matrix::eigenvalues()`.
 
 ## Use the Library
 
@@ -90,7 +91,7 @@ target_link_libraries(your_target PRIVATE elda)
 
 - `matrix.hpp`: the `linalg::matrix` type plus most linear-algebra helpers
 - `transforms.hpp`: 2D and 3D homogeneous translation, scaling, and rotation matrices
-- `vector_utils.hpp`: `vec1`, `vec2`, `vec3`, `vec4`, and `vec5` column-vector constructors
+- `vector_utils.hpp`: `vec1`-`vec5` column-vector constructors and `check_lin_comb` helpers
 - `linalg.hpp`: umbrella header that includes all public headers
 
 ## Behavior Notes
@@ -101,6 +102,7 @@ target_link_libraries(your_target PRIVATE elda)
 - Most dimension mismatches are reported with `std::runtime_error`.
 - Angles are interpreted in radians.
 - `trace()` is defined only for square matrices.
+- `eigenvalues()` is defined only for square matrices and throws on non-square input.
 - `EPS` is `1e-6`, and `fpg()` zeros values whose absolute value is at most that threshold.
 - Several low-level helpers assume valid indices and do not perform bounds checking.
 

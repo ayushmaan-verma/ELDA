@@ -111,12 +111,35 @@ namespace linalg {
         matrix inverse();
         /// Solves an `N x (N + 1)` augmented system and returns the solution column.
         matrix solve();
+        /// Orthogonalizes the columns with Gram-Schmidt.
+        matrix orthogonalize();
+        /// Orthonormalizes the columns with Gram-Schmidt.
+        matrix orthonormalize();
+        /// Returns the Q factor from QR decomposition.
+        matrix qr_decomp_q();
+        /// Returns the R factor from QR decomposition.
+        matrix qr_decomp_r();
         /// Returns a matrix containing row `r` and zeros elsewhere.
         matrix get_row(int r);
         /// Returns a matrix containing column `c` and zeros elsewhere.
         matrix get_col(int c);
+        /// Returns row `r` as a 1 x col vector.
+        matrix get_row_vec(int r);
+        /// Returns column `c` as a row x 1 vector.
+        matrix get_col_vec(int c);
+        /// Replaces row `r` with the first row of `rw`.
+        void replace_row(int r, matrix rw);
+        /// Replaces column `c` with the first column of `cn`.
+        void replace_col(int c, matrix cn);
         /// Returns the characteristic polynomial coefficients as a row vector.
         matrix char_poly();
+        /// Approximates eigenvalues of a square matrix via unshifted QR iteration.
+        /// Returns the diagonal of the converged iterate as a `row x 1` column vector.
+        matrix eigenvalues();
+        /// Returns true when all strictly lower-triangular entries are exactly zero.
+        bool check_upper_tri();
+        /// Returns true when all strictly upper-triangular entries are exactly zero.
+        bool check_lower_tri();
         /// Returns the Frobenius norm.
         double norm();
     };
@@ -130,7 +153,7 @@ namespace linalg {
     matrix identity(int n);
     /// Normalizes `-0` entries that can appear after elimination.
     void neg_zero(matrix &m);
-    /// Zeros entries whose absolute value is smaller than `EPS`.
+    /// Zeros entries whose absolute value is at most `EPS` (floating-point cleanup).
     void fpg(matrix &m);
     /// Raises a matrix to a non-negative integer power.
     matrix matpow(matrix mat, long long expo);

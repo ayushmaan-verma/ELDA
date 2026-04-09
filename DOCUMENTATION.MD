@@ -26,7 +26,7 @@ Run the demo:
 ./build/main
 ```
 
-The current demo builds a homogeneous 3D point with `vec4(1, 0, 0, 1)`, rotates it with `rot_y(PI / 2)`, and prints the resulting column vector.
+The current demo builds a sample `3 x 3` matrix, prints it, and then prints the eigenvalue estimates returned by `matrix::eigenvalues()`.
 
 Build the LaTeX booklet:
 
@@ -184,6 +184,10 @@ Member functions:
 - `matrix solve()`
 - `matrix get_row(int r)`
 - `matrix get_col(int c)`
+- `matrix get_row_vec(int r)`
+- `matrix get_col_vec(int c)`
+- `void replace_row(int r, matrix rw)`
+- `void replace_col(int c, matrix cn)`
 - `matrix char_poly()`
 - `double norm()`
 
@@ -196,6 +200,10 @@ Behavior notes:
 - `solve()` requires an augmented matrix of shape `N x (N + 1)` and returns an `N x 1` solution vector.
 - `get_row(r)` returns a matrix with row `r` preserved and zeros elsewhere.
 - `get_col(c)` returns a matrix with column `c` preserved and zeros elsewhere.
+- `get_row_vec(r)` returns a `1 x col` row vector copy of row `r`.
+- `get_col_vec(c)` returns a `row x 1` column vector copy of column `c`.
+- `replace_row(r, rw)` copies the first row of `rw` into row `r`.
+- `replace_col(c, cn)` copies the first column of `cn` into column `c`.
 - `norm()` computes the Frobenius norm.
 - `char_poly()` returns a `1 x (n + 1)` row vector of characteristic-polynomial coefficients using the Leverrier-Faddeev recurrence.
 - `adjoint()`, `inverse()`, and `solve()` normalize near-zero values with `fpg()`.
@@ -212,6 +220,26 @@ matrix t = m.transpose();
 matrix inv = m.inverse();
 matrix coeffs = m.char_poly();
 ```
+
+## Matrix Decompositions and Spectral Helpers
+
+Member functions:
+
+- `matrix orthogonalize()`
+- `matrix orthonormalize()`
+- `matrix qr_decomp_q()`
+- `matrix qr_decomp_r()`
+- `matrix eigenvalues()`
+- `bool check_upper_tri()`
+- `bool check_lower_tri()`
+
+Behavior notes:
+
+- `orthogonalize()` applies Gram-Schmidt to the matrix columns and returns orthogonal columns.
+- `orthonormalize()` applies Gram-Schmidt and normalizes each output column.
+- `qr_decomp_q()` returns the orthonormal `Q` factor, and `qr_decomp_r()` returns the corresponding upper-triangular `R` factor.
+- `eigenvalues()` requires a square matrix, uses unshifted QR iteration, stops when the iterate becomes upper triangular, and returns the diagonal entries as a `row x 1` column vector.
+- `check_upper_tri()` and `check_lower_tri()` use exact zero comparisons on strictly triangular entries, so `fpg()` can help when floating-point noise is present.
 
 ## Matrix Power and Geometric Helpers
 
@@ -266,23 +294,31 @@ matrix yaw = rot_y(PI / 6);
 
 Declared in `vector_utils.hpp`:
 
+- `matrix vec1()`, `matrix vec2()`, `matrix vec3()`, `matrix vec4()`, `matrix vec5()`
 - `matrix vec1(double x)`
 - `matrix vec2(double x, double y)`
 - `matrix vec3(double x, double y, double z)`
 - `matrix vec4(double x, double y, double z, double w)`
 - `matrix vec5(double x, double y, double z, double w, double u)`
+- `bool check_lin_comb(matrix m1, matrix m2)`
+- `bool check_lin_comb(matrix m1, matrix m2, matrix m3)`
+- `bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4)`
+- `bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5)`
 
 Current behavior:
 
-- each helper returns an `N x 1` column matrix
-- entries are filled from top to bottom with the supplied arguments
-- these helpers are convenient for vectors and homogeneous coordinates
+- `vecN()` overloads return zero-initialized `N x 1` column vectors.
+- `vecN(args...)` overloads return `N x 1` vectors filled top-to-bottom with the provided entries.
+- `check_lin_comb(...)` tests whether the last argument belongs to the span of earlier arguments using a rank comparison.
+- These helpers are convenient for vectors and homogeneous coordinates.
+- `check_lin_comb(...)` assumes inputs are compatible column vectors and does not perform explicit shape validation.
 
 Example:
 
 ```cpp
 matrix point = vec4(1.0, 0.0, 0.0, 1.0);
 matrix rotated = rot_y(PI / 2) * point;
+bool in_span = check_lin_comb(vec2(1.0, 0.0), vec2(2.0, 0.0));
 ```
 
 ## Error Handling and Limitations

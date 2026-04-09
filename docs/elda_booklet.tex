@@ -30,7 +30,7 @@
     urlcolor=eldaBlue,
     citecolor=eldaBlue,
     pdftitle={ELDA Linear Algebra Library Booklet},
-    pdfauthor={Codex for the ELDA project}
+    pdfauthor={Ayushmaan Kumar Verma}
 }
 
 \pdfstringdefDisableCommands{%
@@ -149,7 +149,10 @@
         \end{techbox}
     \end{minipage}
     \vfill
-    {\large Prepared for the project repository}\\[0.2cm]
+    {\large Prepared for the project repository}\\[0.15cm]
+    {\large Ayushmaan Kumar Verma}\\[0.08cm]
+    {\normalsize Department of Mathematics and Computing Technology}\\[0.08cm]
+    {\normalsize NIT Patna}\\[0.2cm]
     {\large \today}
 \end{titlepage}
 
@@ -177,7 +180,7 @@ At its core, \ELDA{} provides a \code{linalg::matrix} type whose entries are sto
 \begin{itemize}
     \item \code{elda/matrix.hpp}: the matrix type and core algebraic routines,
     \item \code{elda/transforms.hpp}: 2D and 3D homogeneous transformation matrices,
-    \item \code{elda/vector_utils.hpp}: one library-specific comparison helper.
+    \item \code{elda/vector_utils.hpp}: vector constructors (\code{vec1} to \code{vec5}) and linear-combination checks.
 \end{itemize}
 
 \begin{techbox}[Project Layout]
@@ -188,12 +191,12 @@ Path & Purpose \\
 \code{CMakeLists.txt} & Defines the static library target \code{elda} and the demo executable \code{main}. \\
 \code{include/elda/matrix.hpp} & Public declaration of the matrix type and most free functions. \\
 \code{include/elda/transforms.hpp} & Public declaration of 2D and 3D transform helpers. \\
-\code{include/elda/vector_utils.hpp} & Public declaration of \code{check_similar}. \\
+\code{include/elda/vector_utils.hpp} & Public declaration of \code{vec1}-\code{vec5} constructors and \code{check_lin_comb} overloads. \\
 \code{include/elda/linalg.hpp} & Umbrella header that includes the whole public API. \\
 \code{src/matrix.cpp} & Implementation of matrix arithmetic, elimination, determinant, inverse, and spectral helpers. \\
 \code{src/transforms.cpp} & Implementation of translation, scaling, and rotation matrices. \\
-\code{src/vector_utils.cpp} & Implementation of the zero-row filtered comparison utility. \\
-\code{main.cpp} & Small demo program that constructs a matrix, runs Gaussian elimination, and prints the result. \\
+\code{src/vector_utils.cpp} & Implementation of vector constructors and span-membership helpers. \\
+\code{main.cpp} & Small demo program that prints a sample matrix and its eigenvalue estimates. \\
 \bottomrule
 \end{tabularx}
 \end{techbox}
@@ -1470,39 +1473,39 @@ Matrix multiplication composes transformations from right to left when column ve
 
 \chapter{Library-Specific Utilities and Numerical Notes}
 
-\section{\code{check_similar(matrix mat1, matrix mat2)}}
-This helper is specific to ELDA. It removes all-zero rows from each matrix and then compares the remaining row sequences exactly.
+\section{\code{vec1()} to \code{vec5()} and value overloads}
+The vector utility module provides convenience constructors for small column vectors:
+\begin{itemize}
+    \item zero-initialized constructors: \code{vec1()}, \code{vec2()}, \code{vec3()}, \code{vec4()}, \code{vec5()},
+    \item value constructors: \code{vec1(x)}, \code{vec2(x,y)}, \ldots, \code{vec5(x,y,z,w,u)}.
+\end{itemize}
+Each helper returns an \(n \times 1\) matrix, so vectors can be used directly with matrix multiplication and transformation helpers.
 
-\begin{techbox}[Not the standard notion of matrix similarity]
-In mathematics, two square matrices \(A\) and \(B\) are called similar if there exists an invertible matrix \(P\) such that
-\[
-B = P^{-1}AP.
-\]
-ELDA's \code{check_similar()} does \emph{not} test that condition.
+\begin{examplebox}[Example]
+\begin{lstlisting}[style=eldaCpp]
+matrix point = vec4(1.0, 0.0, 0.0, 1.0);
+matrix zero3 = vec3();
+\end{lstlisting}
+\end{examplebox}
+
+\section{\code{check_lin_comb(...)}}
+The \code{check_lin_comb} overloads test whether the last input vector lies in the span of earlier vectors.
+For example:
+\begin{itemize}
+    \item \code{check_lin_comb(m1, m2)} tests whether \(m_2 \in \text{span}\{m_1\}\),
+    \item \code{check_lin_comb(m1, m2, m3)} tests whether \(m_3 \in \text{span}\{m_1,m_2\}\), and so on up to five vectors.
+\end{itemize}
+The implementation uses a rank comparison of column-assembled matrices.
+
+\begin{techbox}[Input expectations]
+These overloads are intended for compatible column vectors and do not perform explicit shape validation.
 \end{techbox}
 
 \begin{examplebox}[Example]
-If
-\[
-A =
-\begin{bmatrix}
-1 & 2 \\
-0 & 0 \\
-3 & 4
-\end{bmatrix},
-\qquad
-B =
-\begin{bmatrix}
-1 & 2 \\
-3 & 4 \\
-0 & 0
-\end{bmatrix},
-\]
-then both reduce to the row list
-\[
-\{[1,2], [3,4]\},
-\]
-so the helper returns \code{true}.
+\begin{lstlisting}[style=eldaCpp]
+bool in_span = check_lin_comb(vec2(1.0, 0.0), vec2(2.0, 0.0));
+\end{lstlisting}
+The result is \code{true} because \((2,0)^\top = 2(1,0)^\top\).
 \end{examplebox}
 
 \section{\code{neg_zero(matrix\& m)}}
@@ -1512,15 +1515,15 @@ This is a display cleanup helper that replaces \(-0\) with \(0\). The mathematic
 The header defines two public constants:
 \begin{itemize}
     \item \code{PI = 3.141593}, used naturally in trigonometric transform examples,
-    \item \code{EPS = 1e-9}, intended as a floating-point tolerance constant.
+    \item \code{EPS = 1e-6}, used as the near-zero threshold in \code{fpg()}.
 \end{itemize}
-At present, \code{EPS} is more of a reserved utility constant than a value consistently used across all comparisons.
+The cleanup helper \code{fpg()} maps entries with \(|x| \le \code{EPS}\) to zero.
 
 \section{Numerical caveats}
 The current library uses exact comparisons against zero in several places. That is simple and readable, but in floating-point numerical linear algebra it can be fragile.
 
 \begin{mathbox}[Practical warning]
-If a pivot is extremely small rather than exactly zero, elimination without tolerance checks can amplify roundoff error. The header defines \code{EPS = 1e-9}, but the current implementation does not consistently use it for pivot tests or equality checks.
+If a pivot is extremely small rather than exactly zero, elimination without tolerance checks can amplify roundoff error. \code{EPS} is used by \code{fpg()} for cleanup, but many algorithmic branch checks still use exact comparisons.
 \end{mathbox}
 
 \section{Shape prerequisites summary}
@@ -1531,6 +1534,7 @@ Function family & Required shape or condition \\
 \code{operator+}, \code{operator-}, \code{operator==}, \code{shape_comp} & Same dimensions \\
 \code{operator*(matrix)} & Left columns = right rows \\
 \code{det}, \code{minor}, \code{cofactor}, \code{adjoint}, \code{inverse} & Square matrix \\
+\code{eigenvalues} & Square matrix \\
 \code{solve} & Augmented matrix of shape \(n \times (n+1)\) \\
 \code{free_variable} & Current implementation expects a square coefficient matrix \\
 \code{char_poly} & Mathematically intended for square matrices \\
@@ -1551,7 +1555,7 @@ The implementation is split by responsibility:
 \begin{itemize}
     \item \code{src/matrix.cpp} handles the heavy mathematical work,
     \item \code{src/transforms.cpp} stays focused on transformation matrix construction,
-    \item \code{src/vector_utils.cpp} contains the one auxiliary comparison helper.
+    \item \code{src/vector_utils.cpp} contains small vector constructors and linear-combination helpers.
 \end{itemize}
 
 \section{Mutability policy}
@@ -1602,10 +1606,16 @@ Function or helper & Main mathematical idea & Short usage note \\
 \code{norm}, \code{inner_product}, \code{angle} & Frobenius geometry & Treats matrices as vectors in entry space. \\
 \code{matpow} & Fast repeated multiplication & Uses exponentiation by squaring. \\
 \code{char_poly} & Characteristic polynomial coefficients & Uses Faddeev-LeVerrier recurrence. \\
+\code{orthogonalize}, \code{orthonormalize} & Gram-Schmidt process & Returns orthogonal/orthonormal column sets. \\
+\code{qr_decomp_q}, \code{qr_decomp_r} & QR decomposition & Returns \(Q\) and \(R\) factors. \\
+\code{eigenvalues} & Unshifted QR iteration & Square matrices only; returns diagonal estimates as a column vector. \\
+\code{check_upper_tri}, \code{check_lower_tri} & Triangular structure tests & Exact checks on strict triangular entries. \\
 \code{check_ortho} & Orthogonality test & Checks \(A^{-1}=A^\top\). \\
 \code{check_unitary} & Legacy project helper & Not a standard unitary predicate. \\
 \code{shift}, \code{scale}, \code{rotate}, \code{rot_x}, \code{rot_y}, \code{rot_z} & Homogeneous transforms & Angles are in radians. \\
-\code{check_similar} & Zero-row filtered comparison & Library-specific behavior. \\
+\code{vec1} to \code{vec5} & Small vector constructors & Creates \(n \times 1\) column vectors. \\
+\code{check_lin_comb} & Span-membership check & Tests whether the last vector is a combination of earlier vectors. \\
+\code{fpg} & Floating-point cleanup & Sets entries with \(|x| \le \code{EPS}\) to zero. \\
 \bottomrule
 \end{longtable}
 

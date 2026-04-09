@@ -127,6 +127,30 @@ namespace linalg {
         return cn;
     }
 
+    matrix matrix::get_row_vec(int r) {
+        matrix rw(1,col);
+        rw.arr[0] = arr[r];
+        return rw;
+    }
+
+    matrix matrix::get_col_vec(int c) {
+        matrix cn(row,1);
+        for (int i=0;i<row;i++) {
+            cn.arr[i][0] = arr[i][c];
+        }
+        return cn;
+    }
+
+    void matrix::replace_row(int r, matrix rw) {
+        arr[r] = rw.arr[0];
+    }
+
+    void matrix::replace_col(int c, matrix cn) {
+        for (int i=0;i<row;i++) {
+            arr[i][c] = cn.arr[i][0];
+        }
+    }
+
     matrix matrix::row_op(int i, double coeff, int j) {
         matrix m(*this);
         for (int k=0;k<col;k++) {
@@ -438,6 +462,72 @@ namespace linalg {
         return solution;
     }
 
+    matrix matrix::orthogonalize() {
+        matrix ot (row,col);
+        matrix v = get_col_vec(0);
+        matrix w = v;
+        for (int i=0;i<col;i++) {
+            ot.replace_col(i,w);
+            v = get_col_vec(i+1);
+            for (int j=0;j<i+1;j++) {
+                v = v - ot.get_col_vec(j)*(inner_product(v,ot.get_col_vec(j))/inner_product(ot.get_col_vec(j),ot.get_col_vec(j)));
+            }
+            w = v;
+        }
+        return ot;
+    }
+
+    matrix matrix::orthonormalize() {
+        matrix ot (row,col);
+        matrix v = get_col_vec(0);
+        matrix w = v*(1/v.norm());
+        for (int i=0;i<col;i++) {
+            ot.replace_col(i,w);
+            v = get_col_vec(i+1);
+            for (int j=0;j<i+1;j++) {
+                v = v - ot.get_col_vec(j)*(inner_product(v,ot.get_col_vec(j))/inner_product(ot.get_col_vec(j),ot.get_col_vec(j)));
+            }
+            w = v*(1/v.norm());
+        }
+        return ot;
+    }
+    matrix matrix::qr_decomp_q() {
+        return orthonormalize();
+    }
+    matrix matrix::qr_decomp_r() {
+        matrix r(col,col);
+        matrix q = qr_decomp_q();
+        for (int k=0;k<col;k++) {
+            matrix a_k = this->get_col_vec(k);
+            for (int i=0;i<=k;i++) {
+                matrix q_i_t = (q.get_col_vec(i)).transpose();
+                *r.ref_element(i,k) = (q_i_t*a_k).get_element(0,0);
+            }
+        }
+        return r;
+    }
+    bool matrix::check_upper_tri() {
+        // Check the strictly lower-triangular part.
+        for (int j=0;j<col;j++) {
+            for (int i=j+1;i<row;i++) {
+                if (get_element(i,j)!=0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    bool matrix::check_lower_tri() {
+        // Check the strictly upper-triangular part.
+        for (int i=0;i<row;i++) {
+            for (int j=i+1;j<col;j++) {
+                if (get_element(i,j)!=0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     int matrix::free_variable() {
         if (col != row) {
             throw std::runtime_error("The dimension of Coefficient Matrix must be N x N.");
@@ -509,7 +599,30 @@ namespace linalg {
         return poly;
     }
 
+    matrix matrix::eigenvalues() {
+        if (this->row != this->col) {
+            throw std::runtime_error("Eigenvalues are defined only for square matrix.");
+        }
+        matrix m(*this);
+        matrix q = m.qr_decomp_q();
+        matrix r = m.qr_decomp_r();
+        // Repeated QR steps push the matrix toward upper-triangular form.
+        while (!(m.check_upper_tri())) {
+            m = r*q;
+            q = m.qr_decomp_q();
+            r = m.qr_decomp_r();
+            fpg(m);
+        }
+        // The diagonal entries of the converged iterate are the eigenvalue estimates.
+        matrix eigen(row,1);
+        for (int i=0;i<row;i++) {
+            *eigen.ref_element(i,0) = m.get_element(i,i);
+        }
+        return eigen;
+    }
+
     void fpg(matrix &m) {
+        // Snap tiny values to zero to avoid floating-point residue.
         for (int i=0;i<m.row;i++) {
             for (int j=0;j<m.col;j++) {
                 if (std::abs(m.get_element(i,j)) <= EPS) {
