@@ -45,6 +45,7 @@ namespace linalg {
                 arr[i][j] = m2.arr[i][j];
             }
         }
+        fpg(*this);
         return *this;
     }
     matrix matrix::operator + (matrix m2) {
@@ -57,6 +58,7 @@ namespace linalg {
                 m3.arr[i][j] = this->arr[i][j] + m2.arr[i][j];
             }
         }
+        fpg(m3);
         return m3;
     }
     matrix matrix::operator - (matrix m2) {
@@ -69,6 +71,7 @@ namespace linalg {
                 m3.arr[i][j] = this->arr[i][j] - m2.arr[i][j];
             }
         }
+        fpg(m3);
         return m3;
     }
     matrix matrix::operator * (matrix m2) {
@@ -83,6 +86,7 @@ namespace linalg {
                 }
             }
         }
+        fpg(m3);
         return m3;
     }
     matrix matrix::operator * (double d) {
@@ -92,6 +96,7 @@ namespace linalg {
                 m3.arr[i][j] *= d;
             }
         }
+        fpg(m3);
         return m3;
     }
 
@@ -127,6 +132,7 @@ namespace linalg {
         for (int k=0;k<col;k++) {
             m.arr[i][k] += coeff*arr[j][k];
         }
+        fpg(m);
         return m;
     }
     matrix matrix::col_op(int i, double coeff, int j) {
@@ -134,12 +140,14 @@ namespace linalg {
         for (int k=0;k<row;k++) {
             m.arr[k][i] += coeff*m.arr[k][j];
         }
+        fpg(m);
         return m;
     }
 
     matrix matrix::row_swap(int i, int j) {
         matrix m (*this);
         swap(m.arr[i],m.arr[j]);
+        fpg(m);
         return m;
     }
     matrix matrix::col_swap(int i, int j) {
@@ -147,6 +155,7 @@ namespace linalg {
         for (int k=0;k<row;k++) {
             std::swap(m.arr[k][i],m.arr[k][j]);
         }
+        fpg(m);
         return m;
     }
 
@@ -155,6 +164,7 @@ namespace linalg {
         for (int k=0;k<col;k++) {
             m.arr[i][k] *= factor;
         }
+        fpg(m);
         return m;
     }
     matrix matrix::col_multi(int i, double factor) {
@@ -162,10 +172,14 @@ namespace linalg {
         for (int k=0;k<row;k++) {
             m.arr[k][i] *= factor;
         }
+        fpg(m);
         return m;
     }
 
     double matrix::trace() {
+        if (row != col) {
+            throw std::runtime_error("Trace is defined only for square matrix.");
+        }
         double sum = 0;
         for (int i = 0; i < std::min(row,col); i++) {
             sum += arr[i][i];
@@ -206,6 +220,7 @@ namespace linalg {
             }
         }
         neg_zero(*this);
+        fpg(*this);
         return swaps;
     }
 
@@ -235,6 +250,7 @@ namespace linalg {
             }
         }
         neg_zero(*this);
+        fpg(*this);
         return swaps;
     }
 
@@ -247,6 +263,7 @@ namespace linalg {
                 *this = row_op(i,-multiplier,k);
             }
         }
+        fpg(*this);
         return swaps;
     }
 
@@ -258,6 +275,7 @@ namespace linalg {
                 *this = col_op(j,-multiplier,k);
             }
         }
+        fpg(*this);
         return swaps;
     }
 
@@ -328,6 +346,7 @@ namespace linalg {
                 adj.arr[i][j] = m.cofactor(i,j);
             }
         }
+        fpg(adj);
         return adj.transpose();
     }
 
@@ -394,6 +413,8 @@ namespace linalg {
             }
         }
 
+        neg_zero(inv);
+        fpg(inv);
         return inv;
     }
 
@@ -413,6 +434,7 @@ namespace linalg {
             solution.arr[i][0] = mat.arr[i][row] - subtractor;
             subtractor = 0;
         }
+        fpg(solution);
         return solution;
     }
 
@@ -485,6 +507,16 @@ namespace linalg {
             b_k_1 = b_k;
         }
         return poly;
+    }
+
+    void fpg(matrix &m) {
+        for (int i=0;i<m.row;i++) {
+            for (int j=0;j<m.col;j++) {
+                if (std::abs(m.get_element(i,j)) <= EPS) {
+                    *m.ref_element(i,j) = 0;
+                }
+            }
+        }
     }
 
 }

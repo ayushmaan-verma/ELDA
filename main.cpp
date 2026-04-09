@@ -1,9 +1,8 @@
-#include <elda/matrix.hpp>
+#include <elda/linalg.hpp>
 using namespace linalg;
 using namespace std;
 int main() {
-    matrix m (3,3);
-    m.arr = {{3,4,5},{6,7,8},{8,2,3}};
-    m.gaussian();
-    m.print();
+    matrix m = vec4(1,0,0,1);
+    matrix rot = rot_y(PI/2);
+    (rot*m).print();
 }

@@ -1,0 +1,93 @@
+\contentsline {chapter}{Preface}{i}{chapter*.1}%
+\contentsline {chapter}{\numberline {1}Library Overview and Starter Guide}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}What ELDA provides}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Build the project}{1}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Minimal usage example}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Who this booklet is for}{2}{section.1.4}%
+\contentsline {chapter}{\numberline {2}Mathematical and Technical Foundations}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Notation used in this booklet}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Dense storage model}{3}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Mutating versus non-mutating operations}{3}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Core linear algebra ideas}{4}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Elementary row operations}{4}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Homogeneous coordinates}{4}{subsection.2.4.2}%
+\contentsline {chapter}{\numberline {3}Matrix Type, Constructors, and Basic API}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Constructors}{5}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}\code {matrix()}}{5}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}\code {matrix(int r, int c)}}{5}{subsection.3.1.2}%
+\contentsline {section}{\numberline {3.2}Element access and I/O}{6}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}\code {get_element(i, j)}}{6}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}\code {ref_element(i, j)}}{6}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}\code {input()}}{6}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}\code {print()}}{6}{subsection.3.2.4}%
+\contentsline {section}{\numberline {3.3}Assignment and comparisons}{6}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}\code {operator=(matrix m2)}}{6}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}\code {operator==(matrix m1, matrix m2)}}{7}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}\code {shape_comp(matrix m1, matrix m2)}}{7}{subsection.3.3.3}%
+\contentsline {section}{\numberline {3.4}Identity and structure helpers}{7}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}\code {identity(int n)}}{7}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}\code {get_row(int r)}}{7}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}\code {get_col(int c)}}{8}{subsection.3.4.3}%
+\contentsline {chapter}{\numberline {4}Arithmetic Operations}{9}{chapter.4}%
+\contentsline {section}{\numberline {4.1}\code {operator+(matrix m2)}}{9}{section.4.1}%
+\contentsline {section}{\numberline {4.2}\code {operator-(matrix m2)}}{9}{section.4.2}%
+\contentsline {section}{\numberline {4.3}\code {operator*(double d)}}{9}{section.4.3}%
+\contentsline {section}{\numberline {4.4}\code {operator*(matrix m2)}}{10}{section.4.4}%
+\contentsline {chapter}{\numberline {5}Elementary Row and Column Operations}{11}{chapter.5}%
+\contentsline {section}{\numberline {5.1}\code {row_op(int i, double coeff, int j)}}{11}{section.5.1}%
+\contentsline {section}{\numberline {5.2}\code {col_op(int i, double coeff, int j)}}{11}{section.5.2}%
+\contentsline {section}{\numberline {5.3}\code {row_swap(int i, int j)} and \code {col_swap(int i, int j)}}{12}{section.5.3}%
+\contentsline {section}{\numberline {5.4}\code {row_multi(int i, double factor)} and \code {col_multi(int i, double factor)}}{12}{section.5.4}%
+\contentsline {chapter}{\numberline {6}Elimination, Rank, and Linear Systems}{13}{chapter.6}%
+\contentsline {section}{\numberline {6.1}\code {echelon()}}{13}{section.6.1}%
+\contentsline {section}{\numberline {6.2}\code {gaussian()}}{13}{section.6.2}%
+\contentsline {section}{\numberline {6.3}\code {gauss_jordan()}}{14}{section.6.3}%
+\contentsline {section}{\numberline {6.4}\code {canonical()}}{15}{section.6.4}%
+\contentsline {section}{\numberline {6.5}\code {rank()}}{15}{section.6.5}%
+\contentsline {section}{\numberline {6.6}\code {free_variable()}}{15}{section.6.6}%
+\contentsline {section}{\numberline {6.7}\code {solve()}}{16}{section.6.7}%
+\contentsline {chapter}{\numberline {7}Determinants, Cofactors, and Inverses}{17}{chapter.7}%
+\contentsline {section}{\numberline {7.1}\code {trace()}}{17}{section.7.1}%
+\contentsline {section}{\numberline {7.2}\code {diag_product()}}{17}{section.7.2}%
+\contentsline {section}{\numberline {7.3}\code {det()}}{17}{section.7.3}%
+\contentsline {section}{\numberline {7.4}\code {minor(int x, int y)}}{18}{section.7.4}%
+\contentsline {section}{\numberline {7.5}\code {cofactor(int x, int y)}}{18}{section.7.5}%
+\contentsline {section}{\numberline {7.6}\code {adjoint()}}{19}{section.7.6}%
+\contentsline {section}{\numberline {7.7}\code {transpose()}}{19}{section.7.7}%
+\contentsline {section}{\numberline {7.8}\code {inverse()}}{19}{section.7.8}%
+\contentsline {chapter}{\numberline {8}Norms, Inner Products, Matrix Powers, and Characteristic Polynomials}{21}{chapter.8}%
+\contentsline {section}{\numberline {8.1}\code {norm()}}{21}{section.8.1}%
+\contentsline {section}{\numberline {8.2}\code {inner_product(matrix a, matrix b)}}{21}{section.8.2}%
+\contentsline {section}{\numberline {8.3}\code {angle(matrix a, matrix b)}}{21}{section.8.3}%
+\contentsline {section}{\numberline {8.4}\code {matpow(matrix mat, long long expo)}}{22}{section.8.4}%
+\contentsline {section}{\numberline {8.5}\code {char_poly()}}{22}{section.8.5}%
+\contentsline {section}{\numberline {8.6}\code {check_ortho(matrix mat)}}{23}{section.8.6}%
+\contentsline {section}{\numberline {8.7}\code {check_unitary(matrix mat)}}{23}{section.8.7}%
+\contentsline {chapter}{\numberline {9}Transformation Helpers}{24}{chapter.9}%
+\contentsline {section}{\numberline {9.1}2D transformation matrices}{24}{section.9.1}%
+\contentsline {subsection}{\numberline {9.1.1}\code {shift(double dx, double dy)}}{24}{subsection.9.1.1}%
+\contentsline {subsection}{\numberline {9.1.2}\code {scale(double kx, double ky)}}{24}{subsection.9.1.2}%
+\contentsline {subsection}{\numberline {9.1.3}\code {rotate(double angle)}}{24}{subsection.9.1.3}%
+\contentsline {section}{\numberline {9.2}3D transformation matrices}{25}{section.9.2}%
+\contentsline {subsection}{\numberline {9.2.1}\code {shift(double dx, double dy, double dz)}}{25}{subsection.9.2.1}%
+\contentsline {subsection}{\numberline {9.2.2}\code {scale(double kx, double ky, double kz)}}{25}{subsection.9.2.2}%
+\contentsline {subsection}{\numberline {9.2.3}\code {rot_x(double angle)}}{25}{subsection.9.2.3}%
+\contentsline {subsection}{\numberline {9.2.4}\code {rot_y(double angle)}}{25}{subsection.9.2.4}%
+\contentsline {subsection}{\numberline {9.2.5}\code {rot_z(double angle)}}{26}{subsection.9.2.5}%
+\contentsline {chapter}{\numberline {10}Library-Specific Utilities and Numerical Notes}{27}{chapter.10}%
+\contentsline {section}{\numberline {10.1}\code {check_similar(matrix mat1, matrix mat2)}}{27}{section.10.1}%
+\contentsline {section}{\numberline {10.2}\code {neg_zero(matrix\& m)}}{27}{section.10.2}%
+\contentsline {section}{\numberline {10.3}Constants}{27}{section.10.3}%
+\contentsline {section}{\numberline {10.4}Numerical caveats}{28}{section.10.4}%
+\contentsline {section}{\numberline {10.5}Shape prerequisites summary}{28}{section.10.5}%
+\contentsline {chapter}{\numberline {11}Engineering Structure and Maintenance Notes}{29}{chapter.11}%
+\contentsline {section}{\numberline {11.1}Header organization}{29}{section.11.1}%
+\contentsline {section}{\numberline {11.2}Implementation organization}{29}{section.11.2}%
+\contentsline {section}{\numberline {11.3}Mutability policy}{29}{section.11.3}%
+\contentsline {section}{\numberline {11.4}Starter checklist for contributors}{29}{section.11.4}%
+\contentsline {chapter}{\numberline {A}Quick Reference}{31}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Public API map}{31}{section.A.1}%
+\contentsline {chapter}{\numberline {B}Build This Booklet}{33}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Command line}{33}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Why this format works well}{33}{section.B.2}%
+\contentsline {chapter}{Closing Note}{34}{appendix*.3}%

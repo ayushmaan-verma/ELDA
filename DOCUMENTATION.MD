@@ -26,6 +26,8 @@ Run the demo:
 ./build/main
 ```
 
+The current demo builds a homogeneous 3D point with `vec4(1, 0, 0, 1)`, rotates it with `rot_y(PI / 2)`, and prints the resulting column vector.
+
 Build the LaTeX booklet:
 
 ```bash
@@ -67,9 +69,9 @@ Important notes:
 Declared in `matrix.hpp`:
 
 - `PI = 3.141593`
-- `EPS = 1e-9`
+- `EPS = 1e-6`
 
-`PI` is used by client code and transformation helpers. `EPS` is declared for floating-point comparisons but is not widely used by the current implementation.
+`PI` is used by client code and transformation helpers. `EPS` is the threshold used by `fpg()` to zero small floating-point artifacts.
 
 ## Arithmetic Operations
 
@@ -87,6 +89,7 @@ Behavior:
 - Addition and subtraction require identical shapes.
 - Matrix multiplication requires `lhs.col == rhs.row`.
 - Scalar multiplication returns a new matrix.
+- These operators normalize near-zero results with `fpg()` before returning.
 
 All dimension violations throw `std::runtime_error`.
 
@@ -115,8 +118,9 @@ Free functions in `matrix.hpp`:
 - `bool shape_comp(matrix m1, matrix m2)`: same `row` and `col`
 - `matrix identity(int n)`: returns an `n x n` identity matrix
 - `void neg_zero(matrix& m)`: converts exact `-0` values to `0`
+- `void fpg(matrix& m)`: converts entries with `abs(value) <= EPS` to `0`
 
-These helpers do not apply tolerance-based comparisons.
+`operator==` remains exact. `fpg()` is a cleanup helper, not a tolerance-based equality check.
 
 ## Row and Column Operations
 
@@ -128,6 +132,8 @@ These member functions return transformed copies and leave the original matrix u
 - `col_swap(i, j)`: swaps columns `i` and `j`
 - `row_multi(i, factor)`: scales one row
 - `col_multi(i, factor)`: scales one column
+
+Each of these helpers also runs `fpg()` on the returned matrix.
 
 Example:
 
@@ -159,7 +165,7 @@ Behavior summary:
 - `gauss_jordan()`: runs `gaussian()` and then clears entries above pivots
 - `canonical()`: runs `gaussian()` and then applies column elimination to the right of each pivot
 
-Because these functions mutate the matrix, use a copy if the original data must be preserved.
+These routines call `neg_zero()` and/or `fpg()` before returning, which helps suppress tiny residual values after elimination.
 
 ## Matrix Properties and Derived Matrices
 
@@ -183,14 +189,16 @@ Member functions:
 
 Behavior notes:
 
-- `trace()` and `diag_product()` iterate over `min(row, col)`.
+- `trace()` is defined only for square matrices and throws otherwise.
+- `diag_product()` iterates over `min(row, col)`.
 - `det()`, `minor()`, `cofactor()`, `adjoint()`, `inverse()`, and `char_poly()` require a square matrix.
 - `free_variable()` requires a square coefficient matrix and returns `row - rank()`.
 - `solve()` requires an augmented matrix of shape `N x (N + 1)` and returns an `N x 1` solution vector.
-- `get_row(r)` returns a matrix with row `r` preserved and every other row zeroed out.
-- `get_col(c)` returns a matrix with column `c` preserved and every other column entry zeroed out.
+- `get_row(r)` returns a matrix with row `r` preserved and zeros elsewhere.
+- `get_col(c)` returns a matrix with column `c` preserved and zeros elsewhere.
 - `norm()` computes the Frobenius norm.
 - `char_poly()` returns a `1 x (n + 1)` row vector of characteristic-polynomial coefficients using the Leverrier-Faddeev recurrence.
+- `adjoint()`, `inverse()`, and `solve()` normalize near-zero values with `fpg()`.
 
 Example:
 
@@ -223,7 +231,7 @@ Behavior notes:
 - `inner_product()` computes the Frobenius inner product and requires matching dimensions.
 - `angle()` returns the angle in radians from the Frobenius inner product.
 
-Because equality is exact and based on `double` values, `check_ortho()` and `check_unitary()` are sensitive to floating-point roundoff.
+Because equality is exact and based on `double` values, `check_ortho()` and `check_unitary()` are still sensitive to floating-point roundoff.
 
 ## Transformation Helpers
 
@@ -254,24 +262,34 @@ matrix scale3d = scale(2.0, 2.0, 2.0);
 matrix yaw = rot_y(PI / 6);
 ```
 
-## Vector Utility Helper
+## Vector Utility Helpers
 
 Declared in `vector_utils.hpp`:
 
-- `bool check_similar(matrix mat1, matrix mat2)`
+- `matrix vec1(double x)`
+- `matrix vec2(double x, double y)`
+- `matrix vec3(double x, double y, double z)`
+- `matrix vec4(double x, double y, double z, double w)`
+- `matrix vec5(double x, double y, double z, double w, double u)`
 
 Current behavior:
 
-- removes rows that are exactly all zero
-- compares the remaining row sequences for equality
+- each helper returns an `N x 1` column matrix
+- entries are filled from top to bottom with the supplied arguments
+- these helpers are convenient for vectors and homogeneous coordinates
 
-This is not the standard algebraic notion of matrix similarity; it is a library-specific row-pattern helper.
+Example:
+
+```cpp
+matrix point = vec4(1.0, 0.0, 0.0, 1.0);
+matrix rotated = rot_y(PI / 2) * point;
+```
 
 ## Error Handling and Limitations
 
 - Dimension mismatches are generally reported with `std::runtime_error`.
 - Several functions assume valid row and column indices and do not guard against out-of-range access.
-- Exact `double` comparisons are used in many places, so floating-point-heavy workflows may need caller-side tolerance handling.
+- Exact `double` comparisons are still used in several places, so floating-point-heavy workflows may need caller-side tolerance handling.
 - `inverse()` is intended for nonsingular square matrices and relies on pivot division during elimination.
 - The current CMake setup builds the library and demo locally but does not install or export package configuration files.
 
@@ -283,12 +301,9 @@ This is not the standard algebraic notion of matrix similarity; it is a library-
 using namespace linalg;
 
 int main() {
-    matrix m(2, 2);
-    m.arr = {{1, 2}, {3, 4}};
+    matrix point = vec4(1.0, 0.0, 0.0, 1.0);
+    matrix rotated = rot_y(PI / 2) * point;
 
-    matrix inv = m.inverse();
-    matrix id = m * inv;
-
-    id.print();
+    rotated.print();
 }
 ```

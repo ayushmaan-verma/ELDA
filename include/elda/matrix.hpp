@@ -10,8 +10,8 @@ namespace linalg {
 
     /// Pi approximation used by the transform helpers.
     constexpr double PI = 3.141593;
-    /// Small epsilon reserved for floating-point comparisons.
-    constexpr double EPS = 1e-9;
+    /// Threshold used to zero tiny floating-point artifacts.
+    constexpr double EPS = 1e-6;
 
     /// Dense matrix type backed by a row-major 2D vector.
     class matrix{
@@ -130,6 +130,8 @@ namespace linalg {
     matrix identity(int n);
     /// Normalizes `-0` entries that can appear after elimination.
     void neg_zero(matrix &m);
+    /// Zeros entries whose absolute value is smaller than `EPS`.
+    void fpg(matrix &m);
     /// Raises a matrix to a non-negative integer power.
     matrix matpow(matrix mat, long long expo);
     /// Returns true when `transpose() == inverse()`.

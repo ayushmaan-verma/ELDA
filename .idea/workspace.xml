@@ -30,9 +30,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3b78b6a7-e3c9-405b-8a66-8b15b2e9d818" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/matrix.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/transforms.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/vector_utils.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DOCUMENTATION.MD" beforeDir="false" afterPath="$PROJECT_DIR$/DOCUMENTATION.MD" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/elda/matrix.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/elda/matrix.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/elda/vector_utils.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/elda/vector_utils.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/matrix.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/matrix.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/vector_utils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/vector_utils.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,12 +48,24 @@
     <option name="formatViaClangd" value="false" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="101" />
+    <option name="cachedIndexableFilesCount" value="70" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;ayushmaan-verma&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/ayushmaan-verma/ELDA.git&quot;,
+    &quot;accountId&quot;: &quot;249c5446-3477-41dc-86b8-0ac8d61db235&quot;
+  }
+}</component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="FUHsVWu5" />
   </component>
@@ -76,6 +93,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;C/C++ File.main.cpp.executor&quot;: &quot;Run&quot;,
     &quot;CMake Application.elda.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
@@ -92,7 +110,7 @@
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -111,7 +129,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.elda">
+  <component name="RunManager" selected="C/C++ File.main.cpp">
     <configuration name="elda" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="elda" TARGET_NAME="elda" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="elda" RUN_TARGET_NAME="main">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -154,6 +172,8 @@
       <workItem from="1775671052078" duration="2546000" />
       <workItem from="1775708468123" duration="2504000" />
       <workItem from="1775711273757" duration="311000" />
+      <workItem from="1775712829468" duration="3756000" />
+      <workItem from="1775721068531" duration="2165000" />
     </task>
     <servers />
   </component>
