@@ -75,11 +75,12 @@
 \contentsline {subsection}{\numberline {9.2.4}\code {rot_y(double angle)}}{25}{subsection.9.2.4}%
 \contentsline {subsection}{\numberline {9.2.5}\code {rot_z(double angle)}}{26}{subsection.9.2.5}%
 \contentsline {chapter}{\numberline {10}Library-Specific Utilities and Numerical Notes}{27}{chapter.10}%
-\contentsline {section}{\numberline {10.1}\code {check_similar(matrix mat1, matrix mat2)}}{27}{section.10.1}%
-\contentsline {section}{\numberline {10.2}\code {neg_zero(matrix\& m)}}{27}{section.10.2}%
-\contentsline {section}{\numberline {10.3}Constants}{27}{section.10.3}%
-\contentsline {section}{\numberline {10.4}Numerical caveats}{28}{section.10.4}%
-\contentsline {section}{\numberline {10.5}Shape prerequisites summary}{28}{section.10.5}%
+\contentsline {section}{\numberline {10.1}\code {vec1()} to \code {vec5()} and value overloads}{27}{section.10.1}%
+\contentsline {section}{\numberline {10.2}\code {check_lin_comb(...)}}{27}{section.10.2}%
+\contentsline {section}{\numberline {10.3}\code {neg_zero(matrix\& m)}}{28}{section.10.3}%
+\contentsline {section}{\numberline {10.4}Constants}{28}{section.10.4}%
+\contentsline {section}{\numberline {10.5}Numerical caveats}{28}{section.10.5}%
+\contentsline {section}{\numberline {10.6}Shape prerequisites summary}{28}{section.10.6}%
 \contentsline {chapter}{\numberline {11}Engineering Structure and Maintenance Notes}{29}{chapter.11}%
 \contentsline {section}{\numberline {11.1}Header organization}{29}{section.11.1}%
 \contentsline {section}{\numberline {11.2}Implementation organization}{29}{section.11.2}%

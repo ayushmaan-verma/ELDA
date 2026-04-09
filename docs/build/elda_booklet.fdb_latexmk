@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1775712959.65849 "elda_booklet.tex" "build/elda_booklet.pdf" "elda_booklet" 1775712962.16146 0
+["pdflatex"] 1775767752.46824 "elda_booklet.tex" "build/elda_booklet.pdf" "elda_booklet" 1775767756.04448 0
   "/etc/texmf/web2c/texmf.cnf" 1757836808.33244 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1095.tfm" 1136768653 3584 929cdff2b7a8c11bd4d49fd68cb0ae70 ""
@@ -195,7 +195,6 @@
   "/usr/share/texmf/fonts/tfm/public/lm/ec-lmr17.tfm" 1254269338 12156 ca1ae6a3c8564e89597f1f993fba1608 ""
   "/usr/share/texmf/fonts/tfm/public/lm/ec-lmr6.tfm" 1254269338 12048 c1068d0f4772be9b0ec447692e1d6d82 ""
   "/usr/share/texmf/fonts/tfm/public/lm/ec-lmr8.tfm" 1254269338 12064 a35db870f0b76c338d749c56dc030ef5 ""
-  "/usr/share/texmf/fonts/tfm/public/lm/ec-lmri10.tfm" 1254269338 17148 9556e1b5f936b77a796f68d2d559ba99 ""
   "/usr/share/texmf/fonts/tfm/public/lm/ec-lmtk10.tfm" 1254269338 1368 5bfeb1cf8f9f0acdb7436bfaa8e0da4e ""
   "/usr/share/texmf/fonts/tfm/public/lm/ec-lmtt10.tfm" 1254269338 1372 2ef2c2b492b3c4cd7879fe083abbb061 ""
   "/usr/share/texmf/fonts/tfm/public/lm/ec-lmtt8.tfm" 1254269338 1380 64228d979098ac090aa3f98d5aa8ad3e ""
@@ -227,7 +226,6 @@
   "/usr/share/texmf/fonts/type1/public/lm/lmr12.pfb" 1255129361 113634 f99c44d58bae0863375faf0e1d74d612 ""
   "/usr/share/texmf/fonts/type1/public/lm/lmr6.pfb" 1255129361 123394 d390152bb30feeb496aaaa93299ee9ba ""
   "/usr/share/texmf/fonts/type1/public/lm/lmr8.pfb" 1255129361 122174 a7a08406857c9530a0320a2517f60370 ""
-  "/usr/share/texmf/fonts/type1/public/lm/lmri10.pfb" 1255129361 112593 fda2373ba4420af33949610de4c28fe8 ""
   "/usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb" 1254269338 27863 09ce3735688ffde955e72da27c95b61a ""
   "/usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb" 1254269338 27802 5c876bb2c4040caaf035d60bd74a86bd ""
   "/usr/share/texmf/fonts/type1/public/lm/lmtk10.pfb" 1255129361 117319 7f8361f845845ce6d5b36cbd9f9cf377 ""
@@ -243,10 +241,10 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1757836836.46113 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1757836869 8213369 db9edebd50695f9ade7f21fdde8c93e6 ""
-  "build/elda_booklet.aux" 1775712961.99384 14330 22ee78acb7ab7b321f07c5a287608d41 "pdflatex"
-  "build/elda_booklet.out" 1775712961.99584 16452 b6f16aca9a86e098bfca528ab63540d8 "pdflatex"
-  "build/elda_booklet.toc" 1775712961.99584 8342 6844b47497f7743eda954b2dbc3295bc "pdflatex"
-  "elda_booklet.tex" 1775710025.57161 43065 b95d1b4d3c2852c168038abe2f80a502 ""
+  "build/elda_booklet.aux" 1775767755.83229 14468 5088aaae29c98b89a510b93fc3f5b77b "pdflatex"
+  "build/elda_booklet.out" 1775767755.83429 16602 a68ea7ff0676c6a74b628257be3c8180 "pdflatex"
+  "build/elda_booklet.toc" 1775767755.83429 8437 7914045369d3c3e4a93878c8c166b3fb "pdflatex"
+  "elda_booklet.tex" 1775767739.05485 44770 a2117f8f84b5b281ef48abd5c8fec359 ""
   (generated)
   "build/elda_booklet.aux"
   "build/elda_booklet.log"

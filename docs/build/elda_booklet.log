@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.9.14)  9 APR 2026 11:05
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.9.14)  10 APR 2026 02:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1133,7 +1133,7 @@ Package microtype Info: Character `029' is missing
  [4]
 Chapter 1.
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 1
-78.
+81.
 (/usr/share/texmf/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -1147,25 +1147,25 @@ File: lstlang1.sty 2023/02/27 1.9 listings language file
 File: lstmisc.sty 2023/02/27 1.9 (Carsten Heinz)
 )
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 204.
+nput line 207.
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.211     \item \code
-                     {build/libelda.a}: the static library, [1
+l.209 cmake 
+            --build build [1
 
 
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}]
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 219.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 222.
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has 
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.269 \chapter
+l.272 \chapter
               {Mathematical and Technical Foundations} [2{/usr/share/texmf/font
 s/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/u
 sr/share/texmf/fonts/enc/dvips/lm/lm-mathex.enc}]
@@ -1175,72 +1175,72 @@ Chapter 2.
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}] [4]
 Chapter 3.
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <12> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 326.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 329.
 [5
 
 ]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 365.
+(hyperref)                removing `subscript' on input line 368.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 379.
+(hyperref)                removing `subscript' on input line 382.
 
 [6]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 433.
+(hyperref)                removing `subscript' on input line 436.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 466.
+(hyperref)                removing `subscript' on input line 469.
 
 [7]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 486.
+(hyperref)                removing `subscript' on input line 489.
 
 [8]
 Chapter 4.
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 502.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 505.
 [9
 
 ] [10]
 Chapter 5.
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 617.
+(hyperref)                removing `subscript' on input line 620.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 648.
+(hyperref)                removing `subscript' on input line 651.
 
 [11
 
 ]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 674.
+(hyperref)                removing `subscript' on input line 677.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 674.
+(hyperref)                removing `subscript' on input line 677.
 
 
-Overfull \hbox (20.67857pt too wide) in paragraph at lines 695--695
+Overfull \hbox (20.67857pt too wide) in paragraph at lines 698--698
 |[]\T1/lmtt/b/n/14.4 row_multi(int i, double factor) \T1/lmr/bx/n/14.4 (-20) an
 d \T1/lmtt/b/n/14.4 col_multi(int i, double
  []
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 695.
+(hyperref)                removing `subscript' on input line 698.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 695.
+(hyperref)                removing `subscript' on input line 698.
 
 [12]
 Chapter 6.
@@ -1249,18 +1249,18 @@ Chapter 6.
 ]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 800.
+(hyperref)                removing `subscript' on input line 803.
 
 [14]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 868.
+(hyperref)                removing `subscript' on input line 871.
 
 [15] [16]
 Chapter 7.
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 949.
+(hyperref)                removing `subscript' on input line 952.
 
 [17
 
@@ -1268,23 +1268,23 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 Chapter 8.
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 1174.
+(hyperref)                removing `subscript' on input line 1177.
 
 [21
 
 ]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 1248.
+(hyperref)                removing `subscript' on input line 1251.
 
 [22]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 1289.
+(hyperref)                removing `subscript' on input line 1292.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 1312.
+(hyperref)                removing `subscript' on input line 1315.
 
 [23]
 Chapter 9.
@@ -1293,32 +1293,37 @@ Chapter 9.
 ]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 1427.
+(hyperref)                removing `subscript' on input line 1430.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 1439.
+(hyperref)                removing `subscript' on input line 1442.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 1451.
+(hyperref)                removing `subscript' on input line 1454.
 
 [25] [26]
 Chapter 10.
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 1473.
+(hyperref)                removing `subscript' on input line 1491.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `subscript' on input line 1508.
+(hyperref)                removing `subscript' on input line 1491.
 
 [27
 
-] [28]
+]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 1511.
+
+[28]
 Chapter 11.
 
-Overfull \hbox (19.43593pt too wide) in paragraph at lines 1540--1540
+Overfull \hbox (19.43593pt too wide) in paragraph at lines 1544--1544
 |\T1/lmr/bx/n/24.88 (-20) Engineering Struc-ture and Main-te-nance
  []
 
@@ -1327,46 +1332,61 @@ Overfull \hbox (19.43593pt too wide) in paragraph at lines 1540--1540
 ] [30]
 Appendix A.
 
-Underfull \hbox (badness 10000) in paragraph at lines 1585--1585
+Underfull \hbox (badness 10000) in paragraph at lines 1589--1589
 []|\T1/lmtt/m/n/10.95 get_element\T1/lmr/m/n/10.95 (+20) ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1589--1589
+Underfull \hbox (badness 10000) in paragraph at lines 1593--1593
 []|\T1/lmtt/m/n/10.95 row_op\T1/lmr/m/n/10.95 (+20) , \T1/lmtt/m/n/10.95 row_sw
 ap\T1/lmr/m/n/10.95 (+20) ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1590--1590
+Underfull \hbox (badness 10000) in paragraph at lines 1594--1594
 []|\T1/lmtt/m/n/10.95 col_op\T1/lmr/m/n/10.95 (+20) , \T1/lmtt/m/n/10.95 col_sw
 ap\T1/lmr/m/n/10.95 (+20) ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1591--1591
+Underfull \hbox (badness 10000) in paragraph at lines 1595--1595
 []|\T1/lmtt/m/n/10.95 echelon\T1/lmr/m/n/10.95 (+20) , \T1/lmtt/m/n/10.95 gauss
 ian\T1/lmr/m/n/10.95 (+20) ,
  []
 
 
-Underfull \hbox (badness 4181) in paragraph at lines 1598--1598
+Underfull \hbox (badness 4181) in paragraph at lines 1602--1602
 []|\T1/lmr/m/n/10.95 (+20) Cofactor ex-pan-sion ma-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1602--1602
+Underfull \hbox (badness 10000) in paragraph at lines 1606--1606
 []|\T1/lmtt/m/n/10.95 norm\T1/lmr/m/n/10.95 (+20) , \T1/lmtt/m/n/10.95 inner_pr
 oduct\T1/lmr/m/n/10.95 (+20) ,
  []
 
 
-Underfull \hbox (badness 1603) in paragraph at lines 1604--1605
+Underfull \hbox (badness 1603) in paragraph at lines 1608--1609
 []|\T1/lmr/m/n/10.95 (+20) Uses Faddeev-LeVerrier re-cur-
  []
 
 
-Underfull \hbox (badness 8113) in paragraph at lines 1607--1607
+Underfull \hbox (badness 10000) in paragraph at lines 1609--1609
+[]|\T1/lmtt/m/n/10.95 orthogonalize\T1/lmr/m/n/10.95 (+20) ,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1610--1610
+[]|\T1/lmtt/m/n/10.95 qr_decomp_q\T1/lmr/m/n/10.95 (+20) ,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1612--1612
+[]|\T1/lmtt/m/n/10.95 check_upper_tri\T1/lmr/m/n/10.95 (+20) ,
+ []
+
+
+Underfull \hbox (badness 8113) in paragraph at lines 1615--1615
 []|\T1/lmtt/m/n/10.95 shift\T1/lmr/m/n/10.95 (+20) , \T1/lmtt/m/n/10.95 scale\T
 1/lmr/m/n/10.95 (+20) , \T1/lmtt/m/n/10.95 rotate\T1/lmr/m/n/10.95 (+20) ,
  []
@@ -1386,31 +1406,30 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `elda_booklet.out' has not changed.
-(rerunfilecheck)             Checksum: B6F16ACA9A86E098BFCA528AB63540D8;16452.
+(rerunfilecheck)             Checksum: A68EA7FF0676C6A74B628257BE3C8180;16602.
  ) 
 Here is how much of TeX's memory you used:
- 33753 strings out of 474222
- 656090 string characters out of 5748733
- 1948975 words of memory out of 5000000
- 55125 multiletter control sequences out of 15000+600000
- 634392 words of font info for 159 fonts, out of 8000000 for 9000
+ 33771 strings out of 474222
+ 656304 string characters out of 5748733
+ 1952975 words of memory out of 5000000
+ 55142 multiletter control sequences out of 15000+600000
+ 632859 words of font info for 157 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 101i,12n,107p,1009b,1291s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 101i,12n,107p,1009b,2180s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/ty
 pe1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/type1/public/lm/lmcsc10.pfb></
 usr/share/texmf/fonts/type1/public/lm/lmex10.pfb></usr/share/texmf/fonts/type1/
 public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi8.pfb></usr/sh
 are/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public/
 lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr6.pfb></usr/share/texmf
-/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmri10.
-pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/
-type1/public/lm/lmsy8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtk10.pfb></
-usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on build/elda_booklet.pdf (40 pages, 396789 bytes).
+/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.
+pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb></usr/share/texmf/fonts/t
+ype1/public/lm/lmtk10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></
+usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on build/elda_booklet.pdf (40 pages, 390047 bytes).
 PDF statistics:
- 871 PDF objects out of 1000 (max. 8388607)
- 762 compressed objects within 8 object streams
- 183 named destinations out of 1000 (max. 500000)
- 47493 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 877 PDF objects out of 1000 (max. 8388607)
+ 770 compressed objects within 8 object streams
+ 189 named destinations out of 1000 (max. 500000)
+ 47501 words of extra memory for PDF output out of 51595 (max. 10000000)
 
