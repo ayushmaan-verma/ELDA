@@ -3,7 +3,7 @@
 
 /// Umbrella header that exposes the full ELDA public API.
 #include "matrix.hpp"
-#include "vector_utils.hpp"
 #include "transforms.hpp"
+#include "vector_utils.hpp"
 
 #endif // ELDA_LINALG_H

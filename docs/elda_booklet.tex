@@ -128,6 +128,14 @@
     fonttitle=\bfseries
 }
 
+\newcommand{\FunctionCard}[3]{
+    \subsection{\code{#1}}
+    #2
+    \begin{examplebox}[Example]
+    \code{#3}
+    \end{examplebox}
+}
+
 \begin{document}
 
 \begin{titlepage}
@@ -1632,6 +1640,463 @@ The generated PDF is placed in \code{docs/build/elda_booklet.pdf}.
 
 \section{Why this format works well}
 LaTeX is a strong fit for mathematical library documentation because it combines precise equations, technical prose, code listings, page structure, and stable PDF output in one source format. That makes it appropriate for a library like \ELDA{}, where understanding the theory behind each function is part of understanding the software.
+
+\chapter{Complete 80-Function Catalog}
+
+\section{Scope}
+This chapter gives a dedicated explanation and runnable-style example for every function-level API point.
+The catalog covers the 79 explicitly declared public functions, plus one compiler-generated constructor (\code{matrix(const matrix\&)}) that is used in normal C++ value semantics.
+
+\section{Matrix Construction and Access}
+
+\FunctionCard{matrix()}{Creates a default \(3 \times 3\) zero matrix. It is useful as a quick placeholder before assigning explicit entries.}{
+matrix a;
+a.arr = {{1,2,3},{4,5,6},{7,8,9}};
+}
+
+\FunctionCard{matrix(int r, int c)}{Creates an \(r \times c\) zero matrix. Use this constructor when shape is known at runtime or differs from \(3 \times 3\).}{
+matrix b(2, 4);
+b.arr = {{1,2,3,4},{5,6,7,8}};
+}
+
+\FunctionCard{matrix(const matrix\&)}{Compiler-generated copy constructor. It copies dimensions and stored entries and is used whenever a matrix is copied by value.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+matrix b = a; // copy construction
+}
+
+\FunctionCard{get_element(int i, int j)}{Returns the value at row \code{i}, column \code{j}. It is a direct accessor and does not perform bounds checks.}{
+matrix a(2,2);
+a.arr = {{10,20},{30,40}};
+double x = a.get_element(1, 0); // 30
+}
+
+\FunctionCard{ref_element(int i, int j)}{Returns a mutable pointer to one matrix element, enabling in-place updates through dereferencing.}{
+matrix a(2,2);
+*a.ref_element(0, 1) = 7.5;
+}
+
+\FunctionCard{input()}{Reads all matrix entries from standard input in row-major order. It is useful for interactive console workflows.}{
+matrix a(2,2);
+a.input(); // expects 4 values from stdin
+}
+
+\FunctionCard{print()}{Prints matrix entries row by row to standard output. It is a diagnostic and display helper.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+a.print();
+}
+
+\section{Arithmetic and Comparison}
+
+\FunctionCard{operator=(matrix)}{Assigns one matrix to another matrix of the same shape. A dimension mismatch raises an exception in this library.}{
+matrix a(2,2), b(2,2);
+b.arr = {{1,0},{0,1}};
+a = b;
+}
+
+\FunctionCard{operator+(matrix)}{Performs entrywise addition for shape-compatible matrices. It returns a new matrix and leaves operands unchanged.}{
+matrix a(2,2), b(2,2);
+a.arr = {{1,2},{3,4}};
+b.arr = {{5,6},{7,8}};
+matrix s = a + b;
+}
+
+\FunctionCard{operator-(matrix)}{Performs entrywise subtraction for shape-compatible matrices. It returns a new matrix.}{
+matrix a(2,2), b(2,2);
+a.arr = {{5,6},{7,8}};
+b.arr = {{1,2},{3,4}};
+matrix d = a - b;
+}
+
+\FunctionCard{operator*(matrix)}{Computes matrix multiplication when inner dimensions match. This represents composition of linear maps.}{
+matrix a(2,3), b(3,1);
+a.arr = {{1,2,3},{4,5,6}};
+b.arr = {{1},{0},{1}};
+matrix p = a * b;
+}
+
+\FunctionCard{operator*(double)}{Multiplies each entry by a scalar value. It returns a scaled copy.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+matrix k = a * 0.5;
+}
+
+\FunctionCard{operator==(matrix, matrix)}{Checks exact entrywise equality via stored values. It is strict and does not use tolerance.}{
+matrix a(2,2), b(2,2);
+a.arr = {{1,2},{3,4}};
+b.arr = {{1,2},{3,4}};
+bool eq = (a == b);
+}
+
+\FunctionCard{shape\_comp(matrix, matrix)}{Checks whether two matrices have identical dimensions, independent of entry values.}{
+matrix a(2,3), b(2,3), c(3,2);
+bool ab = shape_comp(a,b); // true
+bool ac = shape_comp(a,c); // false
+}
+
+\FunctionCard{identity(int n)}{Builds the \(n \times n\) identity matrix with ones on the main diagonal and zeros elsewhere.}{
+matrix i3 = identity(3);
+}
+
+\section{Elementary Row and Column Operations}
+
+\FunctionCard{row\_op(int i, double coeff, int j)}{Returns a copy with \(R_i \leftarrow R_i + \text{coeff} \cdot R_j\). This is a core elimination primitive.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+matrix b = a.row_op(1, -3.0, 0);
+}
+
+\FunctionCard{col\_op(int i, double coeff, int j)}{Returns a copy with \(C_i \leftarrow C_i + \text{coeff} \cdot C_j\). This supports column-based reductions.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+matrix b = a.col_op(1, -2.0, 0);
+}
+
+\FunctionCard{row\_swap(int i, int j)}{Returns a copy with two rows exchanged. It is used for pivoting during elimination.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+matrix b = a.row_swap(0, 1);
+}
+
+\FunctionCard{col\_swap(int i, int j)}{Returns a copy with two columns exchanged. Useful in canonical-form style transformations.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+matrix b = a.col_swap(0, 1);
+}
+
+\FunctionCard{row\_multi(int i, double factor)}{Returns a copy with row \code{i} scaled by \code{factor}. It is used to normalize pivots.}{
+matrix a(2,2);
+a.arr = {{2,4},{3,6}};
+matrix b = a.row_multi(0, 0.5);
+}
+
+\FunctionCard{col\_multi(int i, double factor)}{Returns a copy with column \code{i} scaled by \code{factor}.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+matrix b = a.col_multi(1, 3.0);
+}
+
+\FunctionCard{get\_row(int r)}{Returns a matrix with row \code{r} preserved and every other row zeroed.}{
+matrix a(3,3);
+a.arr = {{1,2,3},{4,5,6},{7,8,9}};
+matrix only_r1 = a.get_row(1);
+}
+
+\FunctionCard{get\_col(int c)}{Returns a matrix with column \code{c} preserved and all other columns zeroed.}{
+matrix a(3,3);
+a.arr = {{1,2,3},{4,5,6},{7,8,9}};
+matrix only_c2 = a.get_col(2);
+}
+
+\FunctionCard{get\_row\_vec(int r)}{Returns row \code{r} as a \(1 \times n\) row vector matrix.}{
+matrix a(2,3);
+a.arr = {{1,2,3},{4,5,6}};
+matrix rv = a.get_row_vec(0);
+}
+
+\FunctionCard{get\_col\_vec(int c)}{Returns column \code{c} as an \(m \times 1\) column vector matrix.}{
+matrix a(2,3);
+a.arr = {{1,2,3},{4,5,6}};
+matrix cv = a.get_col_vec(1);
+}
+
+\FunctionCard{replace\_row(int r, matrix rw)}{Replaces row \code{r} with the first row from \code{rw}.}{
+matrix a(2,3), rw(1,3);
+a.arr = {{1,2,3},{4,5,6}};
+rw.arr = {{9,9,9}};
+a.replace_row(1, rw);
+}
+
+\FunctionCard{replace\_col(int c, matrix cn)}{Replaces column \code{c} with the first column from \code{cn}.}{
+matrix a(2,2), cn(2,1);
+a.arr = {{1,2},{3,4}};
+cn.arr = {{7},{8}};
+a.replace_col(0, cn);
+}
+
+\section{Elimination and System Solving}
+
+\FunctionCard{echelon()}{Transforms the matrix in place to row-echelon form and returns row-swap sign information.}{
+matrix a(2,2);
+a.arr = {{2,1},{4,3}};
+int s = a.echelon();
+}
+
+\FunctionCard{gaussian()}{Performs normalized forward elimination in place and returns row-swap sign information.}{
+matrix a(2,2);
+a.arr = {{3,6},{6,15}};
+int s = a.gaussian();
+}
+
+\FunctionCard{gauss\_jordan()}{Runs Gaussian elimination and clears entries above pivots to reach reduced row-echelon style form.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+int s = a.gauss_jordan();
+}
+
+\FunctionCard{canonical()}{Uses row and column elimination toward a canonical/diagonalized structure.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+int s = a.canonical();
+}
+
+\FunctionCard{rank()}{Returns matrix rank by counting nonzero rows after elimination.}{
+matrix a(2,2);
+a.arr = {{1,2},{2,4}};
+int r = a.rank();
+}
+
+\FunctionCard{free\_variable()}{For square coefficient matrices, returns \code{row - rank()}.}{
+matrix a(3,3);
+a.arr = {{1,0,0},{0,1,0},{0,0,0}};
+int fv = a.free_variable();
+}
+
+\FunctionCard{solve()}{Solves an augmented \(N \times (N+1)\) system by elimination and back substitution.}{
+matrix aug(2,3);
+aug.arr = {{1,1,3},{2,3,8}};
+matrix x = aug.solve();
+}
+
+\section{Matrix Invariants and Derived Matrices}
+
+\FunctionCard{trace()}{Returns the sum of diagonal entries for square matrices.}{
+matrix a(2,2);
+a.arr = {{2,1},{5,3}};
+double t = a.trace();
+}
+
+\FunctionCard{diag\_product()}{Returns the product of diagonal entries.}{
+matrix a(2,2);
+a.arr = {{2,7},{0,5}};
+double p = a.diag_product();
+}
+
+\FunctionCard{det()}{Computes determinant via echelon reduction and swap-sign adjustment.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+double d = a.det();
+}
+
+\FunctionCard{minor(int x, int y)}{Computes the minor determinant obtained by removing row \code{x} and column \code{y}.}{
+matrix a(3,3);
+a.arr = {{1,2,3},{4,5,6},{7,8,9}};
+double m = a.minor(1,1);
+}
+
+\FunctionCard{cofactor(int x, int y)}{Applies checkerboard sign to the corresponding minor.}{
+matrix a(3,3);
+a.arr = {{1,2,3},{4,5,6},{7,8,9}};
+double c = a.cofactor(0,1);
+}
+
+\FunctionCard{adjoint()}{Returns the classical adjoint (adjugate), the transpose of the cofactor matrix.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+matrix ad = a.adjoint();
+}
+
+\FunctionCard{transpose()}{Returns the matrix with rows and columns exchanged.}{
+matrix a(2,3);
+a.arr = {{1,2,3},{4,5,6}};
+matrix at = a.transpose();
+}
+
+\FunctionCard{inverse()}{Computes the inverse of a nonsingular square matrix using Gauss-Jordan elimination.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+matrix inv = a.inverse();
+}
+
+\FunctionCard{orthogonalize()}{Applies Gram-Schmidt to matrix columns and returns orthogonal output columns.}{
+matrix a(3,2);
+a.arr = {{1,1},{1,0},{0,1}};
+matrix q_like = a.orthogonalize();
+}
+
+\FunctionCard{orthonormalize()}{Applies Gram-Schmidt and normalizes each resulting column to unit norm.}{
+matrix a(3,2);
+a.arr = {{1,1},{1,0},{0,1}};
+matrix q = a.orthonormalize();
+}
+
+\FunctionCard{qr\_decomp\_q()}{Returns the \(Q\) factor from the QR decomposition routine.}{
+matrix a(3,2);
+a.arr = {{1,1},{1,0},{0,1}};
+matrix q = a.qr_decomp_q();
+}
+
+\FunctionCard{qr\_decomp\_r()}{Returns the \(R\) factor from QR decomposition.}{
+matrix a(3,2);
+a.arr = {{1,1},{1,0},{0,1}};
+matrix r = a.qr_decomp_r();
+}
+
+\FunctionCard{check\_upper\_tri()}{Checks whether all strictly lower-triangular entries are exactly zero.}{
+matrix u(3,3);
+u.arr = {{1,2,3},{0,4,5},{0,0,6}};
+bool ok = u.check_upper_tri();
+}
+
+\FunctionCard{check\_lower\_tri()}{Checks whether all strictly upper-triangular entries are exactly zero.}{
+matrix l(3,3);
+l.arr = {{1,0,0},{2,3,0},{4,5,6}};
+bool ok = l.check_lower_tri();
+}
+
+\FunctionCard{char\_poly()}{Returns characteristic polynomial coefficients using the Faddeev-LeVerrier recurrence.}{
+matrix a(2,2);
+a.arr = {{1,2},{3,4}};
+matrix coeff = a.char_poly();
+}
+
+\FunctionCard{eigenvalues()}{Estimates eigenvalues of a square matrix using unshifted QR iteration.}{
+matrix a(3,3);
+a.arr = {{3,0,0},{0,2,1},{0,1,2}};
+matrix eig = a.eigenvalues();
+}
+
+\FunctionCard{norm()}{Returns the Frobenius norm \(\|A\|_F\).}{
+matrix a(2,2);
+a.arr = {{1,2},{2,1}};
+double n = a.norm();
+}
+
+\section{Global Numerical and Algebra Helpers}
+
+\FunctionCard{neg\_zero(matrix\& m)}{Replaces signed zero values (\(-0\)) with ordinary zero for cleaner output and comparisons.}{
+matrix a(1,2);
+a.arr = {{-0.0, 1.0}};
+neg_zero(a);
+}
+
+\FunctionCard{fpg(matrix\& m)}{Performs floating-point cleanup by setting entries with \(|x| \le \code{EPS}\) to zero.}{
+matrix a(1,2);
+a.arr = {{1e-8, 2.0}};
+fpg(a);
+}
+
+\FunctionCard{matpow(matrix mat, long long expo)}{Computes \(A^k\) with exponentiation by squaring.}{
+matrix a(2,2);
+a.arr = {{1,1},{0,1}};
+matrix a5 = matpow(a, 5);
+}
+
+\FunctionCard{check\_ortho(matrix mat)}{Checks the library criterion \(A^\top = A^{-1}\) for orthogonality.}{
+matrix r = rotate(PI / 6);
+bool is_ortho = check_ortho(r);
+}
+
+\FunctionCard{check\_unitary(matrix mat)}{Legacy helper that compares \code{transpose()} and \code{adjoint()} exactly.}{
+matrix a = identity(3);
+bool ok = check_unitary(a);
+}
+
+\FunctionCard{inner\_product(matrix a, matrix b)}{Returns Frobenius inner product \(\langle A,B \rangle = \text{tr}(A^\top B)\).}{
+matrix a(2,2), b(2,2);
+a.arr = {{1,2},{0,1}};
+b.arr = {{3,4},{5,6}};
+double ip = inner_product(a,b);
+}
+
+\FunctionCard{angle(matrix a, matrix b)}{Returns angle in radians from the Frobenius inner product formula.}{
+matrix a = identity(2);
+matrix b = identity(2);
+double th = angle(a,b);
+}
+
+\section{Vector Utility Constructors and Span Checks}
+
+\FunctionCard{vec1()}{Returns a zero \(1 \times 1\) column vector.}{
+matrix v = vec1();
+}
+
+\FunctionCard{vec2()}{Returns a zero \(2 \times 1\) column vector.}{
+matrix v = vec2();
+}
+
+\FunctionCard{vec3()}{Returns a zero \(3 \times 1\) column vector.}{
+matrix v = vec3();
+}
+
+\FunctionCard{vec4()}{Returns a zero \(4 \times 1\) column vector.}{
+matrix v = vec4();
+}
+
+\FunctionCard{vec5()}{Returns a zero \(5 \times 1\) column vector.}{
+matrix v = vec5();
+}
+
+\FunctionCard{vec1(double x)}{Builds a \(1 \times 1\) column vector with value \code{x}.}{
+matrix v = vec1(3.0);
+}
+
+\FunctionCard{vec2(double x, double y)}{Builds a \(2 \times 1\) column vector with entries \((x,y)\).}{
+matrix v = vec2(3.0, 4.0);
+}
+
+\FunctionCard{vec3(double x, double y, double z)}{Builds a \(3 \times 1\) column vector with entries \((x,y,z)\).}{
+matrix v = vec3(1.0, 2.0, 3.0);
+}
+
+\FunctionCard{vec4(double x, double y, double z, double w)}{Builds a \(4 \times 1\) column vector, commonly for homogeneous coordinates.}{
+matrix p = vec4(1.0, 0.0, 0.0, 1.0);
+}
+
+\FunctionCard{vec5(double x, double y, double z, double w, double u)}{Builds a \(5 \times 1\) column vector with five explicit entries.}{
+matrix v = vec5(1.0, 2.0, 3.0, 4.0, 5.0);
+}
+
+\FunctionCard{check\_lin\_comb(matrix m1, matrix m2)}{Tests whether \code{m2} belongs to \(\text{span}\{m1\}\) using rank equality.}{
+bool in_span = check_lin_comb(vec2(1,0), vec2(2,0));
+}
+
+\FunctionCard{check\_lin\_comb(matrix m1, matrix m2, matrix m3)}{Tests whether \code{m3} is a linear combination of \code{m1} and \code{m2}.}{
+bool in_span = check_lin_comb(vec3(1,0,0), vec3(0,1,0), vec3(2,3,0));
+}
+
+\FunctionCard{check\_lin\_comb(matrix m1, matrix m2, matrix m3, matrix m4)}{Tests whether \code{m4} lies in \(\text{span}\{m1,m2,m3\}\).}{
+bool in_span = check_lin_comb(vec3(1,0,0), vec3(0,1,0), vec3(0,0,1), vec3(1,2,3));
+}
+
+\FunctionCard{check\_lin\_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5)}{Tests whether \code{m5} lies in \(\text{span}\{m1,m2,m3,m4\}\).}{
+bool in_span = check_lin_comb(vec4(1,0,0,0), vec4(0,1,0,0), vec4(0,0,1,0), vec4(0,0,0,1), vec4(2,3,4,5));
+}
+
+\section{2D and 3D Transformation Factories}
+
+\FunctionCard{shift(double dx, double dy)}{Builds a \(3 \times 3\) homogeneous translation matrix for 2D points.}{
+matrix t = shift(2.0, 3.0);
+}
+
+\FunctionCard{scale(double kx, double ky)}{Builds a \(3 \times 3\) homogeneous scaling matrix for 2D points.}{
+matrix s = scale(2.0, 0.5);
+}
+
+\FunctionCard{rotate(double angle)}{Builds a \(3 \times 3\) homogeneous planar rotation matrix in radians.}{
+matrix r = rotate(PI / 4);
+}
+
+\FunctionCard{shift(double dx, double dy, double dz)}{Builds a \(4 \times 4\) homogeneous translation matrix for 3D points.}{
+matrix t = shift(1.0, 2.0, 3.0);
+}
+
+\FunctionCard{scale(double kx, double ky, double kz)}{Builds a \(4 \times 4\) homogeneous scaling matrix for 3D points.}{
+matrix s = scale(2.0, 2.0, 2.0);
+}
+
+\FunctionCard{rot\_x(double angle)}{Builds a \(4 \times 4\) homogeneous rotation matrix around the \(x\)-axis.}{
+matrix rx = rot_x(PI / 6);
+}
+
+\FunctionCard{rot\_y(double angle)}{Builds a \(4 \times 4\) homogeneous rotation matrix around the \(y\)-axis.}{
+matrix ry = rot_y(PI / 6);
+}
+
+\FunctionCard{rot\_z(double angle)}{Builds a \(4 \times 4\) homogeneous rotation matrix around the \(z\)-axis.}{
+matrix rz = rot_z(PI / 6);
+}
 
 \backmatter
 
