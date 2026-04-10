@@ -532,6 +532,39 @@ matrix matrix::qr_decomp_r() {
     }
     return r;
 }
+matrix matrix::lu_decomp_l() {
+    matrix m(*this);
+    matrix l = identity(row);
+    for (int k = 0; k < std::min(row, col); k++) {
+        int z = k;
+        while (!static_cast<bool>(m.arr[z][k])) {
+            if (z + 1 == std::min(row, col)) {
+                break;
+            }
+            z++;
+        }
+        if (k != z) {
+            m = m.row_swap(k, z);
+        }
+        if (m.arr[k][k] == 0) {
+            continue;
+        }
+        // Eliminate entries below the current pivot.
+        for (int i = k + 1; i < row; i++) {
+            const double multiplier = m.arr[i][k] / m.arr[k][k];
+            m = m.row_op(i, -multiplier, k);
+            *l.ref_element(i,k) = multiplier;
+        }
+    }
+    neg_zero(l);
+    fpg(l);
+    return l;
+}
+matrix matrix::lu_decomp_u() {
+    matrix m(*this);
+    m.echelon();
+    return m;
+}
 
 bool matrix::check_upper_tri() {
     // Check the strictly lower-triangular part.

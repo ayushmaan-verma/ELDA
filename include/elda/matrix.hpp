@@ -106,6 +106,10 @@ class matrix {
     matrix qr_decomp_q();
     /// Returns the R factor from QR decomposition.
     matrix qr_decomp_r();
+    /// Returns the L factor from LU decomposition.
+    matrix lu_decomp_l();
+    /// Returns the U factor from LU decomposition.
+    matrix lu_decomp_u();
 
     /// Returns a matrix containing row `r` and zeros elsewhere.
     matrix get_row(int r);
