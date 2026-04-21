@@ -1,5 +1,4 @@
 #include "elda/matrix.hpp"
-
 #include <algorithm>
 
 namespace linalg {
@@ -532,6 +531,7 @@ matrix matrix::qr_decomp_r() {
     }
     return r;
 }
+
 matrix matrix::lu_decomp_l() {
     matrix m(*this);
     matrix l = identity(row);
@@ -560,6 +560,7 @@ matrix matrix::lu_decomp_l() {
     fpg(l);
     return l;
 }
+
 matrix matrix::lu_decomp_u() {
     matrix m(*this);
     m.echelon();

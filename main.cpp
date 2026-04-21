@@ -2,14 +2,15 @@
 using namespace linalg;
 using namespace std;
 int main() {
-    matrix m(3,3);
-    m.arr ={{2,3,1},{4,7,7},{-2,4,5}};
-    matrix l = m.lu_decomp_l();
-    matrix u = m.lu_decomp_u();
-    m.print();
+    matrix m (3,3);
+    m.input();
+    // m.print();
+    // matrix q = m.qr_decomp_q();
+    // matrix r = m.qr_decomp_r();
+    // q.print();
+    // cout << endl;
+    // r.print();
+    matrix eigen = m.eigenvalues();
     cout << endl;
-    l.print();
-    cout << endl;
-    u.print();
-    return 0;
+    eigen.print();
 }

@@ -1,17 +1,19 @@
 # ELDA
 
-ELDA is a small C++17 linear algebra library built with CMake. It provides a dense `linalg::matrix` type, matrix operations, homogeneous transformation helpers, and column-vector constructors for common dimensions.
+ELDA is a small C++17 linear algebra library built with CMake. It provides a dense `linalg::matrix` type, common matrix operations, decomposition helpers, homogeneous transformation builders, and column-vector utilities.
 
 The public headers live under `include/elda/`. The library target is `elda`, and the repository also includes a small demo executable named `main`.
 
 ## Features
 
-- Dense matrix storage with public dimensions and element storage
-- Matrix addition, subtraction, multiplication, and scalar multiplication
+- Dense matrix storage backed by `std::vector<std::vector<double>>`
+- Matrix addition, subtraction, multiplication, assignment, and scalar multiplication
 - Elementary row and column operations
-- Gaussian, Gauss-Jordan, echelon, and canonical-style reduction helpers
-- Determinant, inverse, transpose, adjoint, rank, norm, characteristic polynomial, QR decomposition, and eigenvalue helpers
-- 2D and 3D homogeneous transformation matrix builders
+- Echelon, Gaussian, Gauss-Jordan, and canonical-style reduction helpers
+- Determinant, inverse, transpose, adjoint, rank, norm, trace, characteristic polynomial, and linear-system solving helpers
+- Gram-Schmidt orthogonalization and orthonormalization
+- QR decomposition, LU decomposition, and eigenvalue estimation helpers
+- 2D and 3D homogeneous translation, scaling, and rotation matrix builders
 - `vec1` through `vec5` helpers for constructing zero or value-filled column vectors
 - `check_lin_comb` overloads for span-membership checks on small column-vector sets
 - Near-zero floating-point cleanup through `fpg()`
@@ -32,9 +34,11 @@ lin_alg_lib/
 │   ├── matrix.cpp
 │   ├── transforms.cpp
 │   └── vector_utils.cpp
-└── docs/
-    ├── Makefile
-    └── elda_booklet.tex
+├── docs/
+│   ├── Makefile
+│   └── elda_booklet.tex
+├── DOCUMENTATION.MD
+└── FUNCTIONS.MD
 ```
 
 ## Requirements
@@ -59,11 +63,11 @@ This produces:
 
 ## Run the Demo
 
-```bash
-./build/main
-```
+The demo reads a `3 x 3` matrix from standard input and prints the eigenvalue estimates returned by `matrix::eigenvalues()`.
 
-The demo constructs a sample `3 x 3` matrix, prints it, and then prints the eigenvalue estimates returned by `matrix::eigenvalues()`.
+```bash
+printf "3 4 5\n6 7 8\n8 2 3\n" | ./build/main
+```
 
 ## Use the Library
 
@@ -78,6 +82,7 @@ Or include only the pieces you need:
 ```cpp
 #include <elda/matrix.hpp>
 #include <elda/transforms.hpp>
+#include <elda/vector_utils.hpp>
 ```
 
 If you consume this repository from another CMake project, link against the `elda` target after adding the source tree:
@@ -89,7 +94,7 @@ target_link_libraries(your_target PRIVATE elda)
 
 ## API Modules
 
-- `matrix.hpp`: the `linalg::matrix` type plus most linear-algebra helpers
+- `matrix.hpp`: the `linalg::matrix` type plus arithmetic, reductions, decompositions, spectral helpers, and matrix utility functions
 - `transforms.hpp`: 2D and 3D homogeneous translation, scaling, and rotation matrices
 - `vector_utils.hpp`: `vec1`-`vec5` column-vector constructors and `check_lin_comb` helpers
 - `linalg.hpp`: umbrella header that includes all public headers
@@ -101,10 +106,11 @@ target_link_libraries(your_target PRIVATE elda)
 - Many transformation helpers return a new matrix, while reduction helpers such as `echelon()`, `gaussian()`, `gauss_jordan()`, and `canonical()` modify the matrix in place.
 - Most dimension mismatches are reported with `std::runtime_error`.
 - Angles are interpreted in radians.
-- `trace()` is defined only for square matrices.
-- `eigenvalues()` is defined only for square matrices and throws on non-square input.
+- `trace()`, `det()`, `inverse()`, `char_poly()`, and `eigenvalues()` are defined only for square matrices.
+- `solve()` expects an augmented matrix with shape `N x (N + 1)`.
 - `EPS` is `1e-6`, and `fpg()` zeros values whose absolute value is at most that threshold.
 - Several low-level helpers assume valid indices and do not perform bounds checking.
+- QR and eigenvalue routines use unshifted Gram-Schmidt/QR logic and are intended for simple real-valued workflows.
 
 ## Generate the PDF Booklet
 
@@ -118,4 +124,5 @@ The PDF is written to `docs/build/elda_booklet.pdf`.
 
 ## Further Reference
 
-See `DOCUMENTATION.MD` for the detailed API and usage notes.
+- `DOCUMENTATION.MD`: detailed API behavior and usage notes
+- `FUNCTIONS.MD`: compact public function index

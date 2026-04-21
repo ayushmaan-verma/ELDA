@@ -2,7 +2,7 @@
 
 ## Overview
 
-ELDA is a C++17 linear algebra library centered around `linalg::matrix`, a dense matrix type backed by `std::vector<std::vector<double>>`. The project builds a static library target named `elda` and a demo executable named `main`.
+ELDA is a C++17 linear algebra library centered around `linalg::matrix`, a mutable dense matrix type backed by `std::vector<std::vector<double>>`. The project builds a static library target named `elda` and a demo executable named `main`.
 
 The public API is defined by:
 
@@ -10,6 +10,8 @@ The public API is defined by:
 - `include/elda/matrix.hpp`
 - `include/elda/transforms.hpp`
 - `include/elda/vector_utils.hpp`
+
+`linalg.hpp` is the umbrella header and includes the matrix, transform, and vector utility headers.
 
 ## Build and Run
 
@@ -20,13 +22,13 @@ cmake -S . -B build
 cmake --build build
 ```
 
-Run the demo:
+Run the demo with nine matrix entries on standard input:
 
 ```bash
-./build/main
+printf "3 4 5\n6 7 8\n8 2 3\n" | ./build/main
 ```
 
-The current demo builds a sample `3 x 3` matrix, prints it, and then prints the eigenvalue estimates returned by `matrix::eigenvalues()`.
+The current demo reads a `3 x 3` matrix, computes `matrix::eigenvalues()`, and prints the resulting column vector.
 
 Build the LaTeX booklet:
 
@@ -56,7 +58,7 @@ Element access:
 
 Input and output:
 
-- `void input()`: reads all entries from `std::cin`
+- `void input()`: reads all entries from `std::cin` in row-major order
 - `void print()`: writes the matrix to `std::cout`, one row per line
 
 Important notes:
@@ -110,7 +112,7 @@ matrix prod = a * b;
 matrix scaled = a * 2.0;
 ```
 
-## Shape and Comparison Helpers
+## Shape and Cleanup Helpers
 
 Free functions in `matrix.hpp`:
 
@@ -133,7 +135,7 @@ These member functions return transformed copies and leave the original matrix u
 - `row_multi(i, factor)`: scales one row
 - `col_multi(i, factor)`: scales one column
 
-Each of these helpers also runs `fpg()` on the returned matrix.
+Each helper also runs `fpg()` on the returned matrix.
 
 Example:
 
@@ -221,7 +223,7 @@ matrix inv = m.inverse();
 matrix coeffs = m.char_poly();
 ```
 
-## Matrix Decompositions and Spectral Helpers
+## Decompositions and Spectral Helpers
 
 Member functions:
 
@@ -229,6 +231,8 @@ Member functions:
 - `matrix orthonormalize()`
 - `matrix qr_decomp_q()`
 - `matrix qr_decomp_r()`
+- `matrix lu_decomp_l()`
+- `matrix lu_decomp_u()`
 - `matrix eigenvalues()`
 - `bool check_upper_tri()`
 - `bool check_lower_tri()`
@@ -238,8 +242,24 @@ Behavior notes:
 - `orthogonalize()` applies Gram-Schmidt to the matrix columns and returns orthogonal columns.
 - `orthonormalize()` applies Gram-Schmidt and normalizes each output column.
 - `qr_decomp_q()` returns the orthonormal `Q` factor, and `qr_decomp_r()` returns the corresponding upper-triangular `R` factor.
+- `lu_decomp_l()` returns a lower-triangular matrix of elimination multipliers with a unit diagonal.
+- `lu_decomp_u()` returns the echelon-form upper factor produced by `echelon()`.
+- The LU helpers apply row swaps to their internal working matrix when a pivot is zero, but they do not return a permutation matrix.
 - `eigenvalues()` requires a square matrix, uses unshifted QR iteration, stops when the iterate becomes upper triangular, and returns the diagonal entries as a `row x 1` column vector.
 - `check_upper_tri()` and `check_lower_tri()` use exact zero comparisons on strictly triangular entries, so `fpg()` can help when floating-point noise is present.
+
+Example:
+
+```cpp
+matrix a(3, 3);
+a.arr = {{2, 1, 1}, {4, -6, 0}, {-2, 7, 2}};
+
+matrix q = a.qr_decomp_q();
+matrix r = a.qr_decomp_r();
+matrix l = a.lu_decomp_l();
+matrix u = a.lu_decomp_u();
+matrix lambda = a.eigenvalues();
+```
 
 ## Matrix Power and Geometric Helpers
 
@@ -259,7 +279,7 @@ Behavior notes:
 - `inner_product()` computes the Frobenius inner product and requires matching dimensions.
 - `angle()` returns the angle in radians from the Frobenius inner product.
 
-Because equality is exact and based on `double` values, `check_ortho()` and `check_unitary()` are still sensitive to floating-point roundoff.
+Because equality is exact and based on `double` values, `check_ortho()` and `check_unitary()` are sensitive to floating-point roundoff.
 
 ## Transformation Helpers
 
@@ -325,8 +345,9 @@ bool in_span = check_lin_comb(vec2(1.0, 0.0), vec2(2.0, 0.0));
 
 - Dimension mismatches are generally reported with `std::runtime_error`.
 - Several functions assume valid row and column indices and do not guard against out-of-range access.
-- Exact `double` comparisons are still used in several places, so floating-point-heavy workflows may need caller-side tolerance handling.
+- Exact `double` comparisons are used in several places, so floating-point-heavy workflows may need caller-side tolerance handling.
 - `inverse()` is intended for nonsingular square matrices and relies on pivot division during elimination.
+- QR-based eigenvalue estimation is unshifted and has no iteration cap.
 - The current CMake setup builds the library and demo locally but does not install or export package configuration files.
 
 ## Minimal Example
