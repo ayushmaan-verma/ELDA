@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELDA Documentation</title>
+    <meta name="description" content="Official-style documentation for ELDA, a C++17 linear algebra library.">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="sidebar">
+        Sections
+    </button>
+
+    <div class="page-shell">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <p class="eyebrow">ELDA</p>
+                <h1>Documentation</h1>
+                <p class="sidebar-summary">Modern reference docs for the current C++17 codebase.</p>
+            </div>
+
+            <nav class="sidebar-nav" aria-label="Documentation sections">
+                <a href="#overview">Overview</a>
+                <a href="#quickstart">Quickstart</a>
+                <a href="#reference-intro">Header Reference</a>
+                <a href="#header-linalg">linalg.hpp</a>
+                <a href="#header-matrix">matrix.hpp</a>
+                <a href="#header-transforms">transforms.hpp</a>
+                <a href="#header-vector-utils">vector_utils.hpp</a>
+                <a href="#examples">3x3 Examples</a>
+                <a href="#behavior-notes">Behavior Notes</a>
+                <a href="#project-layout">Project Layout</a>
+                <a href="#author">Author</a>
+            </nav>
+
+            <div class="sidebar-meta">
+                <p><strong>Target:</strong> <code>elda</code></p>
+                <p><strong>Language:</strong> C++17</p>
+                <p><strong>Build:</strong> CMake 3.14+</p>
+            </div>
+        </aside>
+
+        <main class="content">
+            <header class="hero">
+                <div class="hero-copy">
+                    <p class="eyebrow">Official Reference</p>
+                    <h2>Header-first documentation for ELDA’s full public API</h2>
+                    <p class="hero-lead">
+                        ELDA is a compact C++17 linear algebra library centered around
+                        <code>linalg::matrix</code>. This documentation is organized around the public headers
+                        in <code>include/elda/</code>, with a declaration block and a usage example for every
+                        exported API entry.
+                    </p>
+                </div>
+                <div class="hero-facts" aria-label="Project facts">
+                    <div>
+                        <span class="fact-label">Owner</span>
+                        <span class="fact-value">Ayushmaan Kumar Verma</span>
+                    </div>
+                    <div>
+                        <span class="fact-label">Academic profile</span>
+                        <span class="fact-value">Mathematics and Computing, NIT Patna</span>
+                    </div>
+                    <div>
+                        <span class="fact-label">Documentation style</span>
+                        <span class="fact-value">Static web reference</span>
+                    </div>
+                </div>
+            </header>
+
+            <section class="doc-section" id="overview">
+                <div class="section-heading">
+                    <p class="section-kicker">Overview</p>
+                    <h3>What this documentation covers</h3>
+                </div>
+                <p>
+                    ELDA provides dense matrix storage, matrix arithmetic, row and column operations,
+                    elimination routines, decompositions, characteristic polynomial and eigenvalue helpers,
+                    homogeneous transformation matrices, and vector construction utilities. The library
+                    surface is small enough to document completely, so this site treats the checked-in code
+                    as the source of truth and covers every public declaration.
+                </p>
+                <div class="feature-grid">
+                    <article class="feature">
+                        <h4>Header-oriented reference</h4>
+                        <p>Each public header gets its own section, synopsis, grouped APIs, and source mapping.</p>
+                    </article>
+                    <article class="feature">
+                        <h4>Function-by-function examples</h4>
+                        <p>Every exported constant, method, free function, and overload includes a usage snippet.</p>
+                    </article>
+                    <article class="feature">
+                        <h4>Behavior notes</h4>
+                        <p>Important implementation assumptions are documented explicitly, including mutability and exact comparisons.</p>
+                    </article>
+                    <article class="feature">
+                        <h4>Visual examples</h4>
+                        <p>3x3 worked examples are rendered as matrices directly in the browser for quick inspection.</p>
+                    </article>
+                </div>
+                <div class="callout note">
+                    <h4>Reference scope</h4>
+                    <p>
+                        These docs reflect the current contents of <code>include/elda/</code> and
+                        <code>src/</code>. They document the existing implementation behavior rather than an
+                        idealized API contract.
+                    </p>
+                </div>
+            </section>
+
+            <section class="doc-section" id="quickstart">
+                <div class="section-heading">
+                    <p class="section-kicker">Quickstart</p>
+                    <h3>Build, link, and start using ELDA</h3>
+                </div>
+                <div class="two-column">
+                    <div>
+                        <h4>Build the library</h4>
+                        <pre><code class="language-bash">cmake -S . -B build
+cmake --build build</code></pre>
+
+                        <h4>Link from another CMake target</h4>
+                        <pre><code class="language-cmake">add_subdirectory(path/to/lin_alg_lib)
+target_link_libraries(your_target PRIVATE elda)</code></pre>
+                    </div>
+                    <div>
+                        <h4>Include the full API</h4>
+                        <pre><code class="language-cpp">#include &lt;elda/linalg.hpp&gt;
+using namespace linalg;</code></pre>
+
+                        <h4>Run the demo executable</h4>
+                        <pre><code class="language-bash">printf "3 4 5
+6 7 8
+8 2 3
+" | ./build/main</code></pre>
+                        <p class="supporting-copy">
+                            The demo reads a <code>3 x 3</code> matrix and prints the column vector returned by
+                            <code>matrix::eigenvalues()</code>.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="doc-section" id="reference-intro">
+                <div class="section-heading">
+                    <p class="section-kicker">Header Reference</p>
+                    <h3>Every public API, organized by header</h3>
+                </div>
+                <p>
+                    Examples below assume <code>#include &lt;elda/linalg.hpp&gt;</code> and
+                    <code>using namespace linalg;</code> unless the snippet states otherwise. Use the search box
+                    to filter function cards across all headers.
+                </p>
+                <div class="reference-toolbar">
+                    <label class="search-control" for="api-search">
+                        <span>Search declarations and examples</span>
+                        <input id="api-search" type="search" placeholder="Search for inverse, vec3, gaussian, rot_y, check_lin_comb...">
+                    </label>
+                    <div class="toolbar-actions">
+                        <button class="toolbar-button" id="open-all" type="button">Open all</button>
+                        <button class="toolbar-button" id="close-all" type="button">Close all</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="doc-section api-header-section" id="header-linalg">
+                <div class="section-heading">
+                    <p class="section-kicker">Header</p>
+                    <h3><code>include/elda/linalg.hpp</code></h3>
+                </div>
+                <div id="api-linalg"></div>
+            </section>
+
+            <section class="doc-section api-header-section" id="header-matrix">
+                <div class="section-heading">
+                    <p class="section-kicker">Header</p>
+                    <h3><code>include/elda/matrix.hpp</code></h3>
+                </div>
+                <div id="api-matrix"></div>
+            </section>
+
+            <section class="doc-section api-header-section" id="header-transforms">
+                <div class="section-heading">
+                    <p class="section-kicker">Header</p>
+                    <h3><code>include/elda/transforms.hpp</code></h3>
+                </div>
+                <div id="api-transforms"></div>
+            </section>
+
+            <section class="doc-section api-header-section" id="header-vector-utils">
+                <div class="section-heading">
+                    <p class="section-kicker">Header</p>
+                    <h3><code>include/elda/vector_utils.hpp</code></h3>
+                </div>
+                <div id="api-vector-utils"></div>
+            </section>
+
+            <section class="doc-section" id="examples">
+                <div class="section-heading">
+                    <p class="section-kicker">3x3 Examples</p>
+                    <h3>Visual worked examples from the current implementation</h3>
+                </div>
+                <p>
+                    These examples use concrete results verified from the current codebase and are rendered as
+                    matrices directly in the page.
+                </p>
+
+                <div class="example-switcher" id="example-switcher" role="tablist" aria-label="3x3 example selector">
+                    <button class="example-tab active" data-example="arithmetic" type="button" role="tab" aria-selected="true">Arithmetic</button>
+                    <button class="example-tab" data-example="inverse" type="button" role="tab" aria-selected="false">Inverse</button>
+                    <button class="example-tab" data-example="solve" type="button" role="tab" aria-selected="false">Linear Solve</button>
+                    <button class="example-tab" data-example="qr" type="button" role="tab" aria-selected="false">QR</button>
+                    <button class="example-tab" data-example="transform" type="button" role="tab" aria-selected="false">2D Transforms</button>
+                </div>
+
+                <div class="example-stage">
+                    <div class="example-copy">
+                        <h4 id="example-title">3x3 arithmetic</h4>
+                        <p id="example-description"></p>
+                        <ul class="plain-list" id="example-bullets"></ul>
+                        <pre><code class="language-cpp" id="example-code"></code></pre>
+                    </div>
+                    <div class="example-visuals" id="example-visuals" aria-live="polite"></div>
+                </div>
+            </section>
+
+            <section class="doc-section" id="behavior-notes">
+                <div class="section-heading">
+                    <p class="section-kicker">Behavior Notes</p>
+                    <h3>Operational assumptions and implementation details</h3>
+                </div>
+                <div class="notes-grid">
+                    <article>
+                        <h4>Public storage and manual mutation</h4>
+                        <p>
+                            <code>matrix::row</code>, <code>matrix::col</code>, and <code>matrix::arr</code> are
+                            public. Many examples in the docs populate matrices directly through
+                            <code>arr</code>.
+                        </p>
+                    </article>
+                    <article>
+                        <h4>Mixed mutation model</h4>
+                        <p>
+                            Arithmetic and elementary row or column helpers return new matrices. Elimination
+                            routines such as <code>gaussian()</code> and <code>gauss_jordan()</code> modify the
+                            matrix in place.
+                        </p>
+                    </article>
+                    <article>
+                        <h4>Near-zero cleanup</h4>
+                        <p>
+                            <code>fpg()</code> zeros values with absolute magnitude at most <code>EPS</code>.
+                            This improves printed results after arithmetic and elimination, but exact equality is
+                            still used in several parts of the implementation.
+                        </p>
+                    </article>
+                    <article>
+                        <h4>Exact comparisons</h4>
+                        <p>
+                            <code>operator==</code>, <code>check_upper_tri()</code>, <code>check_lower_tri()</code>,
+                            <code>check_ortho()</code>, and <code>check_unitary()</code> all rely on exact stored
+                            values rather than tolerances.
+                        </p>
+                    </article>
+                    <article>
+                        <h4>Square-only routines</h4>
+                        <p>
+                            <code>trace()</code>, <code>det()</code>, <code>minor()</code>,
+                            <code>cofactor()</code>, <code>adjoint()</code>, <code>inverse()</code>,
+                            <code>char_poly()</code>, and <code>eigenvalues()</code> require square matrices.
+                        </p>
+                    </article>
+                    <article>
+                        <h4>Educational numerical scope</h4>
+                        <p>
+                            QR and eigenvalue helpers use classical Gram-Schmidt and unshifted QR iteration. They
+                            are appropriate for small real-valued workloads and learning-oriented use.
+                        </p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="doc-section" id="project-layout">
+                <div class="section-heading">
+                    <p class="section-kicker">Project Layout</p>
+                    <h3>Repository structure</h3>
+                </div>
+                <div class="code-panel">
+                    <pre><code class="language-text">lin_alg_lib/
+|- CMakeLists.txt
+|- README.md
+|- DOCUMENTATION.MD
+|- FUNCTIONS.MD
+|- main.cpp
+|- include/
+|  `- elda/
+|     |- linalg.hpp
+|     |- matrix.hpp
+|     |- transforms.hpp
+|     `- vector_utils.hpp
+|- src/
+|  |- matrix.cpp
+|  |- transforms.cpp
+|  `- vector_utils.cpp
+`- docs/
+   |- index.html
+   |- styles.css
+   `- app.js</code></pre>
+                </div>
+                <p class="supporting-copy">
+                    The documentation site is fully static. Open <code>docs/index.html</code> directly in a
+                    browser; no documentation build step is required.
+                </p>
+            </section>
+
+            <section class="doc-section" id="author">
+                <div class="section-heading">
+                    <p class="section-kicker">Author</p>
+                    <h3>Project ownership</h3>
+                </div>
+                <p>
+                    ELDA is documented here as a project owned by <strong>Ayushmaan Kumar Verma</strong>, a
+                    <strong>Mathematics and Computing</strong> student at <strong>NIT Patna</strong>.
+                </p>
+            </section>
+        </main>
+    </div>
+
+    <script src="./app.js"></script>
+</body>
+</html>

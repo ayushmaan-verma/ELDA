@@ -4,6 +4,8 @@ ELDA is a small C++17 linear algebra library built with CMake. It provides a den
 
 The public headers live under `include/elda/`. The library target is `elda`, and the repository also includes a small demo executable named `main`.
 
+For the primary documentation set, open `docs/index.html` in a browser. The site is fully static and now organizes the public API by header, with declaration blocks and usage examples for each exported entry, along with behavioral notes and visual 3x3 examples.
+
 ## Features
 
 - Dense matrix storage backed by `std::vector<std::vector<double>>`
