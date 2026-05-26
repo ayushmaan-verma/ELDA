@@ -4,6 +4,8 @@
 
 ELDA is a C++17 linear algebra library centered around `linalg::matrix`, a mutable dense matrix type backed by `std::vector<std::vector<double>>`. The project builds a static library target named `elda` and a demo executable named `main`.
 
+The current primary documentation set is the static web reference at `docs/index.html`. That site is organized by public header and documents every exported entry with its declaration, source mapping, behavior notes, and a usage example.
+
 The public API is defined by:
 
 - `include/elda/linalg.hpp`
@@ -12,6 +14,21 @@ The public API is defined by:
 - `include/elda/vector_utils.hpp`
 
 `linalg.hpp` is the umbrella header and includes the matrix, transform, and vector utility headers.
+
+## Documentation Entry Points
+
+- `docs/index.html`: primary web documentation, organized header-first and function-by-function
+- `README.md`: repository overview and build instructions
+- `FUNCTIONS.MD`: compact public function index
+- `DOCUMENTATION.MD`: repository-local markdown summary aligned with the web docs
+
+Open the web docs directly in a browser:
+
+```bash
+xdg-open docs/index.html
+```
+
+No documentation build step is required.
 
 ## Build and Run
 
@@ -30,268 +47,61 @@ printf "3 4 5\n6 7 8\n8 2 3\n" | ./build/main
 
 The current demo reads a `3 x 3` matrix, computes `matrix::eigenvalues()`, and prints the resulting column vector.
 
-Build the LaTeX booklet:
+## Header-Oriented API Map
 
-```bash
-make -C docs pdf
+### `include/elda/linalg.hpp`
+
+Umbrella include for the whole public API.
+
+```cpp
+#include <elda/linalg.hpp>
+using namespace linalg;
 ```
 
-## Core Type
+Use this header when you want matrix algorithms, transforms, and vector helpers in one include.
 
-### `linalg::matrix`
+### `include/elda/matrix.hpp`
 
-`matrix` is a mutable dense matrix with three public data members:
+Core matrix type plus matrix algorithms.
 
-- `row`: number of rows
-- `col`: number of columns
-- `arr`: matrix entries stored row-major as `std::vector<std::vector<double>>`
+Primary surface areas:
 
-Constructors:
-
-- `matrix()`: creates a `3 x 3` zero matrix
-- `matrix(int r, int c)`: creates an `r x c` zero matrix
-
-Element access:
-
-- `double get_element(int i, int j)`: returns `arr[i][j]`
-- `double* ref_element(int i, int j)`: returns a mutable pointer to `arr[i][j]`
-
-Input and output:
-
-- `void input()`: reads all entries from `std::cin` in row-major order
-- `void print()`: writes the matrix to `std::cout`, one row per line
-
-Important notes:
-
-- `get_element()` and `ref_element()` do not perform bounds checking.
-- Because `row`, `col`, and `arr` are public, callers can populate matrices directly.
-
-## Constants
-
-Declared in `matrix.hpp`:
-
-- `PI = 3.141593`
-- `EPS = 1e-6`
-
-`PI` is used by client code and transformation helpers. `EPS` is the threshold used by `fpg()` to zero small floating-point artifacts.
-
-## Arithmetic Operations
-
-Member operators:
-
-- `matrix operator=(matrix m2)`
-- `matrix operator+(matrix m2)`
-- `matrix operator-(matrix m2)`
-- `matrix operator*(matrix m2)`
-- `matrix operator*(double d)`
-
-Behavior:
-
-- Assignment requires the left-hand side to already have the same dimensions as the right-hand side.
-- Addition and subtraction require identical shapes.
-- Matrix multiplication requires `lhs.col == rhs.row`.
-- Scalar multiplication returns a new matrix.
-- These operators normalize near-zero results with `fpg()` before returning.
-
-All dimension violations throw `std::runtime_error`.
+- constants: `PI`, `EPS`
+- public data members: `row`, `col`, `arr`
+- construction and I/O: constructors, `input()`, `print()`
+- arithmetic: assignment, addition, subtraction, matrix multiplication, scalar multiplication
+- elementary operations: row and column combination, swap, and scaling helpers
+- reductions: `echelon()`, `gaussian()`, `gauss_jordan()`, `canonical()`
+- properties and derived matrices: `rank()`, `trace()`, `det()`, `adjoint()`, `transpose()`, `inverse()`, `solve()`, `norm()`
+- structural helpers: `get_row()`, `get_col()`, `get_row_vec()`, `get_col_vec()`, `replace_row()`, `replace_col()`
+- decomposition and spectral helpers: `orthogonalize()`, `orthonormalize()`, `qr_decomp_q()`, `qr_decomp_r()`, `lu_decomp_l()`, `lu_decomp_u()`, `char_poly()`, `eigenvalues()`
+- free helpers: `identity()`, `fpg()`, `matpow()`, `inner_product()`, `angle()`, and exact-check helpers
 
 Example:
 
 ```cpp
+#include <elda/matrix.hpp>
 using namespace linalg;
 
-matrix a(2, 2);
-matrix b(2, 2);
-
-a.arr = {{1, 2}, {3, 4}};
-b.arr = {{5, 6}, {7, 8}};
-
-matrix sum = a + b;
-matrix diff = a - b;
-matrix prod = a * b;
-matrix scaled = a * 2.0;
-```
-
-## Shape and Cleanup Helpers
-
-Free functions in `matrix.hpp`:
-
-- `bool operator==(matrix m1, matrix m2)`: exact entry-wise equality through `arr`
-- `bool shape_comp(matrix m1, matrix m2)`: same `row` and `col`
-- `matrix identity(int n)`: returns an `n x n` identity matrix
-- `void neg_zero(matrix& m)`: converts exact `-0` values to `0`
-- `void fpg(matrix& m)`: converts entries with `abs(value) <= EPS` to `0`
-
-`operator==` remains exact. `fpg()` is a cleanup helper, not a tolerance-based equality check.
-
-## Row and Column Operations
-
-These member functions return transformed copies and leave the original matrix unchanged:
-
-- `row_op(i, coeff, j)`: applies `row[i] += coeff * row[j]`
-- `col_op(i, coeff, j)`: applies `col[i] += coeff * col[j]`
-- `row_swap(i, j)`: swaps rows `i` and `j`
-- `col_swap(i, j)`: swaps columns `i` and `j`
-- `row_multi(i, factor)`: scales one row
-- `col_multi(i, factor)`: scales one column
-
-Each helper also runs `fpg()` on the returned matrix.
-
-Example:
-
-```cpp
-matrix m(3, 3);
-m.arr = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
-
-matrix swapped = m.row_swap(0, 2);
-matrix eliminated = m.row_op(1, -4.0, 0);
-```
-
-## Reduction and Structural Operations
-
-These member functions modify the matrix in place:
-
-- `int echelon()`
-- `int gaussian()`
-- `int gauss_jordan()`
-- `int canonical()`
-
-Return value:
-
-- Each returns a sign-like integer that tracks row swaps during the forward pass. It starts at `1` and flips when rows are swapped.
-
-Behavior summary:
-
-- `echelon()`: forward elimination without normalizing pivots
-- `gaussian()`: forward elimination with each pivot row normalized to `1`
-- `gauss_jordan()`: runs `gaussian()` and then clears entries above pivots
-- `canonical()`: runs `gaussian()` and then applies column elimination to the right of each pivot
-
-These routines call `neg_zero()` and/or `fpg()` before returning, which helps suppress tiny residual values after elimination.
-
-## Matrix Properties and Derived Matrices
-
-Member functions:
-
-- `int rank()`
-- `int free_variable()`
-- `double trace()`
-- `double diag_product()`
-- `double det()`
-- `double minor(int x, int y)`
-- `double cofactor(int x, int y)`
-- `matrix adjoint()`
-- `matrix transpose()`
-- `matrix inverse()`
-- `matrix solve()`
-- `matrix get_row(int r)`
-- `matrix get_col(int c)`
-- `matrix get_row_vec(int r)`
-- `matrix get_col_vec(int c)`
-- `void replace_row(int r, matrix rw)`
-- `void replace_col(int c, matrix cn)`
-- `matrix char_poly()`
-- `double norm()`
-
-Behavior notes:
-
-- `trace()` is defined only for square matrices and throws otherwise.
-- `diag_product()` iterates over `min(row, col)`.
-- `det()`, `minor()`, `cofactor()`, `adjoint()`, `inverse()`, and `char_poly()` require a square matrix.
-- `free_variable()` requires a square coefficient matrix and returns `row - rank()`.
-- `solve()` requires an augmented matrix of shape `N x (N + 1)` and returns an `N x 1` solution vector.
-- `get_row(r)` returns a matrix with row `r` preserved and zeros elsewhere.
-- `get_col(c)` returns a matrix with column `c` preserved and zeros elsewhere.
-- `get_row_vec(r)` returns a `1 x col` row vector copy of row `r`.
-- `get_col_vec(c)` returns a `row x 1` column vector copy of column `c`.
-- `replace_row(r, rw)` copies the first row of `rw` into row `r`.
-- `replace_col(c, cn)` copies the first column of `cn` into column `c`.
-- `norm()` computes the Frobenius norm.
-- `char_poly()` returns a `1 x (n + 1)` row vector of characteristic-polynomial coefficients using the Leverrier-Faddeev recurrence.
-- `adjoint()`, `inverse()`, and `solve()` normalize near-zero values with `fpg()`.
-
-Example:
-
-```cpp
-matrix m(3, 3);
-m.arr = {{3, 4, 5}, {6, 7, 8}, {8, 2, 3}};
-
-double determinant = m.det();
-int r = m.rank();
-matrix t = m.transpose();
-matrix inv = m.inverse();
-matrix coeffs = m.char_poly();
-```
-
-## Decompositions and Spectral Helpers
-
-Member functions:
-
-- `matrix orthogonalize()`
-- `matrix orthonormalize()`
-- `matrix qr_decomp_q()`
-- `matrix qr_decomp_r()`
-- `matrix lu_decomp_l()`
-- `matrix lu_decomp_u()`
-- `matrix eigenvalues()`
-- `bool check_upper_tri()`
-- `bool check_lower_tri()`
-
-Behavior notes:
-
-- `orthogonalize()` applies Gram-Schmidt to the matrix columns and returns orthogonal columns.
-- `orthonormalize()` applies Gram-Schmidt and normalizes each output column.
-- `qr_decomp_q()` returns the orthonormal `Q` factor, and `qr_decomp_r()` returns the corresponding upper-triangular `R` factor.
-- `lu_decomp_l()` returns a lower-triangular matrix of elimination multipliers with a unit diagonal.
-- `lu_decomp_u()` returns the echelon-form upper factor produced by `echelon()`.
-- The LU helpers apply row swaps to their internal working matrix when a pivot is zero, but they do not return a permutation matrix.
-- `eigenvalues()` requires a square matrix, uses unshifted QR iteration, stops when the iterate becomes upper triangular, and returns the diagonal entries as a `row x 1` column vector.
-- `check_upper_tri()` and `check_lower_tri()` use exact zero comparisons on strictly triangular entries, so `fpg()` can help when floating-point noise is present.
-
-Example:
-
-```cpp
 matrix a(3, 3);
-a.arr = {{2, 1, 1}, {4, -6, 0}, {-2, 7, 2}};
+a.arr = {{1, 2, 3}, {0, 1, 4}, {5, 6, 0}};
 
-matrix q = a.qr_decomp_q();
-matrix r = a.qr_decomp_r();
-matrix l = a.lu_decomp_l();
-matrix u = a.lu_decomp_u();
-matrix lambda = a.eigenvalues();
+double determinant = a.det();
+matrix inverse = a.inverse();
+matrix eigen = a.eigenvalues();
 ```
 
-## Matrix Power and Geometric Helpers
+### `include/elda/transforms.hpp`
 
-Free functions:
+Homogeneous transformation matrix builders.
 
-- `matrix matpow(matrix mat, long long expo)`
-- `bool check_ortho(matrix mat)`
-- `bool check_unitary(matrix mat)`
-- `double inner_product(matrix a, matrix b)`
-- `double angle(matrix a, matrix b)`
-
-Behavior notes:
-
-- `matpow()` performs repeated squaring and assumes a square matrix with a non-negative exponent.
-- `check_ortho()` compares `transpose()` and `inverse()` exactly.
-- `check_unitary()` is a library-specific helper that compares `transpose()` and `adjoint()`.
-- `inner_product()` computes the Frobenius inner product and requires matching dimensions.
-- `angle()` returns the angle in radians from the Frobenius inner product.
-
-Because equality is exact and based on `double` values, `check_ortho()` and `check_unitary()` are sensitive to floating-point roundoff.
-
-## Transformation Helpers
-
-Declared in `transforms.hpp` and implemented as homogeneous transformation matrices.
-
-2D helpers returning `3 x 3` matrices:
+2D helpers return `3 x 3` matrices:
 
 - `shift(double dx, double dy)`
 - `scale(double kx, double ky)`
 - `rotate(double angle)`
 
-3D helpers returning `4 x 4` matrices:
+3D helpers return `4 x 4` matrices:
 
 - `shift(double dx, double dy, double dz)`
 - `scale(double kx, double ky, double kz)`
@@ -304,63 +114,179 @@ Angles are interpreted in radians.
 Example:
 
 ```cpp
-matrix translate2d = shift(2.0, 3.0);
-matrix rotate2d = rotate(PI / 4);
-matrix scale3d = scale(2.0, 2.0, 2.0);
-matrix yaw = rot_y(PI / 6);
+#include <elda/transforms.hpp>
+#include <elda/vector_utils.hpp>
+using namespace linalg;
+
+matrix translation = shift(2.0, -1.0);
+matrix point = vec3(1.0, 2.0, 1.0);
+matrix moved = translation * point;
 ```
 
-## Vector Utility Helpers
+### `include/elda/vector_utils.hpp`
 
-Declared in `vector_utils.hpp`:
+Small column-vector factories and span-membership helpers.
 
-- `matrix vec1()`, `matrix vec2()`, `matrix vec3()`, `matrix vec4()`, `matrix vec5()`
-- `matrix vec1(double x)`
-- `matrix vec2(double x, double y)`
-- `matrix vec3(double x, double y, double z)`
-- `matrix vec4(double x, double y, double z, double w)`
-- `matrix vec5(double x, double y, double z, double w, double u)`
-- `bool check_lin_comb(matrix m1, matrix m2)`
-- `bool check_lin_comb(matrix m1, matrix m2, matrix m3)`
-- `bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4)`
-- `bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5)`
+Factories:
 
-Current behavior:
+- `vec1()` through `vec5()`
+- `vec1(x)` through `vec5(x, y, z, w, u)`
 
-- `vecN()` overloads return zero-initialized `N x 1` column vectors.
-- `vecN(args...)` overloads return `N x 1` vectors filled top-to-bottom with the provided entries.
-- `check_lin_comb(...)` tests whether the last argument belongs to the span of earlier arguments using a rank comparison.
-- These helpers are convenient for vectors and homogeneous coordinates.
-- `check_lin_comb(...)` assumes inputs are compatible column vectors and does not perform explicit shape validation.
+Span checks:
+
+- `check_lin_comb(matrix m1, matrix m2)`
+- `check_lin_comb(matrix m1, matrix m2, matrix m3)`
+- `check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4)`
+- `check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5)`
 
 Example:
 
 ```cpp
-matrix point = vec4(1.0, 0.0, 0.0, 1.0);
-matrix rotated = rot_y(PI / 2) * point;
-bool in_span = check_lin_comb(vec2(1.0, 0.0), vec2(2.0, 0.0));
-```
-
-## Error Handling and Limitations
-
-- Dimension mismatches are generally reported with `std::runtime_error`.
-- Several functions assume valid row and column indices and do not guard against out-of-range access.
-- Exact `double` comparisons are used in several places, so floating-point-heavy workflows may need caller-side tolerance handling.
-- `inverse()` is intended for nonsingular square matrices and relies on pivot division during elimination.
-- QR-based eigenvalue estimation is unshifted and has no iteration cap.
-- The current CMake setup builds the library and demo locally but does not install or export package configuration files.
-
-## Minimal Example
-
-```cpp
-#include <elda/linalg.hpp>
-
+#include <elda/vector_utils.hpp>
 using namespace linalg;
 
-int main() {
-    matrix point = vec4(1.0, 0.0, 0.0, 1.0);
-    matrix rotated = rot_y(PI / 2) * point;
-
-    rotated.print();
-}
+matrix v1 = vec2(1.0, 2.0);
+matrix v2 = vec2(2.0, 4.0);
+bool in_span = check_lin_comb(v1, v2);
 ```
+
+## `linalg::matrix` Summary
+
+### Public Data Members
+
+- `int row`
+- `int col`
+- `std::vector<std::vector<double>> arr`
+
+The design favors direct manipulation of storage. Most examples populate matrices directly through `arr`.
+
+### Construction
+
+- `matrix()`: constructs a `3 x 3` zero matrix
+- `matrix(int r, int c)`: constructs an `r x c` zero matrix
+
+### Element Access
+
+- `get_element(i, j)`: returns `arr[i][j]` without bounds checking
+- `ref_element(i, j)`: returns a mutable pointer to `arr[i][j]`
+
+### Mutation Model
+
+ELDA mixes copy-returning helpers and in-place algorithms:
+
+- copy-returning: arithmetic operators, `row_op()`, `row_swap()`, `transpose()`, `inverse()`, `qr_decomp_q()`, `vecN(...)`, and similar helpers
+- in-place: `echelon()`, `gaussian()`, `gauss_jordan()`, and `canonical()`
+
+This distinction matters when chaining operations.
+
+## Behavioral Notes
+
+- The library namespace is `linalg`.
+- Matrix entries are stored in `matrix::arr` as `std::vector<std::vector<double>>`.
+- Most dimension mismatches are reported with `std::runtime_error`.
+- Several low-level accessors and replacement helpers assume valid indices and compatible shapes.
+- Angles are measured in radians.
+- `trace()`, `det()`, `minor()`, `cofactor()`, `adjoint()`, `inverse()`, `char_poly()`, and `eigenvalues()` are defined only for square matrices.
+- `solve()` expects an augmented matrix with shape `N x (N + 1)`.
+- `EPS` is `1e-6`, and `fpg()` zeros values whose absolute value is at most that threshold.
+- Exact `double` comparisons are used in `operator==`, `check_upper_tri()`, `check_lower_tri()`, `check_ortho()`, and `check_unitary()`.
+- QR and eigenvalue routines use classical Gram-Schmidt and unshifted QR iteration and are best suited to small real-valued workflows.
+
+## Verified 3x3 Example Outputs
+
+The web documentation includes rendered matrix visuals. The values below match outputs verified from the current codebase.
+
+### Arithmetic Example
+
+Input matrices:
+
+```text
+A = [ [ 1,  2, 3],
+      [ 0,  1, 4],
+      [ 5,  6, 0] ]
+
+B = [ [-2,  1, 0],
+      [ 3,  0, 1],
+      [ 4, -1, 2] ]
+```
+
+Results:
+
+```text
+A + B = [ [-1,  3, 3],
+          [ 3,  1, 5],
+          [ 9,  5, 2] ]
+
+A * B = [ [16, -2, 8],
+          [19, -4, 9],
+          [ 8,  5, 6] ]
+```
+
+### Inverse Example
+
+For
+
+```text
+A = [ [1, 2, 3],
+      [0, 1, 4],
+      [5, 6, 0] ]
+```
+
+ELDA returns:
+
+```text
+det(A) = 1
+
+A^-1 = [ [-24,  18,  5],
+         [ 20, -15, -4],
+         [ -5,   4,  1] ]
+```
+
+### Linear Solve Example
+
+For the augmented system
+
+```text
+[  2   1  -1 |   8 ]
+[ -3  -1   2 | -11 ]
+[ -2   1   2 |  -3 ]
+```
+
+`solve()` returns:
+
+```text
+[ 2 ]
+[ 3 ]
+[-1 ]
+```
+
+## Repository Layout
+
+```text
+lin_alg_lib/
+├── CMakeLists.txt
+├── README.md
+├── DOCUMENTATION.MD
+├── FUNCTIONS.MD
+├── main.cpp
+├── include/
+│   └── elda/
+│       ├── linalg.hpp
+│       ├── matrix.hpp
+│       ├── transforms.hpp
+│       └── vector_utils.hpp
+├── src/
+│   ├── matrix.cpp
+│   ├── transforms.cpp
+│   └── vector_utils.cpp
+└── docs/
+    ├── index.html
+    ├── styles.css
+    └── app.js
+```
+
+## Further Reference
+
+- `docs/index.html`: full static web docs
+- `FUNCTIONS.MD`: compact API index
+- `README.md`: build and repository usage summary

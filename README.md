@@ -37,8 +37,9 @@ lin_alg_lib/
 │   ├── transforms.cpp
 │   └── vector_utils.cpp
 ├── docs/
-│   ├── Makefile
-│   └── elda_booklet.tex
+│   ├── index.html
+│   ├── styles.css
+│   └── app.js
 ├── DOCUMENTATION.MD
 └── FUNCTIONS.MD
 ```
@@ -114,17 +115,8 @@ target_link_libraries(your_target PRIVATE elda)
 - Several low-level helpers assume valid indices and do not perform bounds checking.
 - QR and eigenvalue routines use unshifted Gram-Schmidt/QR logic and are intended for simple real-valued workflows.
 
-## Generate the PDF Booklet
-
-If `latexmk` is installed, build the LaTeX booklet with:
-
-```bash
-make -C docs pdf
-```
-
-The PDF is written to `docs/build/elda_booklet.pdf`.
-
 ## Further Reference
 
-- `DOCUMENTATION.MD`: detailed API behavior and usage notes
+- `docs/index.html`: primary static documentation site
+- `DOCUMENTATION.MD`: markdown summary aligned with the web docs
 - `FUNCTIONS.MD`: compact public function index
