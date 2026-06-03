@@ -26,8 +26,13 @@ class matrix {
     /// Constructs a 3x3 zero matrix.
     matrix() : row(3), col(3), arr(3, std::vector<double>(3, 0.0)) {}
 
-    /// Constructs an r x c zero matrix.
-    matrix(int r, int c) : row(r), col(c), arr(r, std::vector<double>(c, 0.0)) {}
+    /// Constructs an r x c zero matrix. Negative dimensions are rejected.
+    matrix(int r, int c) : row(r), col(c) {
+        if (r < 0 || c < 0) {
+            throw std::runtime_error("Matrix dimensions must be non-negative.");
+        }
+        arr.assign(r, std::vector<double>(c, 0.0));
+    }
 
     /// Returns the value at (i, j) without bounds checking.
     double get_element(int i, int j) { return arr[i][j]; }
@@ -141,7 +146,7 @@ class matrix {
 bool operator==(matrix m1, matrix m2);
 /// Returns true when both matrices have the same shape.
 bool shape_comp(matrix m1, matrix m2);
-/// Returns the `n x n` identity matrix.
+/// Returns the `n x n` identity matrix. Negative sizes are rejected.
 matrix identity(int n);
 /// Normalizes `-0` entries that can appear after elimination.
 void neg_zero(matrix& m);

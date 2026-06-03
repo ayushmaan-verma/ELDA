@@ -21,6 +21,10 @@ void matrix::print() {
 }
 
 matrix identity(int n) {
+    if (n < 0) {
+        throw std::runtime_error("Identity matrix size must be non-negative.");
+    }
+
     matrix m(n, n);
     for (int i = 0; i < n; i++) {
         m.arr[i][i] = 1;

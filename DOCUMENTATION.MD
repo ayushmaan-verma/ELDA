@@ -163,7 +163,7 @@ The design favors direct manipulation of storage. Most examples populate matrice
 ### Construction
 
 - `matrix()`: constructs a `3 x 3` zero matrix
-- `matrix(int r, int c)`: constructs an `r x c` zero matrix
+- `matrix(int r, int c)`: constructs an `r x c` zero matrix; negative dimensions throw `std::runtime_error`
 
 ### Element Access
 
@@ -183,6 +183,7 @@ This distinction matters when chaining operations.
 
 - The library namespace is `linalg`.
 - Matrix entries are stored in `matrix::arr` as `std::vector<std::vector<double>>`.
+- Zero-sized matrices are supported, but negative dimensions and negative `identity()` sizes throw `std::runtime_error`.
 - Most dimension mismatches are reported with `std::runtime_error`.
 - Several low-level accessors and replacement helpers assume valid indices and compatible shapes.
 - Angles are measured in radians.

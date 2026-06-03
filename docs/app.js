@@ -158,7 +158,7 @@ m.arr = {
     {1.0, 2.0, 3.0},
     {4.0, 5.0, 6.0}
 };`,
-                        notes: ["The constructor allocates row-major storage sized to r by c."]
+                        notes: ["The constructor allocates row-major storage sized to r by c.", "Zero-sized matrices are supported.", "Negative dimensions throw before allocation."]
                     }),
                     createEntry({
                         id: "matrix-get-element",
@@ -334,7 +334,7 @@ bool same_shape = shape_comp(a, b);`,
                         implementedIn: "src/matrix.cpp",
                         description: "Creates an n x n identity matrix.",
                         example: `matrix i3 = identity(3);`,
-                        notes: ["The diagonal is filled with 1 and the remaining entries stay 0."]
+                        notes: ["The diagonal is filled with 1 and the remaining entries stay 0.", "Negative sizes throw before allocation."]
                     }),
                     createEntry({
                         id: "matrix-neg-zero",
