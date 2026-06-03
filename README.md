@@ -6,6 +6,12 @@ The public headers live under `include/elda/`. The library target is `elda`, and
 
 For the primary documentation set, open `docs/index.html` in a browser. The site is fully static and now organizes the public API by header, with declaration blocks and usage examples for each exported entry, along with behavioral notes and visual 3x3 examples.
 
+## Open Source Contributions
+
+ELDA is open for contributions through GSSoC 2026. Contributors can start by reviewing [`issues.md`](issues.md) for tasks grouped by difficulty, then follow the guidelines in [`CONTRIBUTING.md`](CONTRIBUTING.md) and the community standards in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+
+For contribution-related questions, contact [ayushmaankumarverma@gmail.com](mailto:ayushmaankumarverma@gmail.com).
+
 ## Features
 
 - Dense matrix storage backed by `std::vector<std::vector<double>>`
@@ -26,6 +32,10 @@ For the primary documentation set, open `docs/index.html` in a browser. The site
 lin_alg_lib/
 ├── CMakeLists.txt
 ├── main.cpp
+├── LICENSE
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+├── issues.md
 ├── include/
 │   └── elda/
 │       ├── linalg.hpp
@@ -120,3 +130,7 @@ target_link_libraries(your_target PRIVATE elda)
 - `docs/index.html`: primary static documentation site
 - `DOCUMENTATION.MD`: markdown summary aligned with the web docs
 - `FUNCTIONS.MD`: compact public function index
+- [`issues.md`](issues.md): contributor issue backlog grouped by difficulty
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): contribution workflow and development guidelines
+- [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md): community standards and reporting guidance
+- [`LICENSE`](LICENSE): MIT License terms
