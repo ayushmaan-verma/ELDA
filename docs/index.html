@@ -293,6 +293,12 @@ ctest --test-dir build</code></pre>
                             are appropriate for small real-valued workloads and learning-oriented use.
                         </p>
                     </article>
+                    <article>
+                        <h4>Vector validation</h4>
+                        <p>
+                            Functions operating on vector sets (like <code>check_lin_comb()</code>) enforce strict dimensional checks at runtime. Inputs must be strictly column vectors (<code>cols == 1</code>) and share identical row counts, otherwise a <code>std::runtime_error</code> is thrown.
+                        </p>
+                    </article>
                 </div>
             </section>
 
