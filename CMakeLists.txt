@@ -21,3 +21,7 @@ target_include_directories(elda PUBLIC
 # Main Executable Target
 add_executable(main main.cpp)
 target_link_libraries(main PRIVATE elda)
+
+# Enable automated testing
+enable_testing()
+add_subdirectory(tests)
