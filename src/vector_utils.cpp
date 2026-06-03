@@ -53,7 +53,20 @@ matrix vec5(double x, double y, double z, double w, double u) {
     return m;
 }
 
-bool check_lin_comb(matrix m1, matrix m2) {
+bool check_lin_comb(bool check_lin_comb(matrix m1, matrix m2) {
+    // Validate that all inputs are single column vectors and share matching row counts
+    const size_t expected_rows = target.get_rows();
+    if (target.get_cols() != 1) {
+        throw std::runtime_error("Target matrix must be a column vector (exactly 1 column).");
+    }
+    for (const auto& vec : vectors) {
+        if (vec.get_cols() != 1) {
+            throw std::runtime_error("All input matrices in the vector set must be column vectors (exactly 1 column).");
+        }
+        if (vec.get_rows() != expected_rows) {
+            throw std::runtime_error("Dimension mismatch: All vectors must have the same number of rows.");
+        }
+    }
     // m2 is in span{m1} iff rank([m1 m2]) == rank([m1]).
     matrix aug(m1.row, 2);
     for (int i = 0; i < m1.row; i++) {
@@ -69,7 +82,20 @@ bool check_lin_comb(matrix m1, matrix m2) {
     return aug.rank() == coeff.rank();
 }
 
-bool check_lin_comb(matrix m1, matrix m2, matrix m3) {
+bool check_lin_comb(bool check_lin_comb(matrix m1, matrix m2, matrix m3) {
+    // Validate that all inputs are single column vectors and share matching row counts
+    const size_t expected_rows = target.get_rows();
+    if (target.get_cols() != 1) {
+        throw std::runtime_error("Target matrix must be a column vector (exactly 1 column).");
+    }
+    for (const auto& vec : vectors) {
+        if (vec.get_cols() != 1) {
+            throw std::runtime_error("All input matrices in the vector set must be column vectors (exactly 1 column).");
+        }
+        if (vec.get_rows() != expected_rows) {
+            throw std::runtime_error("Dimension mismatch: All vectors must have the same number of rows.");
+        }
+    }
     // m3 is in span{m1, m2} iff rank([m1 m2 m3]) == rank([m1 m2]).
     matrix aug(m1.row, 3);
     for (int i = 0; i < m1.row; i++) {
@@ -87,7 +113,20 @@ bool check_lin_comb(matrix m1, matrix m2, matrix m3) {
     return aug.rank() == coeff.rank();
 }
 
-bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4) {
+bool check_lin_comb(bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4) {
+    // Validate that all inputs are single column vectors and share matching row counts
+    const size_t expected_rows = target.get_rows();
+    if (target.get_cols() != 1) {
+        throw std::runtime_error("Target matrix must be a column vector (exactly 1 column).");
+    }
+    for (const auto& vec : vectors) {
+        if (vec.get_cols() != 1) {
+            throw std::runtime_error("All input matrices in the vector set must be column vectors (exactly 1 column).");
+        }
+        if (vec.get_rows() != expected_rows) {
+            throw std::runtime_error("Dimension mismatch: All vectors must have the same number of rows.");
+        }
+    }
     // m4 is in span{m1, m2, m3} iff rank([m1 m2 m3 m4]) == rank([m1 m2 m3]).
     matrix aug(m1.row, 4);
     for (int i = 0; i < m1.row; i++) {
@@ -107,7 +146,20 @@ bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4) {
     return aug.rank() == coeff.rank();
 }
 
-bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5) {
+bool check_lin_comb(bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5) {
+    // Validate that all inputs are single column vectors and share matching row counts
+    const size_t expected_rows = target.get_rows();
+    if (target.get_cols() != 1) {
+        throw std::runtime_error("Target matrix must be a column vector (exactly 1 column).");
+    }
+    for (const auto& vec : vectors) {
+        if (vec.get_cols() != 1) {
+            throw std::runtime_error("All input matrices in the vector set must be column vectors (exactly 1 column).");
+        }
+        if (vec.get_rows() != expected_rows) {
+            throw std::runtime_error("Dimension mismatch: All vectors must have the same number of rows.");
+        }
+    }
     // m5 is in span{m1, m2, m3, m4} iff rank([m1 m2 m3 m4 m5]) == rank([m1 m2 m3 m4]).
     matrix aug(m1.row, 5);
     for (int i = 0; i < m1.row; i++) {
