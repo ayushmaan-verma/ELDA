@@ -295,6 +295,10 @@ lin_alg_lib/
 
 ### Eigenvalue Convergence Bounds
 The `eigenvalues()` function uses unshifted QR iteration. It enforces a strict iteration limit (1000 iterations) and uses a tolerance-based check (`EPS`) for sub-diagonal convergence. If a matrix has a complex eigenvalue spectrum (e.g., standard rotation matrices), the unshifted real QR algorithm cannot converge to a strictly upper-triangular state. In these asymptotic or non-real scenarios, the function will abort and throw a `std::runtime_error` rather than entering an infinite loop.
+### Robust QR Decomposition
+The QR decomposition system has been upgraded to utilize the Modified Gram-Schmidt (MGS) algorithm. 
+* **Rectangular Behavior:** Follows the Reduced/Thin QR convention. For an $m \times n$ matrix, $Q$ returns as $m \times n$ and $R$ returns as a square $n \times n$ factor matrix.
+* **Rank Deficiency Handling:** Columns that are linearly dependent are gracefully intercepted when their calculated vector norm drops below `1e-9`, zeroing out the coordinate vectors safely to bypass division-by-zero exceptions and preventing `NaN` pollution.
 ### Vector Validation
 Functions operating on vector sets (like `check_lin_comb()`) enforce strict dimensional checks at runtime. Inputs must be strictly column vectors (`cols == 1`) and share identical row counts, otherwise a `std::runtime_error` is thrown.s
 

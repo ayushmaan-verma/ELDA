@@ -165,6 +165,31 @@ void test_matrix_transpose_and_determinant() {
     std::cout << "Transpose & determinant tests passed!" << std::endl;
 }
 
+void test_inverse_rejects_singular_pivots() {
+    std::cout << "Running inverse singular-pivot tests..." << std::endl;
+
+    linalg::matrix zero(2, 2);
+    expect_runtime_error([&zero]() { zero.inverse(); });
+
+    linalg::matrix duplicate_rows(2, 2);
+    duplicate_rows.arr = {{2.0, 4.0}, {2.0, 4.0}};
+    expect_runtime_error([&duplicate_rows]() { duplicate_rows.inverse(); });
+
+    linalg::matrix near_singular(2, 2);
+    near_singular.arr = {{1.0, 1.0}, {1.0, 1.0 + (linalg::EPS / 2.0)}};
+    expect_runtime_error([&near_singular]() { near_singular.inverse(); });
+
+    linalg::matrix needs_row_swap(2, 2);
+    needs_row_swap.arr = {{0.0, 2.0}, {1.0, 3.0}};
+    linalg::matrix inverse = needs_row_swap.inverse();
+    assert(is_close(inverse.get_element(0, 0), -1.5));
+    assert(is_close(inverse.get_element(0, 1), 1.0));
+    assert(is_close(inverse.get_element(1, 0), 0.5));
+    assert(is_close(inverse.get_element(1, 1), 0.0));
+
+    std::cout << "Inverse singular-pivot tests passed!" << std::endl;
+}
+
 void test_transforms_and_vectors() {
     std::cout << "Running transforms & vector utilities tests..." << std::endl;
     linalg::matrix trans = linalg::shift(5.0, 10.0);
@@ -247,14 +272,83 @@ void test_matpow_validation_and_results() {
     std::cout << "Matpow tests passed!" << std::endl;
 }
 
+bool matrix_is_finite(linalg::matrix m) {
+    for (int i = 0; i < m.row; i++) {
+        for (int j = 0; j < m.col; j++) {
+            if (!std::isfinite(m.arr[i][j])) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void assert_reconstructs(linalg::matrix original) {
+    linalg::matrix q = original.qr_decomp_q();
+    linalg::matrix r = original.qr_decomp_r();
+    linalg::matrix rebuilt = q * r;
+
+    assert(q.row == original.row);
+    assert(q.col == original.col);
+    assert(r.row == original.col);
+    assert(r.col == original.col);
+    assert(matrix_is_finite(q));
+    assert(matrix_is_finite(r));
+    assert(matrix_is_finite(rebuilt));
+
+    for (int i = 0; i < original.row; i++) {
+        for (int j = 0; j < original.col; j++) {
+            assert(is_close(original.arr[i][j], rebuilt.arr[i][j], 1e-4));
+        }
+    }
+}
+
+void test_gram_schmidt_bounds_and_dependent_columns() {
+    std::cout << "Running Gram-Schmidt bounds and dependency tests..." << std::endl;
+
+    linalg::matrix one_column(3, 1);
+    one_column.arr = {{3.0}, {4.0}, {0.0}};
+    linalg::matrix one_column_q = one_column.orthonormalize();
+    assert(matrix_is_finite(one_column_q));
+    assert(is_close(one_column_q.arr[0][0], 0.6));
+    assert(is_close(one_column_q.arr[1][0], 0.8));
+    assert_reconstructs(one_column);
+
+    linalg::matrix rectangular(2, 3);
+    rectangular.arr = {{1.0, 0.0, 2.0}, {0.0, 1.0, 3.0}};
+    assert_reconstructs(rectangular);
+
+    linalg::matrix zero_column(3, 2);
+    zero_column.arr = {{0.0, 1.0}, {0.0, 2.0}, {0.0, 3.0}};
+    linalg::matrix zero_column_q = zero_column.orthonormalize();
+    assert(matrix_is_finite(zero_column_q));
+    assert(is_close(zero_column_q.arr[0][0], 0.0));
+    assert(is_close(zero_column_q.arr[1][0], 0.0));
+    assert(is_close(zero_column_q.arr[2][0], 0.0));
+    assert_reconstructs(zero_column);
+
+    linalg::matrix dependent(3, 3);
+    dependent.arr = {{1.0, 1.0, 2.0}, {2.0, 2.0, 5.0}, {3.0, 3.0, 8.0}};
+    linalg::matrix dependent_q = dependent.orthonormalize();
+    assert(matrix_is_finite(dependent_q));
+    assert(is_close(dependent_q.arr[0][1], 0.0));
+    assert(is_close(dependent_q.arr[1][1], 0.0));
+    assert(is_close(dependent_q.arr[2][1], 0.0));
+    assert_reconstructs(dependent);
+
+    std::cout << "Gram-Schmidt bounds and dependency tests passed!" << std::endl;
+}
+
 int main() {
     std::cout << "=== STARTING ELDA UNIT TESTS ===" << std::endl;
     test_matrix_construction_and_identity();
     test_matrix_arithmetic();
     test_matrix_transpose_and_determinant();
+    test_inverse_rejects_singular_pivots();
     test_transforms_and_vectors();
     test_vector_shape_validation();
     test_matpow_validation_and_results();
+    test_gram_schmidt_bounds_and_dependent_columns();
     std::cout << "=== ALL TESTS PASSED SUCCESSFULLY ===" << std::endl;
     return 0;
 }

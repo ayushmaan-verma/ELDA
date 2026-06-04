@@ -426,11 +426,12 @@ matrix matrix::inverse() {
     // Apply Gauss-Jordan elimination to [mat | inv].
     for (int k = 0; k < m; k++) {
         int z = k;
-        while (!static_cast<bool>(mat.arr[z][k])) {
-            if (z + 1 == m) {
-                break;
-            }
+        while (z < m && std::abs(mat.arr[z][k]) <= EPS) {
             z++;
+        }
+
+        if (z == m) {
+            throw std::runtime_error("Inverse is defined only for Non-Singular matrix.");
         }
 
         if (z != k) {
@@ -439,6 +440,9 @@ matrix matrix::inverse() {
         }
 
         const double divisor = mat.arr[k][k];
+        if (std::abs(divisor) <= EPS) {
+            throw std::runtime_error("Inverse is defined only for Non-Singular matrix.");
+        }
         mat = mat.row_multi(k, 1 / divisor);
         inv = inv.row_multi(k, 1 / divisor);
 
@@ -491,35 +495,58 @@ matrix matrix::solve() {
 }
 
 matrix matrix::orthogonalize() {
-    matrix ot(row, col);
-    matrix v = get_col_vec(0);
-    matrix w = v;
-    for (int i = 0; i < col; i++) {
-        ot.replace_col(i, w);
-        v = get_col_vec(i + 1);
-        for (int j = 0; j < i + 1; j++) {
-            v = v - ot.get_col_vec(j) *
-                        (inner_product(v, ot.get_col_vec(j)) / inner_product(ot.get_col_vec(j), ot.get_col_vec(j)));
+    // Modified Gram-Schmidt for arbitrary m x n shapes.
+    matrix Q = *this;
+    for (int j = 0; j < col; j++) {
+        for (int i = 0; i < j; i++) {
+            double dot_product = 0.0;
+            double norm_sq_i = 0.0;
+            for (int k = 0; k < row; k++) {
+                dot_product += Q.arr[k][j] * Q.arr[k][i];
+                norm_sq_i += Q.arr[k][i] * Q.arr[k][i];
+            }
+
+            const double projection_coeff = norm_sq_i > EPS ? dot_product / norm_sq_i : 0.0;
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] -= projection_coeff * Q.arr[k][i];
+            }
         }
-        w = v;
+
+        double norm_sq_j = 0.0;
+        for (int k = 0; k < row; k++) {
+            norm_sq_j += Q.arr[k][j] * Q.arr[k][j];
+        }
+        if (norm_sq_j <= EPS) {
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] = 0.0;
+            }
+        }
     }
-    return ot;
+    fpg(Q);
+    return Q;
 }
 
 matrix matrix::orthonormalize() {
-    matrix ot(row, col);
-    matrix v = get_col_vec(0);
-    matrix w = v * (1 / v.norm());
-    for (int i = 0; i < col; i++) {
-        ot.replace_col(i, w);
-        v = get_col_vec(i + 1);
-        for (int j = 0; j < i + 1; j++) {
-            v = v - ot.get_col_vec(j) *
-                        (inner_product(v, ot.get_col_vec(j)) / inner_product(ot.get_col_vec(j), ot.get_col_vec(j)));
+    matrix Q = this->orthogonalize();
+    for (int j = 0; j < col; j++) {
+        double norm = 0.0;
+        for (int k = 0; k < row; k++) {
+            norm += Q.arr[k][j] * Q.arr[k][j];
         }
-        w = v * (1 / v.norm());
+        norm = std::sqrt(norm);
+        
+        if (norm > EPS) {
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] /= norm;
+            }
+        } else {
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] = 0.0;
+            }
+        }
     }
-    return ot;
+    fpg(Q);
+    return Q;
 }
 
 matrix matrix::qr_decomp_q() {
@@ -527,16 +554,21 @@ matrix matrix::qr_decomp_q() {
 }
 
 matrix matrix::qr_decomp_r() {
-    matrix r(col, col);
-    matrix q = qr_decomp_q();
-    for (int k = 0; k < col; k++) {
-        matrix a_k = this->get_col_vec(k);
-        for (int i = 0; i <= k; i++) {
-            matrix q_i_t = (q.get_col_vec(i)).transpose();
-            *r.ref_element(i, k) = (q_i_t * a_k).get_element(0, 0);
+    // For an m x n matrix, R is a square n x n upper triangular matrix
+    matrix Q = qr_decomp_q();
+    matrix R(col, col); // Strict Reduced/Thin QR Contract
+    
+    for (int j = 0; j < col; j++) {
+        for (int i = 0; i <= j; i++) {
+            double val = 0.0;
+            for (int k = 0; k < row; k++) {
+                val += Q.arr[k][i] * arr[k][j];
+            }
+            R.arr[i][j] = val;
         }
     }
-    return r;
+    fpg(R);
+    return R;
 }
 
 std::tuple<matrix, matrix, matrix> matrix::lu_decomposition() const {
