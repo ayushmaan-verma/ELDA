@@ -3,6 +3,7 @@
 #include <tuple>
 #include <stdexcept>
 #include <cmath>
+#include <ostream>
 
 namespace linalg {
 
@@ -21,6 +22,16 @@ void matrix::print() {
         }
         std::cout << std::endl;
     }
+}
+
+std::ostream& operator<<(std::ostream& os, const matrix& m) {
+    for (int i = 0; i < m.get_rows(); i++) {
+        for (int j = 0; j < m.get_cols(); j++) {
+            os << m(i, j) << " ";
+        }
+        os << std::endl;
+    }
+    return os;
 }
 
 matrix identity(int n) {

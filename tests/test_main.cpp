@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <sstream>
 #include <elda/linalg.hpp>
 
 bool is_close(double a, double b, double epsilon = 1e-5) {
@@ -20,6 +21,7 @@ void expect_runtime_error(Func func) {
 
 void test_matrix_construction_and_identity() {
     std::cout << "Running construction tests..." << std::endl;
+
     linalg::matrix m(2, 2);
     assert(m.row == 2);
     assert(m.col == 2);
@@ -28,6 +30,10 @@ void test_matrix_construction_and_identity() {
     linalg::matrix filled(2, 2, 3.5);
     assert(is_close(filled.get_element(0, 0), 3.5));
     assert(is_close(filled.get_element(1, 1), 3.5));
+
+    std::ostringstream out;
+    out << filled;
+    assert(out.str() == "3.5 3.5 \n3.5 3.5 \n");
 
     linalg::matrix empty(0, 0);
     assert(empty.row == 0);
@@ -43,6 +49,7 @@ void test_matrix_construction_and_identity() {
     expect_runtime_error([]() { linalg::matrix(-1, 2); });
     expect_runtime_error([]() { linalg::matrix(2, -1); });
     expect_runtime_error([]() { linalg::identity(-1); });
+
     std::cout << "Construction tests passed!" << std::endl;
 }
 
