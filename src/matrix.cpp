@@ -1,5 +1,7 @@
 #include "elda/matrix.hpp"
 #include <algorithm>
+#include <string>
+#include <sstream>
 
 namespace linalg {
 
@@ -18,6 +20,19 @@ void matrix::print() {
         }
         std::cout << std::endl;
     }
+}
+std::string matrix::to_string() const {
+    std::ostringstream oss;
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            oss << arr[i * col + j];
+            if (j < col - 1) {
+                oss << " "; // Space between columns
+            }
+        }
+        oss << "\n"; // Newline at the end of each row
+    }
+    return oss.str();
 }
 
 matrix identity(int n) {
