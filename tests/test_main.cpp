@@ -55,6 +55,34 @@ void test_transforms_and_vectors() {
     std::cout << "Transforms & vector utilities tests passed!" << std::endl;
 }
 
+void test_vector_shape_validation() {
+    std::cout << "Running check_lin_comb validation tests..." << std::endl;
+    linalg::matrix v1(3, 1, 1.0);
+    linalg::matrix v2(3, 1, 2.0);
+    linalg::matrix target(3, 1, 5.0);
+    
+    linalg::matrix bad_row_vec(2, 1, 1.0);
+    bool caught_row_mismatch = false;
+    try {
+        std::vector<linalg::matrix> vec_set = {v1, bad_row_vec};
+        linalg::check_lin_comb(target, vec_set);
+    } catch (const std::runtime_error& e) {
+        caught_row_mismatch = true;
+    }
+    assert(caught_row_mismatch && "Should throw exception for mismatched row sizes");
+
+    linalg::matrix wide_matrix(3, 2, 1.0);
+    bool caught_non_column = false;
+    try {
+        std::vector<linalg::matrix> vec_set = {v1, wide_matrix};
+        linalg::check_lin_comb(target, vec_set);
+    } catch (const std::runtime_error& e) {
+        caught_non_column = true;
+    }
+    assert(caught_non_column && "Should throw exception if any input is not a column vector");
+    
+    std::cout << "check_lin_comb validation tests passed!" << std::endl;
+
 void test_matpow_validation_and_results() {
     std::cout << "Running matpow tests..." << std::endl;
     linalg::matrix base(2, 2);
@@ -101,6 +129,7 @@ int main() {
     test_matrix_arithmetic();
     test_matrix_transpose_and_determinant();
     test_transforms_and_vectors();
+    test_vector_shape_validation();
     test_matpow_validation_and_results();
     std::cout << "=== ALL TESTS PASSED SUCCESSFULLY ===" << std::endl;
     return 0;
