@@ -246,28 +246,38 @@ int matrix::echelon() {
 
 int matrix::gaussian() {
     int swaps = 1;
-    for (int k = 0; k < std::min(row, col); k++) {
-        int z = k;
-        while (!static_cast<bool>(arr[z][k])) {
-            if (z + 1 == std::min(row, col)) {
-                break;
+    int r = 0;
+    for (int c = 0; c < col && r < row; c++) {
+        int pivot_row = r;
+        double max_val = std::abs(arr[r * col + c]);
+        for (int i = r + 1; i < row; i++) {
+            if (std::abs(arr[i * col + c]) > max_val) {
+                max_val = std::abs(arr[i * col + c]);
+                pivot_row = i;
             }
-            z++;
         }
-        if (k != z) {
-            *this = row_swap(k, z);
+        
+        if (max_val < 1e-9) {
+            continue; 
+        }
+        
+        if (pivot_row != r) {
+            *this = row_swap(r, pivot_row);
             swaps *= -1;
         }
-        const double divisor = arr[k][k];
-        if (divisor == 0) {
-            continue;
+        
+        // HIGHEST PRECISION: Inline direct division instead of reciprocal multiplication
+        const double divisor = arr[r * col + c];
+        for (int k = 0; k < col; k++) {
+            arr[r * col + k] /= divisor;
         }
-        *this = this->row_multi(k, 1 / divisor);
-        // Normalize the pivot row, then eliminate entries below it.
-        for (int i = k + 1; i < row; i++) {
-            const double multiplier = arr[i][k];
-            *this = row_op(i, -multiplier, k);
+        
+        // Eliminate below
+        for (int i = r + 1; i < row; i++) {
+            const double multiplier = arr[i * col + c];
+            *this = row_op(i, -multiplier, r);
         }
+        r++;
     }
     neg_zero(*this);
     fpg(*this);
@@ -411,53 +421,46 @@ matrix matrix::inverse() {
     if (row != col) {
         throw std::runtime_error("Inverse is defined only for square matrix.");
     }
-
     const int m = row;
     matrix mat(*this);
     matrix inv = identity(m);
 
-    // Apply Gauss-Jordan elimination to [mat | inv].
     for (int k = 0; k < m; k++) {
         int z = k;
-        while (!static_cast<bool>(mat.arr[z][k])) {
-            if (z + 1 == m) {
-                break;
-            }
+        while (std::abs(mat.arr[z * m + k]) < 1e-9) {
+            if (z + 1 == m) break;
             z++;
         }
-
         if (z != k) {
             mat = mat.row_swap(k, z);
             inv = inv.row_swap(k, z);
         }
-
-        const double divisor = mat.arr[k][k];
-        mat = mat.row_multi(k, 1 / divisor);
-        inv = inv.row_multi(k, 1 / divisor);
+        
+        // HIGHEST PRECISION: Inline direct division on both matrices simultaneously
+        const double divisor = mat.arr[k * m + k];
+        for (int j = 0; j < m; j++) {
+            mat.arr[k * m + j] /= divisor;
+            inv.arr[k * m + j] /= divisor;
+        }
 
         for (int i = k + 1; i < m; i++) {
-            const double multiplier = mat.arr[i][k];
+            const double multiplier = mat.arr[i * m + k];
             mat = mat.row_op(i, -multiplier, k);
             inv = inv.row_op(i, -multiplier, k);
         }
     }
-
     for (int k = m - 1; k > 0; k--) {
         for (int i = k - 1; i >= 0; i--) {
-            const double multiplier = mat.arr[i][k];
+            const double multiplier = mat.arr[i * m + k];
             mat = mat.row_op(i, -multiplier, k);
             inv = inv.row_op(i, -multiplier, k);
         }
     }
-
-    neg_zero(inv);
-
     for (int i = 0; i < m; i++) {
-        if (mat.arr[i][i] != 1) {
+        if (std::abs(mat.arr[i * m + i] - 1.0) > 1e-5) {
             throw std::runtime_error("Inverse is defined only for Non-Singular matrix.");
         }
     }
-
     neg_zero(inv);
     fpg(inv);
     return inv;
