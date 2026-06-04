@@ -16,7 +16,7 @@ This file lists the public API declared by the headers under `include/elda/`.
 | Signature | Description |
 | --- | --- |
 | `matrix()` | Construct a `3 x 3` zero matrix. |
-| `matrix(int r, int c, double val = 0.0)` | Construct an `r x c` matrix initialized with `val`. |
+| `matrix(int r, int c, double val = 0.0)` | Construct an `r x c` matrix initialized with `val`; negative dimensions throw. |
 | `double get_element(int i, int j)` | Return the value at `(i, j)`. |
 | `double* ref_element(int i, int j)` | Return a mutable pointer to the value at `(i, j)`. |
 | `void input()` | Read every entry from `std::cin`. |
@@ -70,7 +70,7 @@ This file lists the public API declared by the headers under `include/elda/`.
 | --- | --- |
 | `bool operator==(matrix m1, matrix m2)` | Return exact entry-wise equality. |
 | `bool shape_comp(matrix m1, matrix m2)` | Return true when shapes match. |
-| `matrix identity(int n)` | Return an `n x n` identity matrix. |
+| `matrix identity(int n)` | Return an `n x n` identity matrix; negative sizes throw. |
 | `void neg_zero(matrix& m)` | Convert exact negative-zero entries to zero. |
 | `void fpg(matrix& m)` | Convert entries with absolute value at most `EPS` to zero. |
 | `matrix matpow(matrix mat, long long expo)` | Raise a square matrix to a non-negative integer power; throws for negative exponents or non-square inputs. |

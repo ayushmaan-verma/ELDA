@@ -27,8 +27,13 @@ class matrix {
     /// Constructs a 3x3 zero matrix.
     matrix() : row(3), col(3), arr(3, std::vector<double>(3, 0.0)) {}
 
-    /// Constructs an r x c zero matrix.
-    matrix(int r, int c, double val = 0.0) : row(r), col(c), arr(r, std::vector<double>(c, val)) {}
+    /// Constructs an r x c matrix initialized with val. Negative dimensions are rejected.
+    matrix(int r, int c, double val = 0.0) : row(r), col(c) {
+        if (r < 0 || c < 0) {
+            throw std::runtime_error("Matrix dimensions must be non-negative.");
+        }
+        arr.assign(r, std::vector<double>(c, val));
+    }
 
     /// Returns the element at (i, j) as a copy. Helper for size_t/int safety.
     double operator()(size_t r, size_t c) const { return arr[r][c]; }
@@ -117,7 +122,7 @@ class matrix {
     matrix qr_decomp_q();
     /// Returns the R factor from QR decomposition.
     matrix qr_decomp_r();
-    
+
     /// Performs LU decomposition with partial pivoting: P * A = L * U.
     /// Returns a tuple of {P, L, U}. Throws std::runtime_error if matrix is rectangular or singular.
     std::tuple<matrix, matrix, matrix> lu_decomposition() const;
@@ -152,7 +157,7 @@ class matrix {
 bool operator==(matrix m1, matrix m2);
 /// Returns true when both matrices have the same shape.
 bool shape_comp(matrix m1, matrix m2);
-/// Returns the `n x n` identity matrix.
+/// Returns the `n x n` identity matrix. Negative sizes are rejected.
 matrix identity(int n);
 /// Normalizes `-0` entries that can appear after elimination.
 void neg_zero(matrix& m);

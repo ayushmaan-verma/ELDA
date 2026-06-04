@@ -154,7 +154,7 @@ m.print();`,
                         implementedIn: "inline in header",
                         description: "Constructs an r x c matrix initialized with val.",
                         example: `matrix m(2, 2, 1.0);`,
-                        notes: ["Storage is allocated to r by c and every entry is initialized to val.", "val defaults to 0.0."]
+                        notes: ["Storage is allocated to r by c and every entry is initialized to val.", "val defaults to 0.0.", "Zero-sized matrices are supported.", "Negative dimensions throw before allocation."]
                     }),
                     createEntry({
                         id: "matrix-get-element",
@@ -330,7 +330,7 @@ bool same_shape = shape_comp(a, b);`,
                         implementedIn: "src/matrix.cpp",
                         description: "Creates an n x n identity matrix.",
                         example: `matrix i3 = identity(3);`,
-                        notes: ["The diagonal is filled with 1 and the remaining entries stay 0."]
+                        notes: ["The diagonal is filled with 1 and the remaining entries stay 0.", "Negative sizes throw before allocation."]
                     }),
                     createEntry({
                         id: "matrix-neg-zero",
