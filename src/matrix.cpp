@@ -495,10 +495,9 @@ matrix matrix::solve() {
 }
 
 matrix matrix::orthogonalize() {
-    // Modified Gram-Schmidt for arbitrary m x n shapes
+    // Modified Gram-Schmidt for arbitrary m x n shapes.
     matrix Q = *this;
     for (int j = 0; j < col; j++) {
-        // Orthogonalize column j against all previous columns
         for (int i = 0; i < j; i++) {
             double dot_product = 0.0;
             double norm_sq_i = 0.0;
@@ -506,14 +505,20 @@ matrix matrix::orthogonalize() {
                 dot_product += Q.arr[k][j] * Q.arr[k][i];
                 norm_sq_i += Q.arr[k][i] * Q.arr[k][i];
             }
-            
-            double projection_coeff = 0.0;
-            if (norm_sq_i > 1e-9) {
-                projection_coeff = dot_product / norm_sq_i;
-            }
-            
+
+            const double projection_coeff = norm_sq_i > EPS ? dot_product / norm_sq_i : 0.0;
             for (int k = 0; k < row; k++) {
                 Q.arr[k][j] -= projection_coeff * Q.arr[k][i];
+            }
+        }
+
+        double norm_sq_j = 0.0;
+        for (int k = 0; k < row; k++) {
+            norm_sq_j += Q.arr[k][j] * Q.arr[k][j];
+        }
+        if (norm_sq_j <= EPS) {
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] = 0.0;
             }
         }
     }
@@ -530,12 +535,11 @@ matrix matrix::orthonormalize() {
         }
         norm = std::sqrt(norm);
         
-        if (norm > 1e-9) {
+        if (norm > EPS) {
             for (int k = 0; k < row; k++) {
                 Q.arr[k][j] /= norm;
             }
         } else {
-            // Handle rank deficiency: set column to pure zero instead of generating NaNs
             for (int k = 0; k < row; k++) {
                 Q.arr[k][j] = 0.0;
             }
