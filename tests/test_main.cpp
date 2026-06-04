@@ -57,14 +57,24 @@ int main() {
     std::cout << "=== ALL TESTS PASSED SUCCESSFULLY ===" << std::endl;
     return 0;
 }
-﻿#include <iostream>
 #include <cassert>
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
 #include <elda/linalg.hpp>
 
 bool is_close(double a, double b, double epsilon = 1e-5) {
     return std::abs(a - b) < epsilon;
+}
+
+template <typename Func>
+void expect_runtime_error(Func func) {
+    try {
+        func();
+    } catch (const std::runtime_error&) {
+        return;
+    }
+    assert(false && "Expected std::runtime_error");
 }
 
 void test_matrix_construction_and_identity() {
@@ -73,6 +83,25 @@ void test_matrix_construction_and_identity() {
     assert(m.row == 2);
     assert(m.col == 2);
     assert(is_close(m.get_element(0, 0), 0.0));
+
+    linalg::matrix filled(2, 2, 3.5);
+    assert(is_close(filled.get_element(0, 0), 3.5));
+    assert(is_close(filled.get_element(1, 1), 3.5));
+
+    linalg::matrix empty(0, 0);
+    assert(empty.row == 0);
+    assert(empty.col == 0);
+    assert(empty.arr.empty());
+
+    linalg::matrix i2 = linalg::identity(2);
+    assert(is_close(i2.arr[0][0], 1.0));
+    assert(is_close(i2.arr[0][1], 0.0));
+    assert(is_close(i2.arr[1][0], 0.0));
+    assert(is_close(i2.arr[1][1], 1.0));
+
+    expect_runtime_error([]() { linalg::matrix(-1, 2); });
+    expect_runtime_error([]() { linalg::matrix(2, -1); });
+    expect_runtime_error([]() { linalg::identity(-1); });
     std::cout << "Construction tests passed!" << std::endl;
 }
 
@@ -106,11 +135,11 @@ void test_transforms_and_vectors() {
     linalg::matrix trans = linalg::shift(5.0, 10.0);
     assert(is_close(trans.get_element(0, 2), 5.0));
     assert(is_close(trans.get_element(1, 2), 10.0));
-    linalg::matrix v3 = linalg::vec3(4.5, 4.5, 4.5);
+    linalg::matrix v3 = linalg::vec3(4.5, 5.5, 6.5);
     assert(v3.row == 3);
     assert(v3.col == 1);
     assert(is_close(v3.get_element(0, 0), 4.5));
-    assert(is_close(v3.get_element(2, 0), 4.5));
+    assert(is_close(v3.get_element(2, 0), 6.5));
     std::cout << "Transforms & vector utilities tests passed!" << std::endl;
 }
 
@@ -119,7 +148,7 @@ void test_vector_shape_validation() {
     linalg::matrix v1(3, 1, 1.0);
     linalg::matrix v2(3, 1, 2.0);
     linalg::matrix target(3, 1, 5.0);
-    
+
     linalg::matrix bad_row_vec(2, 1, 1.0);
     bool caught_row_mismatch = false;
     try {
@@ -139,8 +168,9 @@ void test_vector_shape_validation() {
         caught_non_column = true;
     }
     assert(caught_non_column && "Should throw exception if any input is not a column vector");
-    
+
     std::cout << "check_lin_comb validation tests passed!" << std::endl;
+}
 
 void test_matpow_validation_and_results() {
     std::cout << "Running matpow tests..." << std::endl;

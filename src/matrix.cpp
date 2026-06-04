@@ -1,5 +1,8 @@
 #include "elda/matrix.hpp"
 #include <algorithm>
+#include <tuple>
+#include <stdexcept>
+#include <cmath>
 
 namespace linalg {
 
@@ -21,6 +24,10 @@ void matrix::print() {
 }
 
 matrix identity(int n) {
+    if (n < 0) {
+        throw std::runtime_error("Identity matrix size must be non-negative.");
+    }
+
     matrix m(n, n);
     for (int i = 0; i < n; i++) {
         m.arr[i][i] = 1;
@@ -556,39 +563,63 @@ matrix matrix::qr_decomp_r() {
     return R;
 }
 
-matrix matrix::lu_decomp_l() {
-    matrix m(*this);
-    matrix l = identity(row);
-    for (int k = 0; k < std::min(row, col); k++) {
-        int z = k;
-        while (!static_cast<bool>(m.arr[z][k])) {
-            if (z + 1 == std::min(row, col)) {
-                break;
+std::tuple<matrix, matrix, matrix> matrix::lu_decomposition() const {
+    if (row != col) {
+        throw std::runtime_error("LU decomposition requires a square matrix.");
+    }
+    
+    size_t n = static_cast<size_t>(row);
+    matrix P(row, col); 
+    matrix L(row, col);
+    matrix U = *this;
+    
+    // Initialize P and L as identity matrices
+    for (size_t i = 0; i < n; i++) {
+        P.arr[i][i] = 1.0;
+        L.arr[i][i] = 1.0;
+    }
+
+    for (size_t i = 0; i < n; i++) {
+        // Find the pivot row
+        size_t pivot_row = i;
+        double max_val = std::abs(U.arr[i][i]);
+        
+        for (size_t k = i + 1; k < n; k++) {
+            if (std::abs(U.arr[k][i]) > max_val) {
+                max_val = std::abs(U.arr[k][i]);
+                pivot_row = k;
             }
-            z++;
         }
-        if (k != z) {
-            m = m.row_swap(k, z);
+
+        if (max_val < 1e-9) {
+            throw std::runtime_error("Matrix is singular; LU decomposition cannot proceed uniquely.");
         }
-        if (m.arr[k][k] == 0) {
-            continue;
+
+        // Pivot if necessary
+        if (pivot_row != i) {
+            // Swap rows in U and P
+            for (size_t j = 0; j < n; j++) {
+                std::swap(U.arr[i][j], U.arr[pivot_row][j]);
+                std::swap(P.arr[i][j], P.arr[pivot_row][j]);
+            }
+            // Swap multipliers in L (only columns before the current pivot index i)
+            for (size_t j = 0; j < i; j++) {
+                std::swap(L.arr[i][j], L.arr[pivot_row][j]);
+            }
         }
-        // Eliminate entries below the current pivot.
-        for (int i = k + 1; i < row; i++) {
-            const double multiplier = m.arr[i][k] / m.arr[k][k];
-            m = m.row_op(i, -multiplier, k);
-            *l.ref_element(i,k) = multiplier;
+
+        // Elimination pass
+        for (size_t k = i + 1; k < n; k++) {
+            double factor = U.arr[k][i] / U.arr[i][i];
+            L.arr[k][i] = factor; // Store the elimination multiplier inside L
+            for (size_t j = i; j < n; j++) {
+                U.arr[k][j] -= factor * U.arr[i][j];
+            }
         }
     }
-    neg_zero(l);
-    fpg(l);
-    return l;
-}
-
-matrix matrix::lu_decomp_u() {
-    matrix m(*this);
-    m.echelon();
-    return m;
+    neg_zero(L); fpg(L);
+    neg_zero(U); fpg(U);
+    return {P, L, U};
 }
 
 bool matrix::check_upper_tri() {
