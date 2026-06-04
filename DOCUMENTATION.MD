@@ -290,3 +290,8 @@ lin_alg_lib/
 - `docs/index.html`: full static web docs
 - `FUNCTIONS.MD`: compact API index
 - `README.md`: build and repository usage summary
+
+### Robust QR Decomposition
+The QR decomposition system has been upgraded to utilize the Modified Gram-Schmidt (MGS) algorithm. 
+* **Rectangular Behavior:** Follows the Reduced/Thin QR convention. For an $m \times n$ matrix, $Q$ returns as $m \times n$ and $R$ returns as a square $n \times n$ factor matrix.
+* **Rank Deficiency Handling:** Columns that are linearly dependent are gracefully intercepted when their calculated vector norm drops below `1e-9`, zeroing out the coordinate vectors safely to bypass division-by-zero exceptions and preventing `NaN` pollution.
