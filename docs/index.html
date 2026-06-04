@@ -247,6 +247,12 @@ ctest --test-dir build</code></pre>
                 </div>
                 <div class="notes-grid">
                     <article>
+                        <h4>LU Decomposition</h4>
+                        <p>
+                            <code>lu_decomposition()</code> uses partial pivoting and returns a tuple of <code>{P, L, U}</code> ensuring <code>P * A = L * U</code>. It throws a <code>std::runtime_error</code> if the matrix is rectangular or singular.
+                        </p>
+                    </article>
+                    <article>
                         <h4>Public storage and manual mutation</h4>
                         <p>
                             <code>matrix::row</code>, <code>matrix::col</code>, and <code>matrix::arr</code> are
@@ -291,6 +297,12 @@ ctest --test-dir build</code></pre>
                         <p>
                             QR and eigenvalue helpers use classical Gram-Schmidt and unshifted QR iteration. They
                             are appropriate for small real-valued workloads and learning-oriented use.
+                        </p>
+                    </article>
+                    <article>
+                        <h4>Vector validation</h4>
+                        <p>
+                            Functions operating on vector sets (like <code>check_lin_comb()</code>) enforce strict dimensional checks at runtime. Inputs must be strictly column vectors (<code>cols == 1</code>) and share identical row counts, otherwise a <code>std::runtime_error</code> is thrown.
                         </p>
                     </article>
                 </div>
