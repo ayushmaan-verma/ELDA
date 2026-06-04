@@ -5,6 +5,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <tuple>
 
 namespace linalg {
 
@@ -13,26 +14,58 @@ constexpr double PI = 3.141593;
 /// Threshold used to zero tiny floating-point artifacts.
 constexpr double EPS = 1e-6;
 
-/// Dense matrix type backed by a row-major 2D vector.
+/// Dense matrix type backed by a contiguous 1D row-major vector.
 class matrix {
   public:
     /// Number of rows.
     int row;
     /// Number of columns.
     int col;
-    /// Matrix entries stored in row-major order.
-    std::vector<std::vector<double>> arr;
+    /// Matrix entries flattened in contiguous row-major order.
+    std::vector<double> arr;
 
     /// Constructs a 3x3 zero matrix.
-    matrix() : row(3), col(3), arr(3, std::vector<double>(3, 0.0)) {}
+    matrix() : row(3), col(3), arr(9, 0.0) {}
 
     /// Constructs an r x c zero matrix.
-    matrix(int r, int c) : row(r), col(c), arr(r, std::vector<double>(c, 0.0)) {}
+    matrix(int r, int c) : row(r), col(c), arr(r * c, 0.0) {}
+
+    // --- Safe Public Element-Access Overloads ---
+    double operator()(size_t r, size_t c) const {
+        if (r >= static_cast<size_t>(row) || c >= static_cast<size_t>(col)) {
+            throw std::out_of_range("Matrix element access out of bounds.");
+        }
+        return arr[r * col + c];
+    }
+
+    double& operator()(size_t r, size_t c) {
+        if (r >= static_cast<size_t>(row) || c >= static_cast<size_t>(col)) {
+            throw std::out_of_range("Matrix element access out of bounds.");
+        }
+        return arr[r * col + c];
+    }
+    /// Constructs an r x c matrix initialized with val. Negative dimensions are rejected.
+    matrix(int r, int c, double val = 0.0) : row(r), col(c) {
+        if (r < 0 || c < 0) {
+            throw std::runtime_error("Matrix dimensions must be non-negative.");
+        }
+        arr.assign(r, std::vector<double>(c, val));
+    }
+
+    /// Returns the element at (i, j) as a copy. Helper for size_t/int safety.
+    double operator()(size_t r, size_t c) const { return arr[r][c]; }
+    /// Returns a mutable reference to the element at (i, j).
+    double& operator()(size_t r, size_t c) { return arr[r][c]; }
+
+    /// Returns the number of rows.
+    size_t get_rows() const { return static_cast<size_t>(row); }
+    /// Returns the number of columns.
+    size_t get_cols() const { return static_cast<size_t>(col); }
 
     /// Returns the value at (i, j) without bounds checking.
-    double get_element(int i, int j) { return arr[i][j]; }
+    double get_element(int i, int j) { return arr[i * col + j]; }
     /// Returns a mutable pointer to the element at (i, j).
-    double* ref_element(int i, int j) { return &arr[i][j]; }
+    double* ref_element(int i, int j) { return &arr[i * col + j]; }
 
     /// Reads matrix entries from `std::cin` in row-major order.
     void input();
@@ -108,10 +141,10 @@ class matrix {
     matrix qr_decomp_q();
     /// Returns the R factor from QR decomposition.
     matrix qr_decomp_r();
-    /// Returns the L factor from LU decomposition.
-    matrix lu_decomp_l();
-    /// Returns the U factor from LU decomposition.
-    matrix lu_decomp_u();
+
+    /// Performs LU decomposition with partial pivoting: P * A = L * U.
+    /// Returns a tuple of {P, L, U}. Throws std::runtime_error if matrix is rectangular or singular.
+    std::tuple<matrix, matrix, matrix> lu_decomposition() const;
 
     /// Returns a matrix containing row `r` and zeros elsewhere.
     matrix get_row(int r);
@@ -143,13 +176,13 @@ class matrix {
 bool operator==(matrix m1, matrix m2);
 /// Returns true when both matrices have the same shape.
 bool shape_comp(matrix m1, matrix m2);
-/// Returns the `n x n` identity matrix.
+/// Returns the `n x n` identity matrix. Negative sizes are rejected.
 matrix identity(int n);
 /// Normalizes `-0` entries that can appear after elimination.
 void neg_zero(matrix& m);
 /// Zeros entries whose absolute value is at most `EPS` (floating-point cleanup).
 void fpg(matrix& m);
-/// Raises a matrix to a non-negative integer power.
+/// Raises a square matrix to a non-negative integer power.
 matrix matpow(matrix mat, long long expo);
 /// Returns true when `transpose() == inverse()`.
 bool check_ortho(matrix mat);
@@ -159,6 +192,8 @@ bool check_unitary(matrix mat);
 double inner_product(matrix a, matrix b);
 /// Returns the angle between two matrices in radians.
 double angle(matrix a, matrix b);
+
+std::ostream& operator<<(std::ostream& os, const matrix& m);
 
 }
 

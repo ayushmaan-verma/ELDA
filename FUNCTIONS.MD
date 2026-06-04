@@ -16,7 +16,7 @@ This file lists the public API declared by the headers under `include/elda/`.
 | Signature | Description |
 | --- | --- |
 | `matrix()` | Construct a `3 x 3` zero matrix. |
-| `matrix(int r, int c)` | Construct an `r x c` zero matrix. |
+| `matrix(int r, int c, double val = 0.0)` | Construct an `r x c` matrix initialized with `val`; negative dimensions throw. |
 | `double get_element(int i, int j)` | Return the value at `(i, j)`. |
 | `double* ref_element(int i, int j)` | Return a mutable pointer to the value at `(i, j)`. |
 | `void input()` | Read every entry from `std::cin`. |
@@ -51,8 +51,7 @@ This file lists the public API declared by the headers under `include/elda/`.
 | `matrix orthonormalize()` | Return columns orthonormalized with Gram-Schmidt. |
 | `matrix qr_decomp_q()` | Return the `Q` factor from QR decomposition. |
 | `matrix qr_decomp_r()` | Return the `R` factor from QR decomposition. |
-| `matrix lu_decomp_l()` | Return the lower-triangular multiplier matrix from LU decomposition. |
-| `matrix lu_decomp_u()` | Return the echelon-form upper factor from LU decomposition. |
+| `std::tuple<matrix, matrix, matrix> lu_decomposition()` | Return `{P, L, U}` such that `P * A = L * U`. |
 | `matrix get_row(int r)` | Return a matrix containing row `r` and zeros elsewhere. |
 | `matrix get_col(int c)` | Return a matrix containing column `c` and zeros elsewhere. |
 | `matrix get_row_vec(int r)` | Return row `r` as a `1 x col` matrix. |
@@ -71,10 +70,10 @@ This file lists the public API declared by the headers under `include/elda/`.
 | --- | --- |
 | `bool operator==(matrix m1, matrix m2)` | Return exact entry-wise equality. |
 | `bool shape_comp(matrix m1, matrix m2)` | Return true when shapes match. |
-| `matrix identity(int n)` | Return an `n x n` identity matrix. |
+| `matrix identity(int n)` | Return an `n x n` identity matrix; negative sizes throw. |
 | `void neg_zero(matrix& m)` | Convert exact negative-zero entries to zero. |
 | `void fpg(matrix& m)` | Convert entries with absolute value at most `EPS` to zero. |
-| `matrix matpow(matrix mat, long long expo)` | Raise a matrix to a non-negative integer power. |
+| `matrix matpow(matrix mat, long long expo)` | Raise a square matrix to a non-negative integer power; throws for negative exponents or non-square inputs. |
 | `bool check_ortho(matrix mat)` | Return true when `transpose() == inverse()`. |
 | `bool check_unitary(matrix mat)` | Return true when `transpose() == adjoint()`. |
 | `double inner_product(matrix a, matrix b)` | Return the Frobenius inner product of same-shaped matrices. |
@@ -113,3 +112,4 @@ Angles are measured in radians.
 | `bool check_lin_comb(matrix m1, matrix m2, matrix m3)` | Return true when `m3` is in the span of `m1` and `m2`. |
 | `bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4)` | Return true when `m4` is in the span of `m1`, `m2`, and `m3`. |
 | `bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5)` | Return true when `m5` is in the span of `m1`, `m2`, `m3`, and `m4`. |
+| `bool check_lin_comb(matrix target, const std::vector<matrix>& vectors)` | Return true when `target` is in the span of the given `vectors`. |
