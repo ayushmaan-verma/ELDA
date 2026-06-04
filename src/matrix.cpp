@@ -421,6 +421,14 @@ matrix matrix::inverse() {
             if (z + 1 == m) break;
             z++;
         }
+        while (z < m && std::abs(mat.arr[z][k]) <= EPS) {
+            z++;
+        }
+
+        if (z == m) {
+            throw std::runtime_error("Inverse is defined only for Non-Singular matrix.");
+        }
+
         if (z != k) {
             mat = mat.row_swap(k, z);
             inv = inv.row_swap(k, z);
@@ -428,6 +436,13 @@ matrix matrix::inverse() {
         const double divisor = mat.arr[k * m + k];
         mat = mat.row_multi(k, 1.0 / divisor);
         inv = inv.row_multi(k, 1.0 / divisor);
+
+        const double divisor = mat.arr[k][k];
+        if (std::abs(divisor) <= EPS) {
+            throw std::runtime_error("Inverse is defined only for Non-Singular matrix.");
+        }
+        mat = mat.row_multi(k, 1 / divisor);
+        inv = inv.row_multi(k, 1 / divisor);
 
         for (int i = k + 1; i < m; i++) {
             const double multiplier = mat.arr[i * m + k];
@@ -471,6 +486,7 @@ matrix matrix::solve() {
 }
 
 matrix matrix::orthogonalize() {
+    // Modified Gram-Schmidt for arbitrary m x n shapes.
     matrix Q = *this;
     for (int j = 0; j < col; j++) {
         for (int i = 0; i < j; i++) {
@@ -486,6 +502,23 @@ matrix matrix::orthogonalize() {
             }
             for (int k = 0; k < row; k++) {
                 Q.arr[k * col + j] -= projection_coeff * Q.arr[k * col + i];
+                dot_product += Q.arr[k][j] * Q.arr[k][i];
+                norm_sq_i += Q.arr[k][i] * Q.arr[k][i];
+            }
+
+            const double projection_coeff = norm_sq_i > EPS ? dot_product / norm_sq_i : 0.0;
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] -= projection_coeff * Q.arr[k][i];
+            }
+        }
+
+        double norm_sq_j = 0.0;
+        for (int k = 0; k < row; k++) {
+            norm_sq_j += Q.arr[k][j] * Q.arr[k][j];
+        }
+        if (norm_sq_j <= EPS) {
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] = 0.0;
             }
         }
     }
@@ -508,6 +541,19 @@ matrix matrix::orthonormalize() {
         } else {
             for (int k = 0; k < row; k++) {
                 Q.arr[k * col + j] = 0.0;
+        double norm = 0.0;
+        for (int k = 0; k < row; k++) {
+            norm += Q.arr[k][j] * Q.arr[k][j];
+        }
+        norm = std::sqrt(norm);
+        
+        if (norm > EPS) {
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] /= norm;
+            }
+        } else {
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] = 0.0;
             }
         }
     }
@@ -522,6 +568,10 @@ matrix matrix::qr_decomp_q() {
 matrix matrix::qr_decomp_r() {
     matrix Q = qr_decomp_q();
     matrix R(col, col);
+    // For an m x n matrix, R is a square n x n upper triangular matrix
+    matrix Q = qr_decomp_q();
+    matrix R(col, col); // Strict Reduced/Thin QR Contract
+    
     for (int j = 0; j < col; j++) {
         for (int i = 0; i <= j; i++) {
             double val = 0.0;
@@ -529,6 +579,9 @@ matrix matrix::qr_decomp_r() {
                 val += Q.arr[k * col + i] * arr[k * col + j];
             }
             R.arr[i * col + j] = val;
+                val += Q.arr[k][i] * arr[k][j];
+            }
+            R.arr[i][j] = val;
         }
     }
     fpg(R);

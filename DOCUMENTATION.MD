@@ -298,6 +298,11 @@ The structural layout of matrix components has been converted from nested pointe
 * **Hardware Optimizations:** Eliminates pointer indirection steps, optimizing cache lookup loops and maximizing processor pipeline cache-line retention.
 * **Layout Index Standard:** Multi-dimensional tracking parses layout offsets using row-major storage ordering maps: `index = row_idx * col_count + col_idx`.
 
+
+### Robust QR Decomposition
+The QR decomposition system has been upgraded to utilize the Modified Gram-Schmidt (MGS) algorithm. 
+* **Rectangular Behavior:** Follows the Reduced/Thin QR convention. For an $m \times n$ matrix, $Q$ returns as $m \times n$ and $R$ returns as a square $n \times n$ factor matrix.
+* **Rank Deficiency Handling:** Columns that are linearly dependent are gracefully intercepted when their calculated vector norm drops below `1e-9`, zeroing out the coordinate vectors safely to bypass division-by-zero exceptions and preventing `NaN` pollution.
 ### Vector Validation
 Functions operating on vector sets (like `check_lin_comb()`) enforce strict dimensional checks at runtime. Inputs must be strictly column vectors (`cols == 1`) and share identical row counts, otherwise a `std::runtime_error` is thrown.s
 
