@@ -23,6 +23,7 @@
             <nav class="sidebar-nav" aria-label="Documentation sections">
                 <a href="#overview">Overview</a>
                 <a href="#quickstart">Quickstart</a>
+                <a href="#testing">Running Tests</a>
                 <a href="#reference-intro">Header Reference</a>
                 <a href="#header-linalg">linalg.hpp</a>
                 <a href="#header-matrix">matrix.hpp</a>
@@ -141,6 +142,19 @@ using namespace linalg;</code></pre>
                         </p>
                     </div>
                 </div>
+            </section>
+
+            <section class="doc-section" id="testing">
+                <div class="section-heading">
+                    <p class="section-kicker">Testing</p>
+                    <h3>Running the automated test suite</h3>
+                </div>
+                <p>
+                    ELDA includes an automated test suite using CTest. To run the tests, configure and build the project, then execute CTest:
+                </p>
+                <pre><code class="language-bash">cmake -S . -B build
+cmake --build build
+ctest --test-dir build</code></pre>
             </section>
 
             <section class="doc-section" id="reference-intro">
@@ -277,6 +291,12 @@ using namespace linalg;</code></pre>
                         <p>
                             QR and eigenvalue helpers use classical Gram-Schmidt and unshifted QR iteration. They
                             are appropriate for small real-valued workloads and learning-oriented use.
+                        </p>
+                    </article>
+                    <article>
+                        <h4>Vector validation</h4>
+                        <p>
+                            Functions operating on vector sets (like <code>check_lin_comb()</code>) enforce strict dimensional checks at runtime. Inputs must be strictly column vectors (<code>cols == 1</code>) and share identical row counts, otherwise a <code>std::runtime_error</code> is thrown.
                         </p>
                     </article>
                 </div>

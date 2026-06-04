@@ -74,7 +74,7 @@ This file lists the public API declared by the headers under `include/elda/`.
 | `matrix identity(int n)` | Return an `n x n` identity matrix. |
 | `void neg_zero(matrix& m)` | Convert exact negative-zero entries to zero. |
 | `void fpg(matrix& m)` | Convert entries with absolute value at most `EPS` to zero. |
-| `matrix matpow(matrix mat, long long expo)` | Raise a matrix to a non-negative integer power. |
+| `matrix matpow(matrix mat, long long expo)` | Raise a square matrix to a non-negative integer power; throws for negative exponents or non-square inputs. |
 | `bool check_ortho(matrix mat)` | Return true when `transpose() == inverse()`. |
 | `bool check_unitary(matrix mat)` | Return true when `transpose() == adjoint()`. |
 | `double inner_product(matrix a, matrix b)` | Return the Frobenius inner product of same-shaped matrices. |
