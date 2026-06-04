@@ -71,9 +71,21 @@ confusing behavior, especially for exponent zero.
 - Preserve correct behavior for exponents zero and one.
 - Add tests for valid and invalid inputs.
 
+### 5. Implement `std::ostream` operator overloading
+
+**Problem:** The `matrix` class uses a custom `print()` method for output. Overloading `std::ostream& operator<<(std::ostream&, const matrix&)` is more idiomatic in C++ and allows the library to work seamlessly with standard I/O streams and string formatting.
+
+**Relevant files:** `include/elda/matrix.hpp`, `src/matrix.cpp`
+
+**Acceptance criteria:**
+- Implement `operator<<` for the `linalg::matrix` class.
+- The output format should be consistent with the existing `print()` method (one row per line, elements separated by spaces).
+- Update the demo `main.cpp` and existing tests to use the new operator.
+- Document the usage in `DOCUMENTATION.MD`.
+
 ## Level 2: Intermediate
 
-### 5. Fix pivot selection in elimination and rank calculation
+### 6. Fix pivot selection in elimination and rank calculation
 
 **Problem:** `echelon()` and `gaussian()` search for pivots only down to
 `min(row, col)` and assume the next pivot is at `(k, k)`. This fails for tall
@@ -91,7 +103,7 @@ rank is 1.
   tall, wide, rank-deficient, and leading-zero-column matrices.
 - Add regression tests for these matrix shapes.
 
-### 6. Detect singular and inconsistent systems in `solve`
+### 7. Detect singular and inconsistent systems in `solve`
 
 **Problem:** `solve()` assumes every `N x (N + 1)` augmented matrix has one
 unique solution. Singular, underdetermined, and inconsistent systems can return
@@ -107,7 +119,7 @@ meaningless values instead of reporting that no unique solution exists.
 - Preserve correct solutions for systems that require row swaps.
 - Add tests for unique, inconsistent, and underdetermined systems.
 
-### 7. Check for singular pivots before division in `inverse`
+### 8. Check for singular pivots before division in `inverse`
 
 **Problem:** `inverse()` divides by the pivot before verifying that it is
 non-zero. Singular matrices can create infinities or NaNs during elimination
@@ -123,7 +135,7 @@ before the function eventually throws.
 - Use a tolerance consistent with the library's floating-point policy.
 - Add tests for zero, duplicate-row, and near-singular matrices.
 
-### 8. Fix Gram-Schmidt column bounds and dependent-column handling
+### 9. Fix Gram-Schmidt column bounds and dependent-column handling
 
 **Problem:** `orthogonalize()` and `orthonormalize()` call
 `get_col_vec(i + 1)` on the final loop iteration, which reads past the last
@@ -139,7 +151,7 @@ column. They also divide by zero when columns are zero or linearly dependent.
 - Add tests for one-column matrices, rectangular matrices, zero columns, and
   dependent columns.
 
-### 9. Use tolerant comparisons for floating-point matrix checks
+### 10. Use tolerant comparisons for floating-point matrix checks
 
 **Problem:** `operator==`, `check_ortho()`, and triangular checks use exact
 floating-point equality. Matrices produced by trigonometric functions or
@@ -155,9 +167,21 @@ rounding errors.
 - Keep shape mismatches false without accessing invalid storage.
 - Add tests using rotation matrices and small floating-point perturbations.
 
+### 11. Remove implicit `fpg()` calls from arithmetic operators
+
+**Problem:** `operator+`, `operator-`, and `operator=` currently call `fpg()` (floating-point cleanup) internally. While this helps with "near-zero" artifacts, it is non-standard behavior for a math library and can lead to unexpected precision loss in sensitive iterative algorithms. Users should have explicit control over when their data is modified.
+
+**Relevant files:** `src/matrix.cpp`
+
+**Acceptance criteria:**
+- Remove the internal calls to `fpg()` from `operator+`, `operator-`, and `operator=`.
+- Ensure that `fpg()` remains available as an explicit utility for users.
+- Verify that this change doesn't break existing tests (some tests might need to call `fpg()` explicitly if they rely on it).
+- Update `Behavior Notes` in `README.md` and `DOCUMENTATION.MD`.
+
 ## Level 3: Advanced
 
-### 10. Redesign LU decomposition to handle row permutations [RESOLVED]
+### 12. Redesign LU decomposition to handle row permutations [RESOLVED]
 
 **Problem:** `lu_decomp_l()` swaps rows in its working matrix but does not expose
 a permutation matrix or correctly update previously stored multipliers.
@@ -173,7 +197,7 @@ require pivoting do not reliably satisfy `A = L * U`.
 - Document behavior for singular and rectangular matrices.
 - Add reconstruction tests for matrices with and without pivoting.
 
-### 11. Add convergence limits and failure handling to `eigenvalues`
+### 13. Add convergence limits and failure handling to `eigenvalues`
 
 **Problem:** `eigenvalues()` loops until the matrix is exactly upper triangular.
 Some real matrices have complex eigenvalues, and some QR iterations converge
@@ -190,7 +214,7 @@ also make termination sensitive to floating-point residue.
 - Add tests for diagonal, symmetric, slowly converging, and non-real-spectrum
   cases.
 
-### 12. Make QR decomposition robust for rectangular and rank-deficient inputs
+### 14. Make QR decomposition robust for rectangular and rank-deficient inputs
 
 **Problem:** QR decomposition inherits the Gram-Schmidt bounds and zero-division
 issues, and its current dimensions and behavior are not clearly defined for
@@ -205,7 +229,7 @@ wide or rank-deficient matrices. This also affects `eigenvalues()`.
 - Handle rank-deficient inputs without NaNs or out-of-bounds access.
 - Add tests that verify reconstruction and orthogonality within a tolerance.
 
-### 13. Protect matrix invariants from public mutable state
+### 15. Protect matrix invariants from public mutable state
 
 **Problem:** `matrix::row`, `matrix::col`, and `matrix::arr` are public and can
 be modified independently. A caller can make the declared shape disagree with
@@ -221,3 +245,15 @@ documentation
 - Minimize unnecessary source breakage or document the breaking change clearly.
 - Add tests showing that public operations cannot observe an inconsistent
   matrix shape.
+
+### 16. Flatten matrix storage to a single contiguous vector
+
+**Problem:** The current `std::vector<std::vector<double>>` storage causes "double indirection" and poor cache locality because each row is a separate allocation. In linear algebra, contiguous memory layout (e.g., a single `std::vector<double>` of size `row * col`) is significantly faster for large matrices and easier to pass to other high-performance libraries.
+
+**Relevant files:** `include/elda/matrix.hpp`, `src/matrix.cpp`
+
+**Acceptance criteria:**
+- Refactor the `matrix` class to use a single `std::vector<double>` for data.
+- Update all indexing logic to use `(i * col + j)` for row-major access.
+- Ensure that performance-sensitive operations (multiplication, reductions) are updated to take advantage of the contiguous layout.
+- Maintain the existing public API for element access (`operator()`, etc.) to minimize breaking changes.
