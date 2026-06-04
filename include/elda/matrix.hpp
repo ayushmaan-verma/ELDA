@@ -28,7 +28,7 @@ class matrix {
     matrix() : row(3), col(3), arr(3, std::vector<double>(3, 0.0)) {}
 
     /// Constructs an r x c zero matrix.
-    matrix(int r, int c) : row(r), col(c), arr(r, std::vector<double>(c, 0.0)) {}
+    matrix(int r, int c, double val = 0.0) : row(r), col(c), arr(r, std::vector<double>(c, val)) {}
 
     /// Returns the element at (i, j) as a copy. Helper for size_t/int safety.
     double operator()(size_t r, size_t c) const { return arr[r][c]; }

@@ -40,7 +40,7 @@ has the same problem for negative `n`.
 - Add tests for negative rows, negative columns, and negative identity sizes.
 - Document whether zero-sized matrices are supported.
 
-### 3. Validate vector shapes in `check_lin_comb`
+### 3. Validate vector shapes in `check_lin_comb` [RESOLVED]
 
 **Problem:** The `check_lin_comb` overloads assume every argument is a column
 vector with the same row count. Mismatched inputs can access `arr[i][0]` outside
@@ -157,7 +157,7 @@ rounding errors.
 
 ## Level 3: Advanced
 
-### 10. Redesign LU decomposition to handle row permutations
+### 10. Redesign LU decomposition to handle row permutations [RESOLVED]
 
 **Problem:** `lu_decomp_l()` swaps rows in its working matrix but does not expose
 a permutation matrix or correctly update previously stored multipliers.

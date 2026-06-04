@@ -82,6 +82,7 @@ void test_vector_shape_validation() {
     assert(caught_non_column && "Should throw exception if any input is not a column vector");
     
     std::cout << "check_lin_comb validation tests passed!" << std::endl;
+}
 
 void test_matpow_validation_and_results() {
     std::cout << "Running matpow tests..." << std::endl;

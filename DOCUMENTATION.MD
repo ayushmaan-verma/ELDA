@@ -74,7 +74,7 @@ Primary surface areas:
 - reductions: `echelon()`, `gaussian()`, `gauss_jordan()`, `canonical()`
 - properties and derived matrices: `rank()`, `trace()`, `det()`, `adjoint()`, `transpose()`, `inverse()`, `solve()`, `norm()`
 - structural helpers: `get_row()`, `get_col()`, `get_row_vec()`, `get_col_vec()`, `replace_row()`, `replace_col()`
-- decomposition and spectral helpers: `orthogonalize()`, `orthonormalize()`, `qr_decomp_q()`, `qr_decomp_r()`, `lu_decomp_l()`, `lu_decomp_u()`, `char_poly()`, `eigenvalues()`
+- decomposition and spectral helpers: `orthogonalize()`, `orthonormalize()`, `qr_decomp_q()`, `qr_decomp_r()`, `lu_decomposition()`, `char_poly()`, `eigenvalues()`
 - free helpers: `identity()`, `fpg()`, `matpow()` for square matrices and non-negative exponents, `inner_product()`, `angle()`, and exact-check helpers
 
 Example:
@@ -138,6 +138,7 @@ Span checks:
 - `check_lin_comb(matrix m1, matrix m2, matrix m3)`
 - `check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4)`
 - `check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5)`
+- `check_lin_comb(matrix target, const std::vector<matrix>& vectors)`
 
 Example:
 
@@ -163,7 +164,7 @@ The design favors direct manipulation of storage. Most examples populate matrice
 ### Construction
 
 - `matrix()`: constructs a `3 x 3` zero matrix
-- `matrix(int r, int c)`: constructs an `r x c` zero matrix
+- `matrix(int r, int c, double val = 0.0)`: constructs an `r x c` matrix initialized with `val`
 
 ### Element Access
 
