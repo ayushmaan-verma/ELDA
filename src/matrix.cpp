@@ -495,35 +495,54 @@ matrix matrix::solve() {
 }
 
 matrix matrix::orthogonalize() {
-    matrix ot(row, col);
-    matrix v = get_col_vec(0);
-    matrix w = v;
-    for (int i = 0; i < col; i++) {
-        ot.replace_col(i, w);
-        v = get_col_vec(i + 1);
-        for (int j = 0; j < i + 1; j++) {
-            v = v - ot.get_col_vec(j) *
-                        (inner_product(v, ot.get_col_vec(j)) / inner_product(ot.get_col_vec(j), ot.get_col_vec(j)));
+    // Modified Gram-Schmidt for arbitrary m x n shapes
+    matrix Q = *this;
+    for (int j = 0; j < col; j++) {
+        // Orthogonalize column j against all previous columns
+        for (int i = 0; i < j; i++) {
+            double dot_product = 0.0;
+            double norm_sq_i = 0.0;
+            for (int k = 0; k < row; k++) {
+                dot_product += Q.arr[k][j] * Q.arr[k][i];
+                norm_sq_i += Q.arr[k][i] * Q.arr[k][i];
+            }
+            
+            double projection_coeff = 0.0;
+            if (norm_sq_i > 1e-9) {
+                projection_coeff = dot_product / norm_sq_i;
+            }
+            
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] -= projection_coeff * Q.arr[k][i];
+            }
         }
-        w = v;
     }
-    return ot;
+    fpg(Q);
+    return Q;
 }
 
 matrix matrix::orthonormalize() {
-    matrix ot(row, col);
-    matrix v = get_col_vec(0);
-    matrix w = v * (1 / v.norm());
-    for (int i = 0; i < col; i++) {
-        ot.replace_col(i, w);
-        v = get_col_vec(i + 1);
-        for (int j = 0; j < i + 1; j++) {
-            v = v - ot.get_col_vec(j) *
-                        (inner_product(v, ot.get_col_vec(j)) / inner_product(ot.get_col_vec(j), ot.get_col_vec(j)));
+    matrix Q = this->orthogonalize();
+    for (int j = 0; j < col; j++) {
+        double norm = 0.0;
+        for (int k = 0; k < row; k++) {
+            norm += Q.arr[k][j] * Q.arr[k][j];
         }
-        w = v * (1 / v.norm());
+        norm = std::sqrt(norm);
+        
+        if (norm > 1e-9) {
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] /= norm;
+            }
+        } else {
+            // Handle rank deficiency: set column to pure zero instead of generating NaNs
+            for (int k = 0; k < row; k++) {
+                Q.arr[k][j] = 0.0;
+            }
+        }
     }
-    return ot;
+    fpg(Q);
+    return Q;
 }
 
 matrix matrix::qr_decomp_q() {
@@ -531,16 +550,21 @@ matrix matrix::qr_decomp_q() {
 }
 
 matrix matrix::qr_decomp_r() {
-    matrix r(col, col);
-    matrix q = qr_decomp_q();
-    for (int k = 0; k < col; k++) {
-        matrix a_k = this->get_col_vec(k);
-        for (int i = 0; i <= k; i++) {
-            matrix q_i_t = (q.get_col_vec(i)).transpose();
-            *r.ref_element(i, k) = (q_i_t * a_k).get_element(0, 0);
+    // For an m x n matrix, R is a square n x n upper triangular matrix
+    matrix Q = qr_decomp_q();
+    matrix R(col, col); // Strict Reduced/Thin QR Contract
+    
+    for (int j = 0; j < col; j++) {
+        for (int i = 0; i <= j; i++) {
+            double val = 0.0;
+            for (int k = 0; k < row; k++) {
+                val += Q.arr[k][i] * arr[k][j];
+            }
+            R.arr[i][j] = val;
         }
     }
-    return r;
+    fpg(R);
+    return R;
 }
 
 std::tuple<matrix, matrix, matrix> matrix::lu_decomposition() const {
