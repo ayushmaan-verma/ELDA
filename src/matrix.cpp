@@ -236,18 +236,38 @@ matrix matrix::col_multi(int i, double factor) {
 
 int matrix::echelon() {
     int swaps = 1;
+    int r = 0; // Independent pivot row tracker
+    for (int c = 0; c < col && r < row; c++) {
+        // 1. Find the best pivot in the current column (partial pivoting)
+        int pivot_row = r;
+        double max_val = std::abs(arr[r * col + c]);
+        for (int i = r + 1; i < row; i++) {
+            if (std::abs(arr[i * col + c]) > max_val) {
+                max_val = std::abs(arr[i * col + c]);
+                pivot_row = i;
     for (int k = 0; k < std::min(row, col); k++) {
         int z = k;
         while (std::abs(arr[z * col + k]) < 1e-9) {
             if (z + 1 == std::min(row, col)) {
                 break;
             }
-            z++;
         }
-        if (k != z) {
-            *this = row_swap(k, z);
+        
+        // 2. If the entire column below row `r` is zero, skip to the next column
+        if (max_val < 1e-9) {
+            continue; 
+        }
+        
+        // 3. Swap the max row to the current pivot row
+        if (pivot_row != r) {
+            *this = row_swap(r, pivot_row);
             swaps *= -1;
         }
+        
+        // 4. Eliminate all entries below the pivot
+        for (int i = r + 1; i < row; i++) {
+            const double multiplier = arr[i * col + c] / arr[r * col + c];
+            *this = row_op(i, -multiplier, r);
         if (std::abs(arr[k * col + k]) < 1e-9) {
             continue;
         }
@@ -255,6 +275,7 @@ int matrix::echelon() {
             const double multiplier = arr[i * col + k] / arr[k * col + k];
             *this = row_op(i, -multiplier, k);
         }
+        r++; // Only advance the row tracker if we successfully found and processed a pivot!
     }
     neg_zero(*this);
     fpg(*this);
@@ -263,18 +284,39 @@ int matrix::echelon() {
 
 int matrix::gaussian() {
     int swaps = 1;
+    int r = 0;
+    for (int c = 0; c < col && r < row; c++) {
+        int pivot_row = r;
+        double max_val = std::abs(arr[r * col + c]);
+        for (int i = r + 1; i < row; i++) {
+            if (std::abs(arr[i * col + c]) > max_val) {
+                max_val = std::abs(arr[i * col + c]);
+                pivot_row = i;
     for (int k = 0; k < std::min(row, col); k++) {
         int z = k;
         while (std::abs(arr[z * col + k]) < 1e-9) {
             if (z + 1 == std::min(row, col)) {
                 break;
             }
-            z++;
         }
-        if (k != z) {
-            *this = row_swap(k, z);
+        
+        if (max_val < 1e-9) {
+            continue; 
+        }
+        
+        if (pivot_row != r) {
+            *this = row_swap(r, pivot_row);
             swaps *= -1;
         }
+        
+        // Normalize the pivot row to have a leading 1
+        const double divisor = arr[r * col + c];
+        *this = this->row_multi(r, 1.0 / divisor);
+        
+        // Eliminate below
+        for (int i = r + 1; i < row; i++) {
+            const double multiplier = arr[i * col + c];
+            *this = row_op(i, -multiplier, r);
         const double divisor = arr[k * col + k];
         if (std::abs(divisor) < 1e-9) {
             continue;
@@ -284,6 +326,7 @@ int matrix::gaussian() {
             const double multiplier = arr[i * col + k];
             *this = row_op(i, -multiplier, k);
         }
+        r++;
     }
     neg_zero(*this);
     fpg(*this);
@@ -292,6 +335,25 @@ int matrix::gaussian() {
 
 int matrix::gauss_jordan() {
     const int swaps = this->gaussian();
+    
+    // Because the matrix is already in row-echelon form, we work from the bottom up.
+    for (int i = row - 1; i > 0; i--) {
+        // Find the pivot column for the current row
+        int pivot_col = -1;
+        for (int j = 0; j < col; j++) {
+            if (std::abs(arr[i * col + j]) > 1e-9) {
+                pivot_col = j;
+                break;
+            }
+        }
+        
+        // If this is a zero row, skip it
+        if (pivot_col == -1) continue;
+
+        // Eliminate above the pivot
+        for (int k = i - 1; k >= 0; k--) {
+            const double multiplier = arr[k * col + pivot_col];
+            *this = row_op(k, -multiplier, i);
     for (int k = std::min(row, col) - 1; k > 0; k--) {
         for (int i = k - 1; i >= 0; i--) {
             const double multiplier = arr[i * col + k];
@@ -304,6 +366,15 @@ int matrix::gauss_jordan() {
 
 int matrix::canonical() {
     const int swaps = this->gaussian();
+    int r = 0;
+    for (int c = 0; c < col && r < row; c++) {
+        if (std::abs(arr[r * col + c]) > 1e-9) {
+            // Eliminate to the right of the pivot
+            for (int j = c + 1; j < col; j++) {
+                const double multiplier = arr[r * col + j];
+                *this = col_op(j, -multiplier, c);
+            }
+            r++;
     for (int k = 0; k < std::min(row, col); k++) {
         for (int j = k + 1; j < col; j++) {
             const double multiplier = arr[k * col + j];
