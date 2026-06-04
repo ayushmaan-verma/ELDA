@@ -68,7 +68,7 @@ Primary surface areas:
 
 - constants: `PI`, `EPS`
 - public data members: `row`, `col`, `arr`
-- construction and I/O: constructors, `input()`, `print()`
+- construction and I/O: constructors, `input()`, `print()`, and stream output with `operator<<`
 - arithmetic: assignment, addition, subtraction, matrix multiplication, scalar multiplication
 - elementary operations: row and column combination, swap, and scaling helpers
 - reductions: `echelon()`, `gaussian()`, `gauss_jordan()`, `canonical()`
@@ -304,3 +304,7 @@ Functions operating on vector sets (like `check_lin_comb()`) enforce strict dime
 The `lu_decomposition()` method uses partial pivoting to prevent division by zero and numerical instability. It returns a `std::tuple<matrix, matrix, matrix>` containing `[P, L, U]` such that `P * A = L * U`.
 * **Singular Matrices:** Throws a `std::runtime_error` if the matrix is singular (pivot max < 1e-9).
 * **Rectangular Matrices:** Throws a `std::runtime_error` if the matrix is not square.
+
+```cpp
+linalg::matrix m(2, 2, 3.5);
+std::cout << m;

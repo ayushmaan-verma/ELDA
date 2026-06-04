@@ -1,6 +1,9 @@
 #include <elda/linalg.hpp>
+#include <iostream>
+
 using namespace linalg;
-using namespace std;
+
 int main() {
-    //Enter your code here.
+    matrix m(2, 2, 5.0);
+    std::cout << m;
 }

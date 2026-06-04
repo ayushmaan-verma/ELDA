@@ -174,6 +174,8 @@ double inner_product(matrix a, matrix b);
 /// Returns the angle between two matrices in radians.
 double angle(matrix a, matrix b);
 
+std::ostream& operator<<(std::ostream& os, const matrix& m);
+
 }
 
 #endif // ELDA_MATRIX_H
