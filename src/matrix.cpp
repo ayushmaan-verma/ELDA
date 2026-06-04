@@ -292,6 +292,7 @@ int matrix::gaussian() {
             if (std::abs(arr[i * col + c]) > max_val) {
                 max_val = std::abs(arr[i * col + c]);
                 pivot_row = i;
+
     for (int k = 0; k < std::min(row, col); k++) {
         int z = k;
         while (std::abs(arr[z * col + k]) < 1e-9) {
@@ -309,6 +310,16 @@ int matrix::gaussian() {
             swaps *= -1;
         }
         
+        // HIGHEST PRECISION: Inline direct division instead of reciprocal multiplication
+        const double divisor = arr[r * col + c];
+        for (int k = 0; k < col; k++) {
+            arr[r * col + k] /= divisor;
+        }
+        
+        // Eliminate below
+        for (int i = r + 1; i < row; i++) {
+            const double multiplier = arr[i * col + c];
+            *this = row_op(i, -multiplier, r);
         // Normalize the pivot row to have a leading 1
         const double divisor = arr[r * col + c];
         *this = this->row_multi(r, 1.0 / divisor);
@@ -514,6 +525,13 @@ matrix matrix::inverse() {
         if (z != k) {
             mat = mat.row_swap(k, z);
             inv = inv.row_swap(k, z);
+        }
+        
+        // HIGHEST PRECISION: Inline direct division on both matrices simultaneously
+        const double divisor = mat.arr[k * m + k];
+        for (int j = 0; j < m; j++) {
+            mat.arr[k * m + j] /= divisor;
+            inv.arr[k * m + j] /= divisor;
         }
         const double divisor = mat.arr[k * m + k];
         mat = mat.row_multi(k, 1.0 / divisor);
