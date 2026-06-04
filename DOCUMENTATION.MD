@@ -68,7 +68,7 @@ Primary surface areas:
 
 - constants: `PI`, `EPS`
 - public data members: `row`, `col`, `arr`
-- construction and I/O: constructors, `input()`, `print()`
+- construction and I/O: constructors, `input()`, `print()`, and stream output with `operator<<`
 - arithmetic: assignment, addition, subtraction, matrix multiplication, scalar multiplication
 - elementary operations: row and column combination, swap, and scaling helpers
 - reductions: `echelon()`, `gaussian()`, `gauss_jordan()`, `canonical()`
@@ -295,6 +295,12 @@ lin_alg_lib/
 
 ### Eigenvalue Convergence Bounds
 The `eigenvalues()` function uses unshifted QR iteration. It enforces a strict iteration limit (1000 iterations) and uses a tolerance-based check (`EPS`) for sub-diagonal convergence. If a matrix has a complex eigenvalue spectrum (e.g., standard rotation matrices), the unshifted real QR algorithm cannot converge to a strictly upper-triangular state. In these asymptotic or non-real scenarios, the function will abort and throw a `std::runtime_error` rather than entering an infinite loop.
+### Contiguous Flat Vector Memory Layout
+The structural layout of matrix components has been converted from nested pointers (`std::vector<std::vector<double>>`) into a flat, contiguous 1D array profile (`std::vector<double>`).
+* **Hardware Optimizations:** Eliminates pointer indirection steps, optimizing cache lookup loops and maximizing processor pipeline cache-line retention.
+* **Layout Index Standard:** Multi-dimensional tracking parses layout offsets using row-major storage ordering maps: `index = row_idx * col_count + col_idx`.
+
+
 ### Robust QR Decomposition
 The QR decomposition system has been upgraded to utilize the Modified Gram-Schmidt (MGS) algorithm. 
 * **Rectangular Behavior:** Follows the Reduced/Thin QR convention. For an $m \times n$ matrix, $Q$ returns as $m \times n$ and $R$ returns as a square $n \times n$ factor matrix.
@@ -306,3 +312,7 @@ Functions operating on vector sets (like `check_lin_comb()`) enforce strict dime
 The `lu_decomposition()` method uses partial pivoting to prevent division by zero and numerical instability. It returns a `std::tuple<matrix, matrix, matrix>` containing `[P, L, U]` such that `P * A = L * U`.
 * **Singular Matrices:** Throws a `std::runtime_error` if the matrix is singular (pivot max < 1e-9).
 * **Rectangular Matrices:** Throws a `std::runtime_error` if the matrix is not square.
+
+```cpp
+linalg::matrix m(2, 2, 3.5);
+std::cout << m;
