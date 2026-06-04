@@ -14,19 +14,36 @@ constexpr double PI = 3.141593;
 /// Threshold used to zero tiny floating-point artifacts.
 constexpr double EPS = 1e-6;
 
-/// Dense matrix type backed by a row-major 2D vector.
+/// Dense matrix type backed by a contiguous 1D row-major vector.
 class matrix {
   public:
     /// Number of rows.
     int row;
     /// Number of columns.
     int col;
-    /// Matrix entries stored in row-major order.
-    std::vector<std::vector<double>> arr;
+    /// Matrix entries flattened in contiguous row-major order.
+    std::vector<double> arr;
 
     /// Constructs a 3x3 zero matrix.
-    matrix() : row(3), col(3), arr(3, std::vector<double>(3, 0.0)) {}
+    matrix() : row(3), col(3), arr(9, 0.0) {}
 
+    /// Constructs an r x c zero matrix.
+    matrix(int r, int c) : row(r), col(c), arr(r * c, 0.0) {}
+
+    // --- Safe Public Element-Access Overloads ---
+    double operator()(size_t r, size_t c) const {
+        if (r >= static_cast<size_t>(row) || c >= static_cast<size_t>(col)) {
+            throw std::out_of_range("Matrix element access out of bounds.");
+        }
+        return arr[r * col + c];
+    }
+
+    double& operator()(size_t r, size_t c) {
+        if (r >= static_cast<size_t>(row) || c >= static_cast<size_t>(col)) {
+            throw std::out_of_range("Matrix element access out of bounds.");
+        }
+        return arr[r * col + c];
+    }
     /// Constructs an r x c matrix initialized with val. Negative dimensions are rejected.
     matrix(int r, int c, double val = 0.0) : row(r), col(c) {
         if (r < 0 || c < 0) {
@@ -46,9 +63,9 @@ class matrix {
     size_t get_cols() const { return static_cast<size_t>(col); }
 
     /// Returns the value at (i, j) without bounds checking.
-    double get_element(int i, int j) { return arr[i][j]; }
+    double get_element(int i, int j) { return arr[i * col + j]; }
     /// Returns a mutable pointer to the element at (i, j).
-    double* ref_element(int i, int j) { return &arr[i][j]; }
+    double* ref_element(int i, int j) { return &arr[i * col + j]; }
 
     /// Reads matrix entries from `std::cin` in row-major order.
     void input();
