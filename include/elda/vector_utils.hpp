@@ -35,6 +35,9 @@ bool check_lin_comb(matrix m1, matrix m2, matrix m3);
 bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4);
 /// Returns true if `m5` is a linear combination of `m1`, `m2`, `m3`, and `m4`.
 bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5);
+
+/// Returns true if `target` is a linear combination of the given `vectors`.
+bool check_lin_comb(matrix target, const std::vector<matrix>& vectors);
 }
 
 #endif // ELDA_VECTOR_UTILS_H

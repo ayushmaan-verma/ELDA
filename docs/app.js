@@ -148,17 +148,13 @@ m.print();`,
                     createEntry({
                         id: "matrix-sized-ctor",
                         title: "Sized constructor",
-                        signature: `matrix(int r, int c)`,
+                        signature: `matrix(int r, int c, double val = 0.0)`,
                         kind: "constructor",
                         declaredIn: "include/elda/matrix.hpp",
                         implementedIn: "inline in header",
-                        description: "Constructs an r x c zero matrix.",
-                        example: `matrix m(2, 3);
-m.arr = {
-    {1.0, 2.0, 3.0},
-    {4.0, 5.0, 6.0}
-};`,
-                        notes: ["The constructor allocates row-major storage sized to r by c."]
+                        description: "Constructs an r x c matrix initialized with val.",
+                        example: `matrix m(2, 2, 1.0);`,
+                        notes: ["Storage is allocated to r by c and every entry is initialized to val.", "val defaults to 0.0.", "Zero-sized matrices are supported.", "Negative dimensions throw before allocation."]
                     }),
                     createEntry({
                         id: "matrix-get-element",
@@ -334,7 +330,7 @@ bool same_shape = shape_comp(a, b);`,
                         implementedIn: "src/matrix.cpp",
                         description: "Creates an n x n identity matrix.",
                         example: `matrix i3 = identity(3);`,
-                        notes: ["The diagonal is filled with 1 and the remaining entries stay 0."]
+                        notes: ["The diagonal is filled with 1 and the remaining entries stay 0.", "Negative sizes throw before allocation."]
                     }),
                     createEntry({
                         id: "matrix-neg-zero",
@@ -847,32 +843,17 @@ matrix r = a.qr_decomp_r();`,
                         notes: ["Computed from the Q factor and the original columns."]
                     }),
                     createEntry({
-                        id: "matrix-lu-l",
-                        title: "lu_decomp_l",
-                        signature: `matrix lu_decomp_l()`,
+                        id: "matrix-lu-decomposition",
+                        title: "lu_decomposition",
+                        signature: `std::tuple<matrix, matrix, matrix> lu_decomposition()`,
                         kind: "method",
                         declaredIn: "include/elda/matrix.hpp",
                         implementedIn: "src/matrix.cpp",
-                        description: "Returns the lower-triangular matrix of elimination multipliers with a unit diagonal.",
+                        description: "Performs LU decomposition with partial pivoting: P * A = L * U.",
                         example: `matrix a(3, 3);
-a.arr = {{2.0, 1.0, 1.0}, {4.0, -6.0, 0.0}, {-2.0, 7.0, 2.0}};
-
-matrix l = a.lu_decomp_l();`,
-                        notes: ["Internal row swaps are applied to the working matrix, but no permutation matrix is returned."]
-                    }),
-                    createEntry({
-                        id: "matrix-lu-u",
-                        title: "lu_decomp_u",
-                        signature: `matrix lu_decomp_u()`,
-                        kind: "method",
-                        declaredIn: "include/elda/matrix.hpp",
-                        implementedIn: "src/matrix.cpp",
-                        description: "Returns the upper factor produced by echelon reduction.",
-                        example: `matrix a(3, 3);
-a.arr = {{2.0, 1.0, 1.0}, {4.0, -6.0, 0.0}, {-2.0, 7.0, 2.0}};
-
-matrix u = a.lu_decomp_u();`,
-                        notes: ["Useful together with lu_decomp_l()."]
+a.arr = {{1, 2, 3}, {0, 1, 4}, {5, 6, 0}};
+auto [p, l, u] = a.lu_decomposition();`,
+                        notes: ["Returns a tuple of {P, L, U}.", "Throws std::runtime_error if the matrix is singular or rectangular."]
                     }),
                     createEntry({
                         id: "matrix-char-poly",
@@ -948,7 +929,9 @@ bool is_lower = l.check_lower_tri();`,
 a.arr = {{1.0, 1.0}, {1.0, 0.0}};
 
 matrix a5 = matpow(a, 5);`,
-                        notes: ["The function assumes the input matrix is square."]
+                        notes: [
+                            "Throws std::runtime_error for non-square matrices and negative exponents."
+                        ]
                     }),
                     createEntry({
                         id: "matrix-check-ortho",
@@ -1327,6 +1310,22 @@ matrix v5 = vec4(1.0, 2.0, 3.0, 4.0);
 
 bool in_span = check_lin_comb(v1, v2, v3, v4, v5);`,
                         notes: ["With a full basis, the final vector belongs to the span by construction."]
+                    }),
+                    createEntry({
+                        id: "vector-check-lin-comb-list",
+                        title: "check_lin_comb(target, vectors)",
+                        signature: `bool check_lin_comb(matrix target, const std::vector<matrix>& vectors)`,
+                        kind: "free function",
+                        declaredIn: "include/elda/vector_utils.hpp",
+                        implementedIn: "src/vector_utils.cpp",
+                        description: "Returns true when target lies in the span of the given vectors.",
+                        example: `matrix v1 = vec3(1.0, 0.0, 0.0);
+matrix v2 = vec3(0.0, 1.0, 0.0);
+matrix target = vec3(5.0, 5.0, 0.0);
+std::vector<matrix> vec_set = {v1, v2};
+
+bool in_span = check_lin_comb(target, vec_set);`,
+                        notes: ["This overload handles an arbitrary number of input vectors."]
                     })
                 ]
             }
