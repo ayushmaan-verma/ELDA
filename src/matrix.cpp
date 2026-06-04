@@ -24,6 +24,10 @@ void matrix::print() {
 }
 
 matrix identity(int n) {
+    if (n < 0) {
+        throw std::runtime_error("Identity matrix size must be non-negative.");
+    }
+
     matrix m(n, n);
     for (int i = 0; i < n; i++) {
         m.arr[i * n + i] = 1.0;
@@ -535,6 +539,7 @@ std::tuple<matrix, matrix, matrix> matrix::lu_decomposition() const {
     if (row != col) {
         throw std::runtime_error("LU decomposition requires a square matrix.");
     }
+    
     size_t n = static_cast<size_t>(row);
     matrix P(row, col); 
     matrix L(row, col);
@@ -571,6 +576,47 @@ std::tuple<matrix, matrix, matrix> matrix::lu_decomposition() const {
             L.arr[k * n + i] = factor;
             for (size_t j = i; j < n; j++) {
                 U.arr[k * n + j] -= factor * U.arr[i * n + j];
+    // Initialize P and L as identity matrices
+    for (size_t i = 0; i < n; i++) {
+        P.arr[i][i] = 1.0;
+        L.arr[i][i] = 1.0;
+    }
+
+    for (size_t i = 0; i < n; i++) {
+        // Find the pivot row
+        size_t pivot_row = i;
+        double max_val = std::abs(U.arr[i][i]);
+        
+        for (size_t k = i + 1; k < n; k++) {
+            if (std::abs(U.arr[k][i]) > max_val) {
+                max_val = std::abs(U.arr[k][i]);
+                pivot_row = k;
+            }
+        }
+
+        if (max_val < 1e-9) {
+            throw std::runtime_error("Matrix is singular; LU decomposition cannot proceed uniquely.");
+        }
+
+        // Pivot if necessary
+        if (pivot_row != i) {
+            // Swap rows in U and P
+            for (size_t j = 0; j < n; j++) {
+                std::swap(U.arr[i][j], U.arr[pivot_row][j]);
+                std::swap(P.arr[i][j], P.arr[pivot_row][j]);
+            }
+            // Swap multipliers in L (only columns before the current pivot index i)
+            for (size_t j = 0; j < i; j++) {
+                std::swap(L.arr[i][j], L.arr[pivot_row][j]);
+            }
+        }
+
+        // Elimination pass
+        for (size_t k = i + 1; k < n; k++) {
+            double factor = U.arr[k][i] / U.arr[i][i];
+            L.arr[k][i] = factor; // Store the elimination multiplier inside L
+            for (size_t j = i; j < n; j++) {
+                U.arr[k][j] -= factor * U.arr[i][j];
             }
         }
     }
@@ -660,6 +706,12 @@ double matrix::norm() {
 }
 
 matrix matpow(matrix mat, long long expo) {
+    if (mat.row != mat.col) {
+        throw std::runtime_error("Matrix power is defined only for square matrices.");
+    }
+    if (expo < 0) {
+        throw std::runtime_error("Matrix power is defined only for non-negative exponents.");
+    }
     matrix res = identity(mat.row);
     while (expo > 0) {
         if (expo & 1) res = res * mat;
