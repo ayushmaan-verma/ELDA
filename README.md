@@ -116,6 +116,7 @@ target_link_libraries(your_target PRIVATE elda)
 
 - The library namespace is `linalg`.
 - Matrix entries are stored in `matrix::arr` as `std::vector<std::vector<double>>`.
+- Zero-sized matrices are supported, but negative dimensions and negative `identity()` sizes throw `std::runtime_error`.
 - Many transformation helpers return a new matrix, while reduction helpers such as `echelon()`, `gaussian()`, `gauss_jordan()`, and `canonical()` modify the matrix in place.
 - Most dimension mismatches are reported with `std::runtime_error`.
 - Angles are interpreted in radians.

@@ -68,14 +68,14 @@ Primary surface areas:
 
 - constants: `PI`, `EPS`
 - public data members: `row`, `col`, `arr`
-- construction and I/O: constructors, `input()`, `print()`
+- construction and I/O: constructors, `input()`, `print()`, and stream output with `operator<<`
 - arithmetic: assignment, addition, subtraction, matrix multiplication, scalar multiplication
 - elementary operations: row and column combination, swap, and scaling helpers
 - reductions: `echelon()`, `gaussian()`, `gauss_jordan()`, `canonical()`
 - properties and derived matrices: `rank()`, `trace()`, `det()`, `adjoint()`, `transpose()`, `inverse()`, `solve()`, `norm()`
 - structural helpers: `get_row()`, `get_col()`, `get_row_vec()`, `get_col_vec()`, `replace_row()`, `replace_col()`
-- decomposition and spectral helpers: `orthogonalize()`, `orthonormalize()`, `qr_decomp_q()`, `qr_decomp_r()`, `lu_decomp_l()`, `lu_decomp_u()`, `char_poly()`, `eigenvalues()`
-- free helpers: `identity()`, `fpg()`, `matpow()`, `inner_product()`, `angle()`, and exact-check helpers
+- decomposition and spectral helpers: `orthogonalize()`, `orthonormalize()`, `qr_decomp_q()`, `qr_decomp_r()`, `lu_decomposition()`, `char_poly()`, `eigenvalues()`
+- free helpers: `identity()`, `fpg()`, `matpow()` for square matrices and non-negative exponents, `inner_product()`, `angle()`, and exact-check helpers
 
 Example:
 
@@ -138,6 +138,7 @@ Span checks:
 - `check_lin_comb(matrix m1, matrix m2, matrix m3)`
 - `check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4)`
 - `check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5)`
+- `check_lin_comb(matrix target, const std::vector<matrix>& vectors)`
 
 Example:
 
@@ -163,7 +164,7 @@ The design favors direct manipulation of storage. Most examples populate matrice
 ### Construction
 
 - `matrix()`: constructs a `3 x 3` zero matrix
-- `matrix(int r, int c)`: constructs an `r x c` zero matrix
+- `matrix(int r, int c, double val = 0.0)`: constructs an `r x c` matrix initialized with `val`; negative dimensions throw `std::runtime_error`
 
 ### Element Access
 
@@ -183,6 +184,7 @@ This distinction matters when chaining operations.
 
 - The library namespace is `linalg`.
 - Matrix entries are stored in `matrix::arr` as `std::vector<std::vector<double>>`.
+- Zero-sized matrices are supported, but negative dimensions and negative `identity()` sizes throw `std::runtime_error`.
 - Most dimension mismatches are reported with `std::runtime_error`.
 - Several low-level accessors and replacement helpers assume valid indices and compatible shapes.
 - Angles are measured in radians.
@@ -290,3 +292,25 @@ lin_alg_lib/
 - `docs/index.html`: full static web docs
 - `FUNCTIONS.MD`: compact API index
 - `README.md`: build and repository usage summary
+
+### Contiguous Flat Vector Memory Layout
+The structural layout of matrix components has been converted from nested pointers (`std::vector<std::vector<double>>`) into a flat, contiguous 1D array profile (`std::vector<double>`).
+* **Hardware Optimizations:** Eliminates pointer indirection steps, optimizing cache lookup loops and maximizing processor pipeline cache-line retention.
+* **Layout Index Standard:** Multi-dimensional tracking parses layout offsets using row-major storage ordering maps: `index = row_idx * col_count + col_idx`.
+
+
+### Robust QR Decomposition
+The QR decomposition system has been upgraded to utilize the Modified Gram-Schmidt (MGS) algorithm. 
+* **Rectangular Behavior:** Follows the Reduced/Thin QR convention. For an $m \times n$ matrix, $Q$ returns as $m \times n$ and $R$ returns as a square $n \times n$ factor matrix.
+* **Rank Deficiency Handling:** Columns that are linearly dependent are gracefully intercepted when their calculated vector norm drops below `1e-9`, zeroing out the coordinate vectors safely to bypass division-by-zero exceptions and preventing `NaN` pollution.
+### Vector Validation
+Functions operating on vector sets (like `check_lin_comb()`) enforce strict dimensional checks at runtime. Inputs must be strictly column vectors (`cols == 1`) and share identical row counts, otherwise a `std::runtime_error` is thrown.s
+
+### LU Decomposition
+The `lu_decomposition()` method uses partial pivoting to prevent division by zero and numerical instability. It returns a `std::tuple<matrix, matrix, matrix>` containing `[P, L, U]` such that `P * A = L * U`.
+* **Singular Matrices:** Throws a `std::runtime_error` if the matrix is singular (pivot max < 1e-9).
+* **Rectangular Matrices:** Throws a `std::runtime_error` if the matrix is not square.
+
+```cpp
+linalg::matrix m(2, 2, 3.5);
+std::cout << m;
