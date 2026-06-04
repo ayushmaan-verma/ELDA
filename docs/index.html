@@ -233,6 +233,12 @@ using namespace linalg;</code></pre>
                 </div>
                 <div class="notes-grid">
                     <article>
+                        <h4>Eigenvalue Convergence</h4>
+                        <p>
+                            <code>eigenvalues()</code> terminates with a <code>std::runtime_error</code> if QR iteration fails to converge within 1000 steps. This safely intercepts infinite loops caused by matrices with complex eigenvalues.
+                        </p>
+                    </article>
+                    <article>
                         <h4>Public storage and manual mutation</h4>
                         <p>
                             <code>matrix::row</code>, <code>matrix::col</code>, and <code>matrix::arr</code> are

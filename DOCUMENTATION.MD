@@ -290,3 +290,6 @@ lin_alg_lib/
 - `docs/index.html`: full static web docs
 - `FUNCTIONS.MD`: compact API index
 - `README.md`: build and repository usage summary
+
+### Eigenvalue Convergence Bounds
+The `eigenvalues()` function uses unshifted QR iteration. It enforces a strict iteration limit (1000 iterations) and uses a tolerance-based check (`EPS`) for sub-diagonal convergence. If a matrix has a complex eigenvalue spectrum (e.g., standard rotation matrices), the unshifted real QR algorithm cannot converge to a strictly upper-triangular state. In these asymptotic or non-real scenarios, the function will abort and throw a `std::runtime_error` rather than entering an infinite loop.

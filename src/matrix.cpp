@@ -616,20 +616,45 @@ matrix matrix::eigenvalues() {
     if (this->row != this->col) {
         throw std::runtime_error("Eigenvalues are defined only for square matrix.");
     }
+    
     matrix m(*this);
-    matrix q = m.qr_decomp_q();
-    matrix r = m.qr_decomp_r();
-    // Repeated QR steps push the matrix toward upper-triangular form.
-    while (!(m.check_upper_tri())) {
+    int max_iter = 1000;
+    int iter = 0;
+    bool converged = false;
+
+    // Unshifted QR iteration with hard convergence limits
+    while (iter < max_iter) {
+        matrix q = m.qr_decomp_q();
+        matrix r = m.qr_decomp_r();
         m = r * q;
-        q = m.qr_decomp_q();
-        r = m.qr_decomp_r();
-        fpg(m);
+        fpg(m); // Snap tiny values to zero using EPS
+
+        // Tolerance-based convergence check on strictly lower-triangular entries
+        converged = true;
+        for (int j = 0; j < m.col; j++) {
+            for (int i = j + 1; i < m.row; i++) {
+                if (std::abs(m.arr[i][j]) > EPS) {
+                    converged = false;
+                    break;
+                }
+            }
+            if (!converged) break;
+        }
+
+        if (converged) {
+            break;
+        }
+        iter++;
     }
+
+    if (!converged) {
+        throw std::runtime_error("QR iteration failed to converge after 1000 iterations. The matrix may have complex eigenvalues or require shift techniques.");
+    }
+
     // The diagonal entries of the converged iterate are the eigenvalue estimates.
-    matrix eigen(row, 1);
-    for (int i = 0; i < row; i++) {
-        *eigen.ref_element(i, 0) = m.get_element(i, i);
+    matrix eigen(m.row, 1);
+    for (int i = 0; i < m.row; i++) {
+        eigen.arr[i][0] = m.arr[i][i];
     }
     return eigen;
 }
