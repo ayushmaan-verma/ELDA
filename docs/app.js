@@ -948,7 +948,9 @@ bool is_lower = l.check_lower_tri();`,
 a.arr = {{1.0, 1.0}, {1.0, 0.0}};
 
 matrix a5 = matpow(a, 5);`,
-                        notes: ["The function assumes the input matrix is square."]
+                        notes: [
+                            "Throws std::runtime_error for non-square matrices and negative exponents."
+                        ]
                     }),
                     createEntry({
                         id: "matrix-check-ortho",
