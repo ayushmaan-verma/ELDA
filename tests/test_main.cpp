@@ -71,6 +71,31 @@ void test_matrix_transpose_and_determinant() {
     std::cout << "Transpose & determinant tests passed!" << std::endl;
 }
 
+void test_inverse_rejects_singular_pivots() {
+    std::cout << "Running inverse singular-pivot tests..." << std::endl;
+
+    linalg::matrix zero(2, 2);
+    expect_runtime_error([&zero]() { zero.inverse(); });
+
+    linalg::matrix duplicate_rows(2, 2);
+    duplicate_rows.arr = {{2.0, 4.0}, {2.0, 4.0}};
+    expect_runtime_error([&duplicate_rows]() { duplicate_rows.inverse(); });
+
+    linalg::matrix near_singular(2, 2);
+    near_singular.arr = {{1.0, 1.0}, {1.0, 1.0 + (linalg::EPS / 2.0)}};
+    expect_runtime_error([&near_singular]() { near_singular.inverse(); });
+
+    linalg::matrix needs_row_swap(2, 2);
+    needs_row_swap.arr = {{0.0, 2.0}, {1.0, 3.0}};
+    linalg::matrix inverse = needs_row_swap.inverse();
+    assert(is_close(inverse.get_element(0, 0), -1.5));
+    assert(is_close(inverse.get_element(0, 1), 1.0));
+    assert(is_close(inverse.get_element(1, 0), 0.5));
+    assert(is_close(inverse.get_element(1, 1), 0.0));
+
+    std::cout << "Inverse singular-pivot tests passed!" << std::endl;
+}
+
 void test_transforms_and_vectors() {
     std::cout << "Running transforms & vector utilities tests..." << std::endl;
     linalg::matrix trans = linalg::shift(5.0, 10.0);
@@ -158,6 +183,7 @@ int main() {
     test_matrix_construction_and_identity();
     test_matrix_arithmetic();
     test_matrix_transpose_and_determinant();
+    test_inverse_rejects_singular_pivots();
     test_transforms_and_vectors();
     test_vector_shape_validation();
     test_matpow_validation_and_results();

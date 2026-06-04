@@ -426,11 +426,12 @@ matrix matrix::inverse() {
     // Apply Gauss-Jordan elimination to [mat | inv].
     for (int k = 0; k < m; k++) {
         int z = k;
-        while (!static_cast<bool>(mat.arr[z][k])) {
-            if (z + 1 == m) {
-                break;
-            }
+        while (z < m && std::abs(mat.arr[z][k]) <= EPS) {
             z++;
+        }
+
+        if (z == m) {
+            throw std::runtime_error("Inverse is defined only for Non-Singular matrix.");
         }
 
         if (z != k) {
@@ -439,6 +440,9 @@ matrix matrix::inverse() {
         }
 
         const double divisor = mat.arr[k][k];
+        if (std::abs(divisor) <= EPS) {
+            throw std::runtime_error("Inverse is defined only for Non-Singular matrix.");
+        }
         mat = mat.row_multi(k, 1 / divisor);
         inv = inv.row_multi(k, 1 / divisor);
 
