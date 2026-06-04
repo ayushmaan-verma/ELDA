@@ -75,7 +75,7 @@ Primary surface areas:
 - properties and derived matrices: `rank()`, `trace()`, `det()`, `adjoint()`, `transpose()`, `inverse()`, `solve()`, `norm()`
 - structural helpers: `get_row()`, `get_col()`, `get_row_vec()`, `get_col_vec()`, `replace_row()`, `replace_col()`
 - decomposition and spectral helpers: `orthogonalize()`, `orthonormalize()`, `qr_decomp_q()`, `qr_decomp_r()`, `lu_decomp_l()`, `lu_decomp_u()`, `char_poly()`, `eigenvalues()`
-- free helpers: `identity()`, `fpg()`, `matpow()`, `inner_product()`, `angle()`, and exact-check helpers
+- free helpers: `identity()`, `fpg()`, `matpow()` for square matrices and non-negative exponents, `inner_product()`, `angle()`, and exact-check helpers
 
 Example:
 

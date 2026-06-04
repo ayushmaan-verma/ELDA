@@ -639,6 +639,12 @@ double matrix::norm() {
 }
 
 matrix matpow(matrix mat, long long expo) {
+    if (mat.row != mat.col) {
+        throw std::runtime_error("Matrix power is defined only for square matrices.");
+    }
+    if (expo < 0) {
+        throw std::runtime_error("Matrix power is defined only for non-negative exponents.");
+    }
     matrix res = identity(mat.row);
     while (expo > 0) {
         if (expo & 1) {

@@ -147,7 +147,7 @@ matrix identity(int n);
 void neg_zero(matrix& m);
 /// Zeros entries whose absolute value is at most `EPS` (floating-point cleanup).
 void fpg(matrix& m);
-/// Raises a matrix to a non-negative integer power.
+/// Raises a square matrix to a non-negative integer power.
 matrix matpow(matrix mat, long long expo);
 /// Returns true when `transpose() == inverse()`.
 bool check_ortho(matrix mat);
