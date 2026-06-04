@@ -109,3 +109,11 @@ Before submitting a contribution:
 - affected documentation is updated
 - generated files from `build/`, `cmake-build-*`, IDE folders, and local artifacts are not committed
 - the change is focused on one bug fix, feature, or documentation update
+
+
+## Running Tests
+You can run the automated test suite using CMake and CTest:
+```bash
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build
