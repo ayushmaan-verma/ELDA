@@ -290,3 +290,8 @@ lin_alg_lib/
 - `docs/index.html`: full static web docs
 - `FUNCTIONS.MD`: compact API index
 - `README.md`: build and repository usage summary
+
+### Contiguous Flat Vector Memory Layout
+The structural layout of matrix components has been converted from nested pointers (`std::vector<std::vector<double>>`) into a flat, contiguous 1D array profile (`std::vector<double>`).
+* **Hardware Optimizations:** Eliminates pointer indirection steps, optimizing cache lookup loops and maximizing processor pipeline cache-line retention.
+* **Layout Index Standard:** Multi-dimensional tracking parses layout offsets using row-major storage ordering maps: `index = row_idx * col_count + col_idx`.
