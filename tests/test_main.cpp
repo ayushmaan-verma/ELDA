@@ -1,62 +1,3 @@
-#include <iostream>
-#include <cassert>
-#include <cmath>
-#include "elda/matrix.hpp"
-
-bool is_close(double a, double b, double epsilon = 1e-4) {
-    return std::abs(a - b) < epsilon;
-}
-
-void test_robust_qr_decomposition() {
-    std::cout << "Running Robust QR Decomposition tests..." << std::endl;
-
-    // 1. Test case: Rank-deficient matrix (Columns 1 and 2 are identical)
-    linalg::matrix A(3, 3);
-    A.arr[0][0] = 1.0; A.arr[0][1] = 1.0; A.arr[0][2] = 2.0;
-    A.arr[1][0] = 2.0; A.arr[1][1] = 2.0; A.arr[1][2] = 5.0;
-    A.arr[2][0] = 3.0; A.arr[2][1] = 3.0; A.arr[2][2] = 8.0;
-
-    linalg::matrix Q = A.qr_decomp_q();
-    linalg::matrix R = A.qr_decomp_r();
-
-    // Reconstruct A_hat = Q * R
-    linalg::matrix A_hat = Q * R;
-
-    // Verify reconstruction satisfies A == Q * R within tolerance
-    for (size_t i = 0; i < 3; i++) {
-        for (size_t j = 0; j < 3; j++) {
-            assert(is_close(A.arr[i][j], A_hat.arr[i][j]));
-        }
-    }
-
-    // 2. Test case: Rectangular wide matrix (2 x 3)
-    linalg::matrix B(2, 3);
-    B.arr[0][0] = 1.0; B.arr[0][1] = 0.0; B.arr[0][2] = 2.0;
-    B.arr[1][0] = 0.0; B.arr[1][1] = 1.0; B.arr[1][2] = 3.0;
-
-    linalg::matrix Q_rect = B.qr_decomp_q();
-    linalg::matrix R_rect = B.qr_decomp_r();
-
-    // Dimensions check for Reduced QR: Q is 2x3, R is 3x3
-    assert(Q_rect.row == 2 && Q_rect.col == 3);
-    assert(R_rect.row == 3 && R_rect.col == 3);
-
-    linalg::matrix B_hat = Q_rect * R_rect;
-    for (size_t i = 0; i < 2; i++) {
-        for (size_t j = 0; j < 3; j++) {
-            assert(is_close(B.arr[i][j], B_hat.arr[i][j]));
-        }
-    }
-
-    std::cout << "Robust QR Decomposition tests passed!" << std::endl;
-}
-
-int main() {
-    std::cout << "=== STARTING ELDA CORE UNIT TESTS ===" << std::endl;
-    test_robust_qr_decomposition();
-    std::cout << "=== ALL TESTS PASSED SUCCESSFULLY ===" << std::endl;
-    return 0;
-}
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -237,6 +178,73 @@ void test_matpow_validation_and_results() {
     std::cout << "Matpow tests passed!" << std::endl;
 }
 
+bool matrix_is_finite(linalg::matrix m) {
+    for (int i = 0; i < m.row; i++) {
+        for (int j = 0; j < m.col; j++) {
+            if (!std::isfinite(m.arr[i][j])) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void assert_reconstructs(linalg::matrix original) {
+    linalg::matrix q = original.qr_decomp_q();
+    linalg::matrix r = original.qr_decomp_r();
+    linalg::matrix rebuilt = q * r;
+
+    assert(q.row == original.row);
+    assert(q.col == original.col);
+    assert(r.row == original.col);
+    assert(r.col == original.col);
+    assert(matrix_is_finite(q));
+    assert(matrix_is_finite(r));
+    assert(matrix_is_finite(rebuilt));
+
+    for (int i = 0; i < original.row; i++) {
+        for (int j = 0; j < original.col; j++) {
+            assert(is_close(original.arr[i][j], rebuilt.arr[i][j], 1e-4));
+        }
+    }
+}
+
+void test_gram_schmidt_bounds_and_dependent_columns() {
+    std::cout << "Running Gram-Schmidt bounds and dependency tests..." << std::endl;
+
+    linalg::matrix one_column(3, 1);
+    one_column.arr = {{3.0}, {4.0}, {0.0}};
+    linalg::matrix one_column_q = one_column.orthonormalize();
+    assert(matrix_is_finite(one_column_q));
+    assert(is_close(one_column_q.arr[0][0], 0.6));
+    assert(is_close(one_column_q.arr[1][0], 0.8));
+    assert_reconstructs(one_column);
+
+    linalg::matrix rectangular(2, 3);
+    rectangular.arr = {{1.0, 0.0, 2.0}, {0.0, 1.0, 3.0}};
+    assert_reconstructs(rectangular);
+
+    linalg::matrix zero_column(3, 2);
+    zero_column.arr = {{0.0, 1.0}, {0.0, 2.0}, {0.0, 3.0}};
+    linalg::matrix zero_column_q = zero_column.orthonormalize();
+    assert(matrix_is_finite(zero_column_q));
+    assert(is_close(zero_column_q.arr[0][0], 0.0));
+    assert(is_close(zero_column_q.arr[1][0], 0.0));
+    assert(is_close(zero_column_q.arr[2][0], 0.0));
+    assert_reconstructs(zero_column);
+
+    linalg::matrix dependent(3, 3);
+    dependent.arr = {{1.0, 1.0, 2.0}, {2.0, 2.0, 5.0}, {3.0, 3.0, 8.0}};
+    linalg::matrix dependent_q = dependent.orthonormalize();
+    assert(matrix_is_finite(dependent_q));
+    assert(is_close(dependent_q.arr[0][1], 0.0));
+    assert(is_close(dependent_q.arr[1][1], 0.0));
+    assert(is_close(dependent_q.arr[2][1], 0.0));
+    assert_reconstructs(dependent);
+
+    std::cout << "Gram-Schmidt bounds and dependency tests passed!" << std::endl;
+}
+
 int main() {
     std::cout << "=== STARTING ELDA UNIT TESTS ===" << std::endl;
     test_matrix_construction_and_identity();
@@ -246,6 +254,7 @@ int main() {
     test_transforms_and_vectors();
     test_vector_shape_validation();
     test_matpow_validation_and_results();
+    test_gram_schmidt_bounds_and_dependent_columns();
     std::cout << "=== ALL TESTS PASSED SUCCESSFULLY ===" << std::endl;
     return 0;
 }
