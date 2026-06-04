@@ -883,13 +883,41 @@ bool check_unitary(const matrix& mat) {
     return mat.transpose().arr == mat.adjoint().arr;
 }
 
+double inner_product(matrix a, matrix b) {
+    if (!shape_comp(a, b)) {
+        throw std::runtime_error("Matrices must share identical dimensions to compute a Frobenius inner product.");
 double inner_product(const matrix& a, const matrix& b) {
     if ((a.row != b.row) || (a.col != b.col)) {
         throw std::runtime_error("Vectors don't belong same vector space.");
     }
-    return ((a.transpose()) * b).trace();
+    
+    double sum = 0.0;
+    size_t total_elements = a.get_rows() * a.get_cols();
+    
+    // High performance linear-stride loop pass over flat vectors
+    for (size_t i = 0; i < total_elements; i++) {
+        sum += a.arr[i] * b.arr[i];
+    }
+    
+    return sum;
 }
 
+double angle(matrix a, matrix b) {
+    double norm_a = a.norm();
+    double norm_b = b.norm();
+    
+    if (norm_a < 1e-9 || norm_b < 1e-9) {
+        throw std::runtime_error("Cannot compute vector angle involving a zero-norm matrix space.");
+    }
+    
+    double dot = inner_product(a, b);
+    double cos_theta = dot / (norm_a * norm_b);
+    
+    // Bound guarding against minor floating-point overshoots (e.g. 1.0000000002) which breaks acos
+    if (cos_theta > 1.0) cos_theta = 1.0;
+    if (cos_theta < -1.0) cos_theta = -1.0;
+    
+    return std::acos(cos_theta);
 double angle(const matrix& a, const matrix& b) {
     double l_a = a.norm();
     double l_b = b.norm();
