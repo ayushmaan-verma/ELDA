@@ -290,3 +290,11 @@ lin_alg_lib/
 - `docs/index.html`: full static web docs
 - `FUNCTIONS.MD`: compact API index
 - `README.md`: build and repository usage summary
+
+### Vector Validation
+Functions operating on vector sets (like `check_lin_comb()`) enforce strict dimensional checks at runtime. Inputs must be strictly column vectors (`cols == 1`) and share identical row counts, otherwise a `std::runtime_error` is thrown.s
+
+### LU Decomposition
+The `lu_decomposition()` method uses partial pivoting to prevent division by zero and numerical instability. It returns a `std::tuple<matrix, matrix, matrix>` containing `[P, L, U]` such that `P * A = L * U`.
+* **Singular Matrices:** Throws a `std::runtime_error` if the matrix is singular (pivot max < 1e-9).
+* **Rectangular Matrices:** Throws a `std::runtime_error` if the matrix is not square.
