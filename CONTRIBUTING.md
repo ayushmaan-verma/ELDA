@@ -75,12 +75,33 @@ Public behavior notes should mention important constraints such as square-matrix
 
 ## Verification
 
-There is currently no formal test suite in the repository. At minimum, run:
+The project uses GitHub Actions for Continuous Integration (CI). Every pull request is automatically checked for:
+- **Build and Test**: The project must compile successfully and pass all unit tests using CMake and CTest.
+- **Linting**: Static analysis is performed using `cppcheck`.
+- **Formatting**: Code style is verified using `clang-format` against the `.clang-format` specification.
 
+To run these checks locally:
+
+### Build and Test
 ```bash
 cmake -S . -B build
 cmake --build build
-printf "3 4 5\n6 7 8\n8 2 3\n" | ./build/main
+ctest --test-dir build --output-on-failure
+```
+
+### Linting
+```bash
+cppcheck --enable=all --suppress=missingIncludeSystem src/ include/
+```
+
+### Formatting
+You can format your code using:
+```bash
+find src include tests -name "*.cpp" -o -name "*.hpp" | xargs clang-format -i
+```
+Or check it with:
+```bash
+find src include tests -name "*.cpp" -o -name "*.hpp" | xargs clang-format --dry-run -Werror
 ```
 
 For algorithm changes, also verify small hand-checkable cases. Good examples include:
@@ -109,11 +130,3 @@ Before submitting a contribution:
 - affected documentation is updated
 - generated files from `build/`, `cmake-build-*`, IDE folders, and local artifacts are not committed
 - the change is focused on one bug fix, feature, or documentation update
-
-
-## Running Tests
-You can run the automated test suite using CMake and CTest:
-```bash
-cmake -S . -B build
-cmake --build build
-ctest --test-dir build
