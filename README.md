@@ -14,7 +14,7 @@ For contribution-related questions, contact [ayushmaankumarverma@gmail.com](mail
 
 ## Features
 
-- Dense matrix storage backed by `std::vector<std::vector<double>>`
+- Dense matrix storage backed by a contiguous flat 1D `std::vector<double>`
 - Matrix addition, subtraction, multiplication, assignment, and scalar multiplication
 - Elementary row and column operations
 - Echelon, Gaussian, Gauss-Jordan, and canonical-style reduction helpers
@@ -115,7 +115,7 @@ target_link_libraries(your_target PRIVATE elda)
 ## Behavior Notes
 
 - The library namespace is `linalg`.
-- Matrix entries are stored in `matrix::arr` as `std::vector<std::vector<double>>`.
+- The dimensions and storage are private to ensure shape consistency. Use `get_rows()` and `get_cols()` to query dimensions, `operator()(size_t, size_t)` for safe bounds-checked element access, and `get_data()` for a read-only flat data view.
 - Zero-sized matrices are supported, but negative dimensions and negative `identity()` sizes throw `std::runtime_error`.
 - Many transformation helpers return a new matrix, while reduction helpers such as `echelon()`, `gaussian()`, `gauss_jordan()`, and `canonical()` modify the matrix in place.
 - Most dimension mismatches are reported with `std::runtime_error`.

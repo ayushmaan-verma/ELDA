@@ -16,13 +16,15 @@ constexpr double EPS = 1e-6;
 
 /// Dense matrix type backed by a contiguous 1D row-major vector.
 class matrix {
-  public:
+  private:
     /// Number of rows.
     int row;
     /// Number of columns.
     int col;
     /// Matrix entries flattened in contiguous row-major order.
     std::vector<double> arr;
+
+  public:
 
     /// Constructs a 3x3 zero matrix.
     matrix() : row(3), col(3), arr(9, 0.0) {}
@@ -168,6 +170,14 @@ class matrix {
     bool check_lower_tri();
     /// Returns the Frobenius norm.
     double norm();
+
+    /// Returns a read-only reference to the flat underlying data.
+    const std::vector<double>& get_data() const { return arr; }
+
+    friend bool operator==(const matrix& m1, const matrix& m2);
+    friend void neg_zero(matrix& m);
+    friend void fpg(matrix& m);
+    friend double inner_product(const matrix& a, const matrix& b);
 };
 
 /// Returns true when both matrices have identical entries.
