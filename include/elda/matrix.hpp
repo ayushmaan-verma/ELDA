@@ -45,17 +45,12 @@ class matrix {
         return arr[r * col + c];
     }
     /// Constructs an r x c matrix initialized with val. Negative dimensions are rejected.
-    matrix(int r, int c, double val = 0.0) : row(r), col(c) {
+    matrix(int r, int c, double val) : row(r), col(c) {
         if (r < 0 || c < 0) {
             throw std::runtime_error("Matrix dimensions must be non-negative.");
         }
-        arr.assign(r, std::vector<double>(c, val));
+        arr.assign(static_cast<size_t>(r * c), val);
     }
-
-    /// Returns the element at (i, j) as a copy. Helper for size_t/int safety.
-    double operator()(size_t r, size_t c) const { return arr[r][c]; }
-    /// Returns a mutable reference to the element at (i, j).
-    double& operator()(size_t r, size_t c) { return arr[r][c]; }
 
     /// Returns the number of rows.
     size_t get_rows() const { return static_cast<size_t>(row); }
@@ -73,13 +68,13 @@ class matrix {
     void print();
 
     /// Assigns another matrix of the same shape.
-    matrix operator=(matrix m2);
+    matrix operator=(const matrix& m2);
     /// Adds two matrices of identical shape.
-    matrix operator+(matrix m2);
+    matrix operator+(const matrix& m2);
     /// Subtracts two matrices of identical shape.
-    matrix operator-(matrix m2);
+    matrix operator-(const matrix& m2);
     /// Multiplies this matrix by another compatible matrix.
-    matrix operator*(matrix m2);
+    matrix operator*(const matrix& m2);
     /// Multiplies every entry by a scalar.
     matrix operator*(double d);
 
@@ -153,9 +148,9 @@ class matrix {
     /// Returns column `c` as a row x 1 vector.
     matrix get_col_vec(int c);
     /// Replaces row `r` with the first row of `rw`.
-    void replace_row(int r, matrix rw);
+    void replace_row(int r, const matrix& rw);
     /// Replaces column `c` with the first column of `cn`.
-    void replace_col(int c, matrix cn);
+    void replace_col(int c, const matrix& cn);
 
     /// Returns the characteristic polynomial coefficients as a row vector.
     matrix char_poly();
@@ -171,9 +166,9 @@ class matrix {
 };
 
 /// Returns true when both matrices have identical entries.
-bool operator==(matrix m1, matrix m2);
+bool operator==(const matrix& m1, const matrix& m2);
 /// Returns true when both matrices have the same shape.
-bool shape_comp(matrix m1, matrix m2);
+bool shape_comp(const matrix& m1, const matrix& m2);
 /// Returns the `n x n` identity matrix. Negative sizes are rejected.
 matrix identity(int n);
 /// Normalizes `-0` entries that can appear after elimination.
