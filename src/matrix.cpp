@@ -69,7 +69,6 @@ matrix matrix::operator=(const matrix& m2) {
         throw std::runtime_error("Assignment Operator : Dimension Mismatch in LHS & RHS !!!");
     }
     arr = m2.arr;
-    fpg(*this);
     return *this;
 }
 
@@ -83,7 +82,6 @@ matrix matrix::operator+(const matrix& m2) {
     for (size_t i = 0; i < total_elements; i++) {
         m3.arr[i] = this->arr[i] + m2.arr[i];
     }
-    fpg(m3);
     return m3;
 }
 
@@ -96,7 +94,6 @@ matrix matrix::operator-(const matrix& m2) {
     for (size_t i = 0; i < total_elements; i++) {
         m3.arr[i] = this->arr[i] - m2.arr[i];
     }
-    fpg(m3);
     return m3;
 }
 
