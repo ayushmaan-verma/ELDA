@@ -35,6 +35,9 @@ std::ostream& operator<<(std::ostream& os, const matrix& m) {
 }
 
 matrix identity(int n) {
+    if (n < 0) {
+        throw std::runtime_error("Identity matrix size must be non-negative.");
+    }
     matrix m(n, n);
     for (int i = 0; i < n; i++) {
         m.arr[i * n + i] = 1.0;
@@ -671,6 +674,12 @@ double matrix::norm() {
 }
 
 matrix matpow(matrix mat, long long expo) {
+    if (mat.row != mat.col) {
+        throw std::runtime_error("Matrix exponentiation is defined only for square matrix.");
+    }
+    if (expo < 0) {
+        throw std::runtime_error("Matrix exponentiation requires a non-negative exponent.");
+    }
     matrix res = identity(mat.row);
     while (expo > 0) {
         if (expo & 1) res = res * mat;
@@ -680,25 +689,53 @@ matrix matpow(matrix mat, long long expo) {
     return res;
 }
 
-bool check_ortho(matrix mat) {
-    return mat.transpose().arr == mat.inverse().arr;
+bool check_ortho(const matrix& mat) {
+    matrix m(mat);
+    matrix mt = m.transpose();
+    matrix inv = m.inverse();
+    const size_t total_elements = mt.get_rows() * mt.get_cols();
+    for (size_t i = 0; i < total_elements; i++) {
+        if (std::abs(mt.arr[i] - inv.arr[i]) > EPS) {
+            return false;
+        }
+    }
+    return true;
 }
 
-bool check_unitary(matrix mat) {
-    return mat.transpose().arr == mat.adjoint().arr;
+bool check_unitary(const matrix& mat) {
+    matrix m(mat);
+    matrix mt = m.transpose();
+    matrix adj = m.adjoint();
+    const size_t total_elements = mt.get_rows() * mt.get_cols();
+    for (size_t i = 0; i < total_elements; i++) {
+        if (std::abs(mt.arr[i] - adj.arr[i]) > EPS) {
+            return false;
+        }
+    }
+    return true;
 }
 
-double inner_product(matrix a, matrix b) {
+double inner_product(const matrix& a, const matrix& b) {
     if ((a.row != b.row) || (a.col != b.col)) {
         throw std::runtime_error("Vectors don't belong same vector space.");
     }
-    return ((a.transpose()) * b).trace();
+    double sum = 0.0;
+    const size_t total_elements = a.get_rows() * a.get_cols();
+    for (size_t i = 0; i < total_elements; i++) {
+        sum += a.arr[i] * b.arr[i];
+    }
+    return sum;
 }
 
-double angle(matrix a, matrix b) {
-    double l_a = a.norm();
-    double l_b = b.norm();
-    return acos(inner_product(a, b) / (l_a * l_b));
+double angle(const matrix& a, const matrix& b) {
+    double l_a = std::sqrt(inner_product(a, a));
+    double l_b = std::sqrt(inner_product(b, b));
+    if (l_a <= EPS || l_b <= EPS) {
+        throw std::runtime_error("Angle undefined for zero-length vectors.");
+    }
+    double cosine = inner_product(a, b) / (l_a * l_b);
+    cosine = std::max(-1.0, std::min(1.0, cosine));
+    return acos(cosine);
 }
 
 } // namespace linalg

@@ -27,9 +27,6 @@ class matrix {
     /// Constructs a 3x3 zero matrix.
     matrix() : row(3), col(3), arr(9, 0.0) {}
 
-    /// Constructs an r x c zero matrix.
-    matrix(int r, int c) : row(r), col(c), arr(r * c, 0.0) {}
-
     // --- Safe Public Element-Access Overloads ---
     double operator()(size_t r, size_t c) const {
         if (r >= static_cast<size_t>(row) || c >= static_cast<size_t>(col)) {
@@ -45,7 +42,7 @@ class matrix {
         return arr[r * col + c];
     }
     /// Constructs an r x c matrix initialized with val. Negative dimensions are rejected.
-    matrix(int r, int c, double val) : row(r), col(c) {
+    matrix(int r, int c, double val = 0.0) : row(r), col(c) {
         if (r < 0 || c < 0) {
             throw std::runtime_error("Matrix dimensions must be non-negative.");
         }
@@ -178,13 +175,13 @@ void fpg(matrix& m);
 /// Raises a square matrix to a non-negative integer power.
 matrix matpow(matrix mat, long long expo);
 /// Returns true when `transpose() == inverse()`.
-bool check_ortho(matrix mat);
+bool check_ortho(const matrix& mat);
 /// Legacy helper that returns true when `transpose() == adjoint()`.
-bool check_unitary(matrix mat);
+bool check_unitary(const matrix& mat);
 /// Returns the Frobenius inner product of two matrices.
-double inner_product(matrix a, matrix b);
+double inner_product(const matrix& a, const matrix& b);
 /// Returns the angle between two matrices in radians.
-double angle(matrix a, matrix b);
+double angle(const matrix& a, const matrix& b);
 
 std::ostream& operator<<(std::ostream& os, const matrix& m);
 
