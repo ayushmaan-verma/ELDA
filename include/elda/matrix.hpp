@@ -69,6 +69,8 @@ class matrix {
 
     /// Reads matrix entries from `std::cin` in row-major order.
     void input();
+    /// Returns a string representation of the matrix.
+    std::string to_string() const;
     /// Prints the matrix to `std::cout`, one row per line.
     void print();
 
