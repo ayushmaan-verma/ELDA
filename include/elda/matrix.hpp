@@ -16,6 +16,11 @@ constexpr double EPS = 1e-6;
 
 /// Dense matrix type backed by a contiguous 1D row-major vector.
 class matrix {
+  /// Constructs a 3x3 zero matrix.
+    matrix() : row(3), col(3), arr(9, 0.0) {}
+
+    /// Constructs an r x c zero matrix.
+    matrix(int r, int c) : row(r), col(c), arr(r * c, 0.0) {}
   public:
     /// Number of rows.
     int row;
