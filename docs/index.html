@@ -247,6 +247,10 @@ ctest --test-dir build</code></pre>
                 </div>
                 <div class="notes-grid">
                     <article>
+                        <h4>Eigenvalue Convergence</h4>
+                        <p>
+                            <code>eigenvalues()</code> terminates with a <code>std::runtime_error</code> if QR iteration fails to converge within 1000 steps. This safely intercepts infinite loops caused by matrices with complex eigenvalues.
+
                         <h4>LU Decomposition</h4>
                         <p>
                             <code>lu_decomposition()</code> uses partial pivoting and returns a tuple of <code>{P, L, U}</code> ensuring <code>P * A = L * U</code>. It throws a <code>std::runtime_error</code> if the matrix is rectangular or singular.

@@ -74,6 +74,14 @@ This produces:
 - `build/libelda.a`
 - `build/main`
 
+## Testing
+
+Run the automated test suite:
+
+```bash
+ctest --test-dir build --output-on-failure
+```
+
 ## Run the Demo
 
 The demo reads a `3 x 3` matrix from standard input and prints the eigenvalue estimates returned by `matrix::eigenvalues()`.
