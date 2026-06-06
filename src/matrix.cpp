@@ -140,6 +140,12 @@ matrix matrix::operator*(double d) {
     return m3;
 }
 
+matrix matrix::operator/(double scalar) {
+    if (std::abs(scalar) <= EPS)
+        throw std::runtime_error("Division by zero in matrix scalar division.");
+    return (*this) * (1.0 / scalar);
+}
+
 bool operator==(const matrix& m1, const matrix& m2) {
     return m1.arr == m2.arr;
 }
