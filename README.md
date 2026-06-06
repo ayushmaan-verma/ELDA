@@ -8,7 +8,7 @@ For the primary documentation set, open `docs/index.html` in a browser. The site
 
 ## Open Source Contributions
 
-ELDA is open for contributions through GSSoC 2026. Contributors can start by reviewing [`issues.md`](issues.md) for tasks grouped by difficulty, then follow the guidelines in [`CONTRIBUTING.md`](CONTRIBUTING.md) and the community standards in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+ELDA is open for contributions through GSSoC 2026. Contributors can start by reviewing the [GitHub Issues](https://github.com/ayushmaan-verma/ELDA/issues) for tasks, then follow the guidelines in [`CONTRIBUTING.md`](CONTRIBUTING.md) and the community standards in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
 
 For contribution-related questions, contact [ayushmaankumarverma@gmail.com](mailto:ayushmaankumarverma@gmail.com).
 
@@ -35,7 +35,6 @@ lin_alg_lib/
 ├── LICENSE
 ├── CONTRIBUTING.md
 ├── CODE_OF_CONDUCT.md
-├── issues.md
 ├── include/
 │   └── elda/
 │       ├── linalg.hpp
@@ -139,7 +138,6 @@ target_link_libraries(your_target PRIVATE elda)
 - `docs/index.html`: primary static documentation site
 - `DOCUMENTATION.MD`: markdown summary aligned with the web docs
 - `FUNCTIONS.MD`: compact public function index
-- [`issues.md`](issues.md): contributor issue backlog grouped by difficulty
 - [`CONTRIBUTING.md`](CONTRIBUTING.md): contribution workflow and development guidelines
 - [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md): community standards and reporting guidance
 - [`LICENSE`](LICENSE): MIT License terms
