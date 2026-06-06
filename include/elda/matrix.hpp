@@ -89,7 +89,7 @@ class matrix {
     matrix operator*(matrix m2);
     /// Multiplies every entry by a scalar.
     matrix operator*(double d);
-
+    matrix operator/(double d);
     /// Returns a copy after applying `row[i] += coeff * row[j]`.
     matrix row_op(int i, double coeff, int j);
     /// Returns a copy after applying `col[i] += coeff * col[j]`.

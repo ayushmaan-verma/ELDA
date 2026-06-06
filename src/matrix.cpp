@@ -142,7 +142,15 @@ matrix matrix::operator*(double d) {
     fpg(m3);
     return m3;
 }
+matrix matrix::operator/(double d) {
+    if (std::abs(d) <= EPS) {
+        throw std::runtime_error(
+            "Division by zero in matrix scalar division."
+        );
+    }
 
+    return (*this) * (1.0 / d);
+}
 bool operator==(const matrix& m1, const matrix& m2) {
     return m1.arr == m2.arr;
 }
