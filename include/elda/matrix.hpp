@@ -27,8 +27,13 @@ class matrix {
     /// Constructs a 3x3 zero matrix.
     matrix() : row(3), col(3), arr(9, 0.0) {}
 
-    /// Constructs an r x c zero matrix.
-    matrix(int r, int c) : row(r), col(c), arr(r * c, 0.0) {}
+    /// Constructs an r x c zero matrix. Negative dimensions are rejected.
+    matrix(int r, int c) : row(r), col(c) {
+        if (r < 0 || c < 0) {
+            throw std::runtime_error("Matrix dimensions must be non-negative.");
+        }
+        arr.assign(static_cast<size_t>(r) * static_cast<size_t>(c), 0.0);
+    }
 
     // --- Safe Public Element-Access Overloads ---
     double operator()(size_t r, size_t c) const {
