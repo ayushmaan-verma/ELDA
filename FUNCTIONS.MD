@@ -21,6 +21,7 @@ This file lists the public API declared by the headers under `include/elda/`.
 | `double* ref_element(int i, int j)` | Return a mutable pointer to the value at `(i, j)`. |
 | `void input()` | Read every entry from `std::cin`. |
 | `void print()` | Print the matrix to `std::cout`. |
+| `std::ostream& operator<<(std::ostream& os, const matrix& mat)` | Print the matrix to an output stream. |
 | `matrix operator=(matrix m2)` | Assign from a matrix with the same shape. |
 | `matrix operator+(matrix m2)` | Add matrices with identical shapes. |
 | `matrix operator-(matrix m2)` | Subtract matrices with identical shapes. |

@@ -78,6 +78,8 @@ class matrix {
     std::string to_string() const;
     /// Prints the matrix to `std::cout`, one row per line.
     void print();
+    /// Overloads the stream insertion operator for standard output.
+    friend std::ostream& operator<<(std::ostream& os, const matrix& mat);
 
     /// Assigns another matrix of the same shape.
     matrix operator=(matrix m2);

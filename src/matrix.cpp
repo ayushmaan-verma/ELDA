@@ -25,6 +25,17 @@ void matrix::print() {
         std::cout << std::endl;
     }
 }
+
+std::ostream& operator<<(std::ostream& os, const matrix& mat) {
+    for (int i = 0; i < mat.row; i++) {
+        for (int j = 0; j < mat.col; j++) {
+            os << mat.arr[i * mat.col + j] << " ";
+        }
+        os << "\n";
+    }
+    return os;
+}
+
 std::string matrix::to_string() const {
     std::ostringstream oss;
     for (int i = 0; i < row; i++) {

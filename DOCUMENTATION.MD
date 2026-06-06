@@ -90,6 +90,11 @@ double determinant = a.det();
 matrix inverse = a.inverse();
 matrix eigen = a.eigenvalues();
 ```
+You can also print any of these matrices directly using the standard stream operator:
+
+```cpp
+std::cout << "Matrix a:\n" << a << std::endl;
+```
 
 ### `include/elda/transforms.hpp`
 
