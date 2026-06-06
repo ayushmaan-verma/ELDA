@@ -88,67 +88,79 @@ bool matrices_approx_equal(const matrix& m1, const matrix& m2, double tol) {
 
 /// Exact equality: delegates to matrices_approx_equal with zero tolerance so
 /// shape mismatches are still caught safely before any element access.
-bool operator==(const matrix& m1, const matrix& m2) {
-    return matrices_approx_equal(m1, m2, 0.0);
-}
-
-bool shape_comp(const matrix& m1, const matrix& m2) {
-    return (m1.row == m2.row) && (m1.col == m2.col);
-}
-
-// ---------------------------------------------------------------------------
-// Arithmetic operators
-// ---------------------------------------------------------------------------
-
 matrix matrix::operator=(const matrix& m2) {
-    if (row != m2.row || col != m2.col)
+    if ((row != m2.row) || (col != m2.col)) {
         throw std::runtime_error("Assignment Operator : Dimension Mismatch in LHS & RHS !!!");
+    }
     arr = m2.arr;
-    fpg(*this);
     return *this;
 }
 
 matrix matrix::operator+(const matrix& m2) {
-    if (row != m2.row || col != m2.col)
+    if ((row != m2.row) || (col != m2.col)) {
         throw std::runtime_error("Addition defined only if both matrices share identical dimensions.");
+    }
     matrix m3(row, col);
-    const size_t n = get_rows() * get_cols();
-    for (size_t i = 0; i < n; i++)
-        m3.arr[i] = arr[i] + m2.arr[i];
-    fpg(m3);
+    size_t total_elements = get_rows() * get_cols();
+    // Cache locality optimization: Linear element loop pass
+    for (size_t i = 0; i < total_elements; i++) {
+        m3.arr[i] = this->arr[i] + m2.arr[i];
+    }
     return m3;
 }
 
 matrix matrix::operator-(const matrix& m2) {
-    if (row != m2.row || col != m2.col)
+    if ((row != m2.row) || (col != m2.col)) {
         throw std::runtime_error("Subtraction defined only if both matrices share identical dimensions.");
+    }
     matrix m3(row, col);
-    const size_t n = get_rows() * get_cols();
-    for (size_t i = 0; i < n; i++)
-        m3.arr[i] = arr[i] - m2.arr[i];
-    fpg(m3);
+    size_t total_elements = get_rows() * get_cols();
+    for (size_t i = 0; i < total_elements; i++) {
+        m3.arr[i] = this->arr[i] - m2.arr[i];
+    }
     return m3;
 }
 
 matrix matrix::operator*(const matrix& m2) {
-    if (col != m2.row)
+    if (col != m2.row) {
         throw std::runtime_error("Matrix multiplication dimensions incompatible.");
+    }
     matrix m3(row, m2.col);
-    for (int i = 0; i < row; i++)
+    // Highly optimized cache-friendly index scan loops
+    for (int i = 0; i < row; i++) {
         for (int k = 0; k < col; k++) {
             double r = arr[i * col + k];
-            for (int j = 0; j < m2.col; j++)
+            for (int j = 0; j < m2.col; j++) {
                 m3.arr[i * m2.col + j] += r * m2.arr[k * m2.col + j];
+            }
         }
+    }
     fpg(m3);
     return m3;
 }
 
 matrix matrix::operator*(double d) {
     matrix m3(*this);
-    for (auto& v : m3.arr) v *= d;
+    size_t total_elements = get_rows() * get_cols();
+    for (size_t i = 0; i < total_elements; i++) {
+        m3.arr[i] *= d;
+    }
     fpg(m3);
     return m3;
+}
+
+matrix matrix::operator/(double scalar) {
+    if (std::abs(scalar) <= EPS)
+        throw std::runtime_error("Division by zero in matrix scalar division.");
+    return (*this) * (1.0 / scalar);
+}
+
+bool operator==(const matrix& m1, const matrix& m2) {
+    return matrices_approx_equal(m1, m2, 0.0);
+}
+
+bool shape_comp(const matrix& m1, const matrix& m2) {
+    return (m1.row == m2.row) && (m1.col == m2.col);
 }
 
 // ---------------------------------------------------------------------------

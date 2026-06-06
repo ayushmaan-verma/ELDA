@@ -91,6 +91,8 @@ class matrix {
     matrix operator*(const matrix& m2);
     /// Multiplies every entry by a scalar.
     matrix operator*(double d);
+    /// Divides every entry by a scalar.
+    matrix operator/(double scalar);
 
     /// Returns a copy after applying `row[i] += coeff * row[j]`.
     matrix row_op(int i, double coeff, int j);
