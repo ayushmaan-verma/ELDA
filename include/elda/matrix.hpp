@@ -16,12 +16,8 @@ constexpr double EPS = 1e-6;
 
 /// Dense matrix type backed by a contiguous 1D row-major vector.
 class matrix {
-  /// Constructs a 3x3 zero matrix.
-    matrix() : row(3), col(3), arr(9, 0.0) {}
 
-    /// Constructs an r x c zero matrix.
-    matrix(int r, int c) : row(r), col(c), arr(r * c, 0.0) {}
-  public:
+    public:
     /// Number of rows.
     int row;
     /// Number of columns.
@@ -32,8 +28,6 @@ class matrix {
     /// Constructs a 3x3 zero matrix.
     matrix() : row(3), col(3), arr(9, 0.0) {}
 
-    /// Constructs an r x c zero matrix.
-    matrix(int r, int c) : row(r), col(c), arr(r * c, 0.0) {}
 
     // --- Safe Public Element-Access Overloads ---
     double operator()(size_t r, size_t c) const {
@@ -54,13 +48,8 @@ class matrix {
         if (r < 0 || c < 0) {
             throw std::runtime_error("Matrix dimensions must be non-negative.");
         }
-        arr.assign(r, std::vector<double>(c, val));
+        arr.assign(r * c, val);
     }
-
-    /// Returns the element at (i, j) as a copy. Helper for size_t/int safety.
-    double operator()(size_t r, size_t c) const { return arr[r][c]; }
-    /// Returns a mutable reference to the element at (i, j).
-    double& operator()(size_t r, size_t c) { return arr[r][c]; }
 
     /// Returns the number of rows.
     size_t get_rows() const { return static_cast<size_t>(row); }
@@ -80,13 +69,13 @@ class matrix {
     void print();
 
     /// Assigns another matrix of the same shape.
-    matrix operator=(matrix m2);
+    matrix operator=(const matrix& m2);
     /// Adds two matrices of identical shape.
-    matrix operator+(matrix m2);
+    matrix operator+(const matrix& m2);
     /// Subtracts two matrices of identical shape.
-    matrix operator-(matrix m2);
+    matrix operator-(const matrix& m2);
     /// Multiplies this matrix by another compatible matrix.
-    matrix operator*(matrix m2);
+    matrix operator*(const matrix& m2);
     /// Multiplies every entry by a scalar.
     matrix operator*(double d);
 
@@ -160,9 +149,9 @@ class matrix {
     /// Returns column `c` as a row x 1 vector.
     matrix get_col_vec(int c);
     /// Replaces row `r` with the first row of `rw`.
-    void replace_row(int r, matrix rw);
+    void replace_row(int r, const matrix& rw);
     /// Replaces column `c` with the first column of `cn`.
-    void replace_col(int c, matrix cn);
+    void replace_col(int c, const matrix& cn);
 
     /// Returns the characteristic polynomial coefficients as a row vector.
     matrix char_poly();
@@ -180,7 +169,7 @@ class matrix {
 /// Returns true when both matrices have identical entries.
 bool operator==(matrix m1, matrix m2);
 /// Returns true when both matrices have the same shape.
-bool shape_comp(matrix m1, matrix m2);
+bool shape_comp(const matrix& m1, const matrix& m2);
 /// Returns the `n x n` identity matrix. Negative sizes are rejected.
 matrix identity(int n);
 /// Normalizes `-0` entries that can appear after elimination.

@@ -12,42 +12,42 @@ matrix vec5() { return matrix(5, 1); }
 
 // Convenience constructors for value-initialized column vectors.
 matrix vec1(double x) {
-    matrix m(1, 1);
-    m.arr[0][0] = x;
+    matrix m(1, 1, 0.0);
+    m.arr[0] = x;
     return m;
 }
 
 matrix vec2(double x, double y) {
-    matrix m(2, 1);
-    m.arr[0][0] = x;
-    m.arr[1][0] = y;
+    matrix m(2, 1, 0.0);
+    m.arr[0] = x;
+    m.arr[1] = y;
     return m;
 }
 
 matrix vec3(double x, double y, double z) {
-    matrix m(3, 1);
-    m.arr[0][0] = x;
-    m.arr[1][0] = y;
-    m.arr[2][0] = z;
+    matrix m(3, 1, 0.0);
+    m.arr[0] = x;
+    m.arr[1] = y;
+    m.arr[2] = z;
     return m;
 }
 
 matrix vec4(double x, double y, double z, double w) {
-    matrix m(4, 1);
-    m.arr[0][0] = x;
-    m.arr[1][0] = y;
-    m.arr[2][0] = z;
-    m.arr[3][0] = w;
+    matrix m(4, 1, 0.0);
+    m.arr[0] = x;
+    m.arr[1] = y;
+    m.arr[2] = z;
+    m.arr[3] = w;
     return m;
 }
 
 matrix vec5(double x, double y, double z, double w, double u) {
-    matrix m(5, 1);
-    m.arr[0][0] = x;
-    m.arr[1][0] = y;
-    m.arr[2][0] = z;
-    m.arr[3][0] = w;
-    m.arr[4][0] = u;
+    matrix m(5, 1, 0.0);
+    m.arr[0] = x;
+    m.arr[1] = y;
+    m.arr[2] = z;
+    m.arr[3] = w;
+    m.arr[4] = u;
     return m;
 }
 
@@ -58,14 +58,14 @@ bool check_lin_comb(matrix m1, matrix m2) {
     if (m1.get_rows() != m2.get_rows()) {
         throw std::runtime_error("Dimension mismatch: All vectors must have the same number of rows.");
     }
-    matrix aug(m1.get_rows(), 2);
+    matrix aug(m1.get_rows(), 2, 0.0);
     for (size_t i = 0; i < m1.get_rows(); i++) {
-        aug.arr[i][0] = m1.arr[i][0];
-        aug.arr[i][1] = m2.arr[i][0];
+        aug.arr[i * 2 + 0] = m1.arr[i];
+        aug.arr[i * 2 + 1] = m2.arr[i];
     }
-    matrix coeff(m1.get_rows(), 1);
+    matrix coeff(m1.get_rows(), 1, 0.0);
     for (size_t i = 0; i < m1.get_rows(); i++) {
-        coeff.arr[i][0] = m1.arr[i][0];
+        coeff.arr[i] = m1.arr[i];
     }
     return aug.rank() == coeff.rank();
 }
@@ -77,16 +77,16 @@ bool check_lin_comb(matrix m1, matrix m2, matrix m3) {
     if (m1.get_rows() != m2.get_rows() || m2.get_rows() != m3.get_rows()) {
         throw std::runtime_error("Dimension mismatch: All vectors must have the same number of rows.");
     }
-    matrix aug(m1.get_rows(), 3);
+    matrix aug(m1.get_rows(), 3, 0.0);
     for (size_t i = 0; i < m1.get_rows(); i++) {
-        aug.arr[i][0] = m1.arr[i][0];
-        aug.arr[i][1] = m2.arr[i][0];
-        aug.arr[i][2] = m3.arr[i][0];
+        aug.arr[i * 3 + 0] = m1.arr[i];
+        aug.arr[i * 3 + 1] = m2.arr[i];
+        aug.arr[i * 3 + 2] = m3.arr[i];
     }
-    matrix coeff(m1.get_rows(), 2);
+    matrix coeff(m1.get_rows(), 2, 0.0);
     for (size_t i = 0; i < m1.get_rows(); i++) {
-        coeff.arr[i][0] = m1.arr[i][0];
-        coeff.arr[i][1] = m2.arr[i][0];
+        coeff.arr[i * 2 + 0] = m1.arr[i];
+        coeff.arr[i * 2 + 1] = m2.arr[i];
     }
     return aug.rank() == coeff.rank();
 }
@@ -98,18 +98,18 @@ bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4) {
     if (m1.get_rows() != m2.get_rows() || m2.get_rows() != m3.get_rows() || m3.get_rows() != m4.get_rows()) {
         throw std::runtime_error("Dimension mismatch: All vectors must have the same number of rows.");
     }
-    matrix aug(m1.get_rows(), 4);
+    matrix aug(m1.get_rows(), 4, 0.0);
     for (size_t i = 0; i < m1.get_rows(); i++) {
-        aug.arr[i][0] = m1.arr[i][0];
-        aug.arr[i][1] = m2.arr[i][0];
-        aug.arr[i][2] = m3.arr[i][0];
-        aug.arr[i][3] = m4.arr[i][0];
+        aug.arr[i * 4 + 0] = m1.arr[i];
+        aug.arr[i * 4 + 1] = m2.arr[i];
+        aug.arr[i * 4 + 2] = m3.arr[i];
+        aug.arr[i * 4 + 3] = m4.arr[i];
     }
-    matrix coeff(m1.get_rows(), 3);
+    matrix coeff(m1.get_rows(), 3, 0.0);
     for (size_t i = 0; i < m1.get_rows(); i++) {
-        coeff.arr[i][0] = m1.arr[i][0];
-        coeff.arr[i][1] = m2.arr[i][0];
-        coeff.arr[i][2] = m3.arr[i][0];
+        coeff.arr[i * 3 + 0] = m1.arr[i];
+        coeff.arr[i * 3 + 1] = m2.arr[i];
+        coeff.arr[i * 3 + 2] = m3.arr[i];
     }
     return aug.rank() == coeff.rank();
 }
@@ -121,20 +121,20 @@ bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5) {
     if (m1.get_rows() != m2.get_rows() || m2.get_rows() != m3.get_rows() || m3.get_rows() != m4.get_rows() || m4.get_rows() != m5.get_rows()) {
         throw std::runtime_error("Dimension mismatch: All vectors must have the same number of rows.");
     }
-    matrix aug(m1.get_rows(), 5);
+    matrix aug(m1.get_rows(), 5, 0.0);
     for (size_t i = 0; i < m1.get_rows(); i++) {
-        aug.arr[i][0] = m1.arr[i][0];
-        aug.arr[i][1] = m2.arr[i][0];
-        aug.arr[i][2] = m3.arr[i][0];
-        aug.arr[i][3] = m4.arr[i][0];
-        aug.arr[i][4] = m5.arr[i][0];
+        aug.arr[i * 5 + 0] = m1.arr[i];
+        aug.arr[i * 5 + 1] = m2.arr[i];
+        aug.arr[i * 5 + 2] = m3.arr[i];
+        aug.arr[i * 5 + 3] = m4.arr[i];
+        aug.arr[i * 5 + 4] = m5.arr[i];
     }
-    matrix coeff(m1.get_rows(), 4);
+    matrix coeff(m1.get_rows(), 4, 0.0);
     for (size_t i = 0; i < m1.get_rows(); i++) {
-        coeff.arr[i][0] = m1.arr[i][0];
-        coeff.arr[i][1] = m2.arr[i][0];
-        coeff.arr[i][2] = m3.arr[i][0];
-        coeff.arr[i][3] = m4.arr[i][0];
+        coeff.arr[i * 4 + 0] = m1.arr[i];
+        coeff.arr[i * 4 + 1] = m2.arr[i];
+        coeff.arr[i * 4 + 2] = m3.arr[i];
+        coeff.arr[i * 4 + 3] = m4.arr[i];
     }
     return aug.rank() == coeff.rank();
 }
@@ -151,21 +151,21 @@ bool check_lin_comb(matrix target, const std::vector<matrix>& vectors) {
             throw std::runtime_error("Dimension mismatch: All vectors must have the same number of rows.");
         }
     }
-    
+
     if (vectors.empty()) return false;
-    
+
     size_t rows = target.get_rows();
     size_t cols = vectors.size();
-    
-    matrix coeff(rows, cols);
-    matrix aug(rows, cols + 1);
-    
+
+    matrix coeff(rows, cols, 0.0);
+    matrix aug(rows, cols + 1, 0.0);
+
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
-            coeff.arr[i][j] = vectors[j].arr[i][0];
-            aug.arr[i][j] = vectors[j].arr[i][0];
+            coeff.arr[i * cols + j] = vectors[j].arr[i];
+            aug.arr[i * (cols + 1) + j] = vectors[j].arr[i];
         }
-        aug.arr[i][cols] = target.arr[i][0];
+        aug.arr[i * (cols + 1) + cols] = target.arr[i];
     }
     return aug.rank() == coeff.rank();
 }
