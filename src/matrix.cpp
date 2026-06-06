@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <cmath>
 #include <ostream>
+#include <string>
+#include <sstream>
 
 namespace linalg {
 
@@ -24,6 +26,20 @@ void matrix::print() {
     }
 }
 
+std::string matrix::to_string() const {
+    std::ostringstream oss;
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            oss << arr[i * col + j];
+            if (j < col - 1) {
+                oss << " ";
+            }
+        }
+        oss << "\n";
+    }
+    return oss.str();
+}
+
 std::ostream& operator<<(std::ostream& os, const matrix& m) {
     for (int i = 0; i < m.get_rows(); i++) {
         for (int j = 0; j < m.get_cols(); j++) {
@@ -38,7 +54,6 @@ matrix identity(int n) {
     if (n < 0) {
         throw std::runtime_error("Identity matrix size must be non-negative.");
     }
-
     matrix m(n, n);
     for (int i = 0; i < n; i++) {
         m.arr[i * n + i] = 1.0;
@@ -238,44 +253,29 @@ int matrix::echelon() {
     int swaps = 1;
     int r = 0; // Independent pivot row tracker
     for (int c = 0; c < col && r < row; c++) {
-        // 1. Find the best pivot in the current column (partial pivoting)
         int pivot_row = r;
         double max_val = std::abs(arr[r * col + c]);
         for (int i = r + 1; i < row; i++) {
             if (std::abs(arr[i * col + c]) > max_val) {
                 max_val = std::abs(arr[i * col + c]);
                 pivot_row = i;
-    for (int k = 0; k < std::min(row, col); k++) {
-        int z = k;
-        while (std::abs(arr[z * col + k]) < 1e-9) {
-            if (z + 1 == std::min(row, col)) {
-                break;
             }
         }
         
-        // 2. If the entire column below row `r` is zero, skip to the next column
         if (max_val < 1e-9) {
             continue; 
         }
         
-        // 3. Swap the max row to the current pivot row
         if (pivot_row != r) {
             *this = row_swap(r, pivot_row);
             swaps *= -1;
         }
         
-        // 4. Eliminate all entries below the pivot
         for (int i = r + 1; i < row; i++) {
             const double multiplier = arr[i * col + c] / arr[r * col + c];
             *this = row_op(i, -multiplier, r);
-        if (std::abs(arr[k * col + k]) < 1e-9) {
-            continue;
         }
-        for (int i = k + 1; i < row; i++) {
-            const double multiplier = arr[i * col + k] / arr[k * col + k];
-            *this = row_op(i, -multiplier, k);
-        }
-        r++; // Only advance the row tracker if we successfully found and processed a pivot!
+        r++;
     }
     neg_zero(*this);
     fpg(*this);
@@ -292,12 +292,6 @@ int matrix::gaussian() {
             if (std::abs(arr[i * col + c]) > max_val) {
                 max_val = std::abs(arr[i * col + c]);
                 pivot_row = i;
-
-    for (int k = 0; k < std::min(row, col); k++) {
-        int z = k;
-        while (std::abs(arr[z * col + k]) < 1e-9) {
-            if (z + 1 == std::min(row, col)) {
-                break;
             }
         }
         
@@ -320,22 +314,6 @@ int matrix::gaussian() {
         for (int i = r + 1; i < row; i++) {
             const double multiplier = arr[i * col + c];
             *this = row_op(i, -multiplier, r);
-        // Normalize the pivot row to have a leading 1
-        const double divisor = arr[r * col + c];
-        *this = this->row_multi(r, 1.0 / divisor);
-        
-        // Eliminate below
-        for (int i = r + 1; i < row; i++) {
-            const double multiplier = arr[i * col + c];
-            *this = row_op(i, -multiplier, r);
-        const double divisor = arr[k * col + k];
-        if (std::abs(divisor) < 1e-9) {
-            continue;
-        }
-        *this = this->row_multi(k, 1.0 / divisor);
-        for (int i = k + 1; i < row; i++) {
-            const double multiplier = arr[i * col + k];
-            *this = row_op(i, -multiplier, k);
         }
         r++;
     }
@@ -346,10 +324,7 @@ int matrix::gaussian() {
 
 int matrix::gauss_jordan() {
     const int swaps = this->gaussian();
-    
-    // Because the matrix is already in row-echelon form, we work from the bottom up.
     for (int i = row - 1; i > 0; i--) {
-        // Find the pivot column for the current row
         int pivot_col = -1;
         for (int j = 0; j < col; j++) {
             if (std::abs(arr[i * col + j]) > 1e-9) {
@@ -358,17 +333,11 @@ int matrix::gauss_jordan() {
             }
         }
         
-        // If this is a zero row, skip it
         if (pivot_col == -1) continue;
 
-        // Eliminate above the pivot
         for (int k = i - 1; k >= 0; k--) {
             const double multiplier = arr[k * col + pivot_col];
             *this = row_op(k, -multiplier, i);
-    for (int k = std::min(row, col) - 1; k > 0; k--) {
-        for (int i = k - 1; i >= 0; i--) {
-            const double multiplier = arr[i * col + k];
-            *this = row_op(i, -multiplier, k);
         }
     }
     fpg(*this);
@@ -380,16 +349,11 @@ int matrix::canonical() {
     int r = 0;
     for (int c = 0; c < col && r < row; c++) {
         if (std::abs(arr[r * col + c]) > 1e-9) {
-            // Eliminate to the right of the pivot
             for (int j = c + 1; j < col; j++) {
                 const double multiplier = arr[r * col + j];
                 *this = col_op(j, -multiplier, c);
             }
             r++;
-    for (int k = 0; k < std::min(row, col); k++) {
-        for (int j = k + 1; j < col; j++) {
-            const double multiplier = arr[k * col + j];
-            *this = col_op(j, -multiplier, k);
         }
     }
     fpg(*this);
@@ -402,7 +366,7 @@ int matrix::rank() {
     m.gaussian();
     for (int i = 0; i < row; i++) {
         for (int j = 0; j < col; j++) {
-            if (m.arr[i * col + j] != 0.0) {
+            if (std::abs(m.arr[i * col + j]) > 1e-9) {
                 rank_cnt++;
                 break;
             }
@@ -412,14 +376,14 @@ int matrix::rank() {
 }
 
 int matrix::free_variable() {
-    if (col != row) {
+    if (!is_square()) {
         throw std::runtime_error("The dimension of Coefficient Matrix must be N x N.");
     }
     return row - this->rank();
 }
 
 double matrix::trace() {
-    if (row != col) {
+    if (!is_square()) {
         throw std::runtime_error("Trace is defined only for square matrix.");
     }
     double sum = 0;
@@ -438,7 +402,7 @@ double matrix::diag_product() {
 }
 
 double matrix::det() {
-    if (row != col) {
+    if (!is_square()) {
         throw std::runtime_error("Determinant is defined only for square matrix.");
     }
     matrix m(*this);
@@ -451,7 +415,7 @@ double matrix::det() {
 }
 
 double matrix::minor(int x, int y) {
-    if (row != col) {
+    if (!is_square()) {
         throw std::runtime_error("Cofactor & Minor defined only for square matrix.");
     }
     matrix mat(row - 1, col - 1);
@@ -486,7 +450,7 @@ matrix matrix::transpose() {
 }
 
 matrix matrix::adjoint() {
-    if (row != col) {
+    if (!is_square()) {
         throw std::runtime_error("Adjoint is defined only for square matrix.");
     }
     matrix m(*this);
@@ -501,7 +465,7 @@ matrix matrix::adjoint() {
 }
 
 matrix matrix::inverse() {
-    if (row != col) {
+    if (!is_square()) {
         throw std::runtime_error("Inverse is defined only for square matrix.");
     }
     const int m = row;
@@ -510,11 +474,7 @@ matrix matrix::inverse() {
 
     for (int k = 0; k < m; k++) {
         int z = k;
-        while (std::abs(mat.arr[z * m + k]) < 1e-9) {
-            if (z + 1 == m) break;
-            z++;
-        }
-        while (z < m && std::abs(mat.arr[z][k]) <= EPS) {
+        while (z < m && std::abs(mat.arr[z * m + k]) <= EPS) {
             z++;
         }
 
@@ -533,16 +493,6 @@ matrix matrix::inverse() {
             mat.arr[k * m + j] /= divisor;
             inv.arr[k * m + j] /= divisor;
         }
-        const double divisor = mat.arr[k * m + k];
-        mat = mat.row_multi(k, 1.0 / divisor);
-        inv = inv.row_multi(k, 1.0 / divisor);
-
-        const double divisor = mat.arr[k][k];
-        if (std::abs(divisor) <= EPS) {
-            throw std::runtime_error("Inverse is defined only for Non-Singular matrix.");
-        }
-        mat = mat.row_multi(k, 1 / divisor);
-        inv = inv.row_multi(k, 1 / divisor);
 
         for (int i = k + 1; i < m; i++) {
             const double multiplier = mat.arr[i * m + k];
@@ -596,29 +546,20 @@ matrix matrix::orthogonalize() {
                 dot_product += Q.arr[k * col + j] * Q.arr[k * col + i];
                 norm_sq_i += Q.arr[k * col + i] * Q.arr[k * col + i];
             }
-            double projection_coeff = 0.0;
-            if (norm_sq_i > 1e-9) {
-                projection_coeff = dot_product / norm_sq_i;
-            }
-            for (int k = 0; k < row; k++) {
-                Q.arr[k * col + j] -= projection_coeff * Q.arr[k * col + i];
-                dot_product += Q.arr[k][j] * Q.arr[k][i];
-                norm_sq_i += Q.arr[k][i] * Q.arr[k][i];
-            }
 
             const double projection_coeff = norm_sq_i > EPS ? dot_product / norm_sq_i : 0.0;
             for (int k = 0; k < row; k++) {
-                Q.arr[k][j] -= projection_coeff * Q.arr[k][i];
+                Q.arr[k * col + j] -= projection_coeff * Q.arr[k * col + i];
             }
         }
 
         double norm_sq_j = 0.0;
         for (int k = 0; k < row; k++) {
-            norm_sq_j += Q.arr[k][j] * Q.arr[k][j];
+            norm_sq_j += Q.arr[k * col + j] * Q.arr[k * col + j];
         }
         if (norm_sq_j <= EPS) {
             for (int k = 0; k < row; k++) {
-                Q.arr[k][j] = 0.0;
+                Q.arr[k * col + j] = 0.0;
             }
         }
     }
@@ -634,26 +575,14 @@ matrix matrix::orthonormalize() {
             norm_val += Q.arr[k * col + j] * Q.arr[k * col + j];
         }
         norm_val = std::sqrt(norm_val);
-        if (norm_val > 1e-9) {
+        
+        if (norm_val > EPS) {
             for (int k = 0; k < row; k++) {
                 Q.arr[k * col + j] /= norm_val;
             }
         } else {
             for (int k = 0; k < row; k++) {
                 Q.arr[k * col + j] = 0.0;
-        double norm = 0.0;
-        for (int k = 0; k < row; k++) {
-            norm += Q.arr[k][j] * Q.arr[k][j];
-        }
-        norm = std::sqrt(norm);
-        
-        if (norm > EPS) {
-            for (int k = 0; k < row; k++) {
-                Q.arr[k][j] /= norm;
-            }
-        } else {
-            for (int k = 0; k < row; k++) {
-                Q.arr[k][j] = 0.0;
             }
         }
     }
@@ -666,8 +595,6 @@ matrix matrix::qr_decomp_q() {
 }
 
 matrix matrix::qr_decomp_r() {
-    matrix Q = qr_decomp_q();
-    matrix R(col, col);
     // For an m x n matrix, R is a square n x n upper triangular matrix
     matrix Q = qr_decomp_q();
     matrix R(col, col); // Strict Reduced/Thin QR Contract
@@ -679,9 +606,6 @@ matrix matrix::qr_decomp_r() {
                 val += Q.arr[k * col + i] * arr[k * col + j];
             }
             R.arr[i * col + j] = val;
-                val += Q.arr[k][i] * arr[k][j];
-            }
-            R.arr[i][j] = val;
         }
     }
     fpg(R);
@@ -689,7 +613,7 @@ matrix matrix::qr_decomp_r() {
 }
 
 std::tuple<matrix, matrix, matrix> matrix::lu_decomposition() const {
-    if (row != col) {
+    if (!is_square()) {
         throw std::runtime_error("LU decomposition requires a square matrix.");
     }
     
@@ -698,51 +622,20 @@ std::tuple<matrix, matrix, matrix> matrix::lu_decomposition() const {
     matrix L(row, col);
     matrix U = *this;
     
+    // Initialize P and L as identity matrices
     for (size_t i = 0; i < n; i++) {
         P.arr[i * n + i] = 1.0;
         L.arr[i * n + i] = 1.0;
     }
 
     for (size_t i = 0; i < n; i++) {
+        // Find the pivot row
         size_t pivot_row = i;
         double max_val = std::abs(U.arr[i * n + i]);
+        
         for (size_t k = i + 1; k < n; k++) {
             if (std::abs(U.arr[k * n + i]) > max_val) {
                 max_val = std::abs(U.arr[k * n + i]);
-                pivot_row = k;
-            }
-        }
-        if (max_val < 1e-9) {
-            throw std::runtime_error("Matrix is singular; LU decomposition failed.");
-        }
-        if (pivot_row != i) {
-            for (size_t j = 0; j < n; j++) {
-                std::swap(U.arr[i * n + j], U.arr[pivot_row * n + j]);
-                std::swap(P.arr[i * n + j], P.arr[pivot_row * n + j]);
-            }
-            for (size_t j = 0; j < i; j++) {
-                std::swap(L.arr[i * n + j], L.arr[pivot_row * n + j]);
-            }
-        }
-        for (size_t k = i + 1; k < n; k++) {
-            double factor = U.arr[k * n + i] / U.arr[i * n + i];
-            L.arr[k * n + i] = factor;
-            for (size_t j = i; j < n; j++) {
-                U.arr[k * n + j] -= factor * U.arr[i * n + j];
-    // Initialize P and L as identity matrices
-    for (size_t i = 0; i < n; i++) {
-        P.arr[i][i] = 1.0;
-        L.arr[i][i] = 1.0;
-    }
-
-    for (size_t i = 0; i < n; i++) {
-        // Find the pivot row
-        size_t pivot_row = i;
-        double max_val = std::abs(U.arr[i][i]);
-        
-        for (size_t k = i + 1; k < n; k++) {
-            if (std::abs(U.arr[k][i]) > max_val) {
-                max_val = std::abs(U.arr[k][i]);
                 pivot_row = k;
             }
         }
@@ -755,21 +648,21 @@ std::tuple<matrix, matrix, matrix> matrix::lu_decomposition() const {
         if (pivot_row != i) {
             // Swap rows in U and P
             for (size_t j = 0; j < n; j++) {
-                std::swap(U.arr[i][j], U.arr[pivot_row][j]);
-                std::swap(P.arr[i][j], P.arr[pivot_row][j]);
+                std::swap(U.arr[i * n + j], U.arr[pivot_row * n + j]);
+                std::swap(P.arr[i * n + j], P.arr[pivot_row * n + j]);
             }
             // Swap multipliers in L (only columns before the current pivot index i)
             for (size_t j = 0; j < i; j++) {
-                std::swap(L.arr[i][j], L.arr[pivot_row][j]);
+                std::swap(L.arr[i * n + j], L.arr[pivot_row * n + j]);
             }
         }
 
         // Elimination pass
         for (size_t k = i + 1; k < n; k++) {
-            double factor = U.arr[k][i] / U.arr[i][i];
-            L.arr[k][i] = factor; // Store the elimination multiplier inside L
+            double factor = U.arr[k * n + i] / U.arr[i * n + i];
+            L.arr[k * n + i] = factor; // Store the elimination multiplier inside L
             for (size_t j = i; j < n; j++) {
-                U.arr[k][j] -= factor * U.arr[i][j];
+                U.arr[k * n + j] -= factor * U.arr[i * n + j];
             }
         }
     }
@@ -797,7 +690,7 @@ bool matrix::check_lower_tri() {
 }
 
 matrix matrix::char_poly() {
-    if (this->row != this->col) {
+    if (!is_square()) {
         throw std::runtime_error("Characteristic Polynomial is defined only for square matrix.");
     }
     int n = this->row;
@@ -817,7 +710,7 @@ matrix matrix::char_poly() {
 }
 
 matrix matrix::eigenvalues() {
-    if (row != col) {
+    if (!is_square()) {
         throw std::runtime_error("Eigenvalues are defined only for square matrix.");
     }
     matrix m(*this);
@@ -855,11 +748,11 @@ matrix matrix::eigenvalues() {
 }
 
 double matrix::norm() {
-    return sqrt(inner_product(*this, *this));
+    return std::sqrt(inner_product(*this, *this));
 }
 
 matrix matpow(matrix mat, long long expo) {
-    if (mat.row != mat.col) {
+    if (!mat.is_square()) {
         throw std::runtime_error("Matrix power is defined only for square matrices.");
     }
     if (expo < 0) {
@@ -875,20 +768,18 @@ matrix matpow(matrix mat, long long expo) {
 }
 
 bool check_ortho(const matrix& mat) {
-    matrix m(*this); // proxy construct
-    return mat.transpose().arr == mat.inverse().arr;
+    matrix m(mat);
+    return mat.transpose().arr == m.inverse().arr;
 }
 
 bool check_unitary(const matrix& mat) {
-    return mat.transpose().arr == mat.adjoint().arr;
+    matrix m(mat);
+    return mat.transpose().arr == m.adjoint().arr;
 }
 
 double inner_product(matrix a, matrix b) {
     if (!shape_comp(a, b)) {
         throw std::runtime_error("Matrices must share identical dimensions to compute a Frobenius inner product.");
-double inner_product(const matrix& a, const matrix& b) {
-    if ((a.row != b.row) || (a.col != b.col)) {
-        throw std::runtime_error("Vectors don't belong same vector space.");
     }
     
     double sum = 0.0;
@@ -918,10 +809,6 @@ double angle(matrix a, matrix b) {
     if (cos_theta < -1.0) cos_theta = -1.0;
     
     return std::acos(cos_theta);
-double angle(const matrix& a, const matrix& b) {
-    double l_a = a.norm();
-    double l_b = b.norm();
-    return acos(inner_product(a, b) / (l_a * l_b));
 }
 
 } // namespace linalg
