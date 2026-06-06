@@ -583,11 +583,50 @@ void test_flattened_vector_invariants() {
     std::cout << "Flat vector layout invariants verified successfully!" << std::endl;
 }
 
+void test_fpg_behavior() {
+    std::cout << "Running FPG behavior tests..." << std::endl;
+
+    // Create a matrix with sub-EPS entries
+    linalg::matrix A(2, 2);
+    A(0, 0) = 1e-7; A(0, 1) = 0.0;
+    A(1, 0) = 0.0;  A(1, 1) = 1e-7;
+
+    linalg::matrix B(2, 2);
+    B(0, 0) = 2e-7; B(0, 1) = 0.0;
+    B(1, 0) = 0.0;  B(1, 1) = 2e-7;
+
+    // Test operator+
+    linalg::matrix C = A + B;
+    // Values should be exactly 3e-7, NOT cleaned up to 0.0
+    assert(C(0, 0) == 3e-7);
+    assert(C(1, 1) == 3e-7);
+
+    // Test operator-
+    linalg::matrix D = B - A;
+    // Values should be exactly 1e-7, NOT cleaned up to 0.0
+    assert(D(0, 0) == 1e-7);
+    assert(D(1, 1) == 1e-7);
+
+    // Test operator=
+    linalg::matrix E(2, 2);
+    E = C;
+    assert(E(0, 0) == 3e-7);
+    assert(E(1, 1) == 3e-7);
+
+    // Explicit call to fpg() should cleanup the values
+    linalg::fpg(E);
+    assert(E(0, 0) == 0.0);
+    assert(E(1, 1) == 0.0);
+
+    std::cout << "FPG behavior tests passed!" << std::endl;
+}
+
 int main() {
     std::cout << "=== STARTING ELDA CORE UNIT TESTS ===" << std::endl;
     test_robust_qr_decomposition();
     test_eigenvalues_convergence();
     test_flattened_vector_invariants();
+    test_fpg_behavior();
     std::cout << "=== ALL TESTS PASSED SUCCESSFULLY ===" << std::endl;
     return 0;
 }

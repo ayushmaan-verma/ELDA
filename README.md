@@ -130,7 +130,7 @@ target_link_libraries(your_target PRIVATE elda)
 - Angles are interpreted in radians.
 - `trace()`, `det()`, `inverse()`, `char_poly()`, and `eigenvalues()` are defined only for square matrices.
 - `solve()` expects an augmented matrix with shape `N x (N + 1)`.
-- `EPS` is `1e-6`, and `fpg()` zeros values whose absolute value is at most that threshold.
+- `EPS` is `1e-6`, and `fpg()` zeros values whose absolute value is at most that threshold. Standard arithmetic operations (`operator+`, `operator-`) and assignment (`operator=`) do not call `fpg()` implicitly, giving the user explicit control over precision cleanup.
 - Several low-level helpers assume valid indices and do not perform bounds checking.
 - QR and eigenvalue routines use unshifted Gram-Schmidt/QR logic and are intended for simple real-valued workflows.
 
