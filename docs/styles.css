@@ -655,3 +655,809 @@ pre {
         min-width: 2.1rem;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ELDA DOCUMENTATION CHATBOT — STYLES
+   Appended to styles.css. All rules namespaced under #elda-chatbot.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Chatbot design tokens ────────────────────────────────────────────────── */
+#elda-chatbot {
+    --cb-accent:        #0e6a7a;
+    --cb-accent-mid:    #1a8fa0;
+    --cb-accent-soft:   #e1f0f4;
+    --cb-surface:       #ffffff;
+    --cb-bg:            #eef3f8;
+    --cb-text:          #14202b;
+    --cb-text-soft:     #4f6071;
+    --cb-border:        #d6dde7;
+    --cb-shadow:        0 20px 50px rgba(14,106,122,0.18), 0 4px 16px rgba(18,32,49,0.10);
+    --cb-radius:        14px;
+    --cb-radius-sm:     8px;
+    --cb-radius-pill:   999px;
+    --cb-font:          Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --cb-code-bg:       #101723;
+    --cb-code-text:     #e5edf7;
+    --cb-warn-bg:       #fff8e6;
+    --cb-warn-border:   #f0c060;
+    --cb-warn-text:     #7a5200;
+    --cb-note-bg:       #eff6ff;
+    --cb-note-border:   #bcd9f7;
+    --cb-note-text:     #1d4e7a;
+    --cb-user-bubble:   linear-gradient(135deg,#0e6a7a 0%,#1a8fa0 100%);
+    --cb-window-w:      380px;
+    --cb-window-h:      560px;
+    --cb-z:             9000;
+}
+
+/* ── Widget wrapper ──────────────────────────────────────────────────────── */
+#elda-chatbot {
+    position: fixed;
+    bottom: 1.75rem;
+    right: 1.75rem;
+    z-index: var(--cb-z);
+    font-family: var(--cb-font);
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+
+/* ── Floating toggle button ──────────────────────────────────────────────── */
+#elda-chat-toggle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.75rem 1.25rem 0.75rem 1rem;
+    border: none;
+    border-radius: var(--cb-radius-pill);
+    background: linear-gradient(135deg, var(--cb-accent) 0%, var(--cb-accent-mid) 100%);
+    color: #fff;
+    font-family: var(--cb-font);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(14,106,122,0.38), 0 1px 4px rgba(0,0,0,0.15);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    white-space: nowrap;
+    user-select: none;
+}
+
+#elda-chat-toggle:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 28px rgba(14,106,122,0.45), 0 2px 6px rgba(0,0,0,0.18);
+}
+
+#elda-chat-toggle:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.elda-chat-toggle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.elda-chat-toggle-icon svg {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.elda-chat-toggle-icon .icon-chat  { opacity: 1; transform: scale(1) rotate(0deg);    }
+.elda-chat-toggle-icon .icon-close { opacity: 0; transform: scale(0.6) rotate(-90deg); }
+
+#elda-chat-toggle.elda-toggle-open .icon-chat  { opacity: 0; transform: scale(0.6) rotate(90deg); }
+#elda-chat-toggle.elda-toggle-open .icon-close { opacity: 1; transform: scale(1)   rotate(0deg);  }
+
+/* Notification pulse badge */
+.elda-chat-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #f66;
+    border: 2px solid #fff;
+    opacity: 0;
+    transition: opacity 200ms ease;
+    pointer-events: none;
+}
+
+.elda-chat-badge.elda-badge-pulse {
+    opacity: 1;
+    animation: elda-badge-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes elda-badge-pulse {
+    0%, 100% { transform: scale(1);   opacity: 1;   }
+    50%       { transform: scale(1.4); opacity: 0.7; }
+}
+
+/* ── Chat window ─────────────────────────────────────────────────────────── */
+#elda-chat-window {
+    position: absolute;
+    bottom: calc(100% + 0.85rem);
+    right: 0;
+    width: var(--cb-window-w);
+    max-height: var(--cb-window-h);
+    display: flex;
+    flex-direction: column;
+    background: var(--cb-surface);
+    border: 1px solid var(--cb-border);
+    border-radius: var(--cb-radius);
+    box-shadow: var(--cb-shadow);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 220ms cubic-bezier(0.22,1,0.36,1),
+                transform 220ms cubic-bezier(0.22,1,0.36,1);
+    transform-origin: bottom right;
+}
+
+#elda-chat-window.elda-chat-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* ── Chat header ─────────────────────────────────────────────────────────── */
+.elda-chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1rem;
+    background: linear-gradient(135deg, var(--cb-accent) 0%, var(--cb-accent-mid) 100%);
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.elda-chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.elda-chat-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    flex-shrink: 0;
+}
+
+.elda-chat-avatar svg { width: 18px; height: 18px; stroke: #fff; }
+
+.elda-chat-name   { margin: 0; font-size: 0.95rem; font-weight: 700; }
+.elda-chat-status {
+    margin: 0;
+    font-size: 0.78rem;
+    opacity: 0.85;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.elda-status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #5ef77e;
+    box-shadow: 0 0 0 2px rgba(94,247,126,0.3);
+    animation: elda-status-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes elda-status-pulse {
+    0%, 100% { opacity: 1;   }
+    50%       { opacity: 0.5; }
+}
+
+.elda-chat-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.elda-chat-action-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    padding: 0.35rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 150ms ease, color 150ms ease, transform 100ms ease;
+    flex-shrink: 0;
+}
+
+.elda-chat-action-btn:hover {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    transform: scale(1.08);
+}
+
+.elda-chat-action-btn:active {
+    transform: scale(0.95);
+}
+
+.elda-chat-action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Minimized state ──────────────────────────────────────────────────────── */
+#elda-chat-window.elda-chat-minimized {
+    max-height: 52px; /* collapsed header height */
+    min-height: 52px;
+    transform: translateY(0) scale(1);
+    box-shadow: 0 4px 12px rgba(18,32,49,0.12);
+}
+
+#elda-chat-window.elda-chat-minimized .elda-chat-messages,
+#elda-chat-window.elda-chat-minimized #elda-chat-quickstart,
+#elda-chat-window.elda-chat-minimized .elda-chat-input-area,
+#elda-chat-window.elda-chat-minimized .elda-chat-footer {
+    display: none !important;
+}
+
+#elda-chat-window.elda-chat-minimized .elda-chat-header {
+    border-radius: var(--cb-radius);
+    cursor: pointer;
+}
+
+/* ── Maximized state ──────────────────────────────────────────────────────── */
+#elda-chat-window.elda-chat-maximized {
+    width: 620px;
+    max-height: 85vh;
+    bottom: calc(100% + 0.85rem);
+    right: 0;
+}
+
+/* Maximize restore icon toggle */
+.elda-chat-maximize .icon-restore {
+    display: none;
+}
+
+#elda-chat-window.elda-chat-maximized .elda-chat-maximize .icon-max {
+    display: none;
+}
+
+#elda-chat-window.elda-chat-maximized .elda-chat-maximize .icon-restore {
+    display: block;
+}
+
+/* ── Message bubble structure and timestamps ──────────────────────────────── */
+.elda-msg-bubble {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.elda-msg-time {
+    display: block;
+    font-size: 0.65rem;
+    margin-top: 0.3rem;
+    opacity: 0.65;
+    text-align: right;
+    align-self: flex-end;
+    user-select: none;
+}
+
+.elda-msg-bubble-user .elda-msg-time {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.elda-msg-bubble-bot .elda-msg-time {
+    color: var(--cb-text-soft);
+}
+
+/* ── Custom Confirmation Overlay ─────────────────────────────────────────── */
+.elda-confirm-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(18, 32, 49, 0.45);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+    padding: 1.5rem;
+}
+
+.elda-confirm-overlay.elda-confirm-show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.elda-confirm-modal {
+    background: var(--cb-surface);
+    border: 1px solid var(--cb-border);
+    border-radius: var(--cb-radius);
+    padding: 1.25rem;
+    width: 100%;
+    max-width: 280px;
+    box-shadow: 0 10px 25px rgba(18,32,49,0.15);
+    transform: scale(0.92);
+    transition: transform 200ms cubic-bezier(0.22,1,0.36,1);
+    text-align: center;
+}
+
+.elda-confirm-overlay.elda-confirm-show .elda-confirm-modal {
+    transform: scale(1);
+}
+
+.elda-confirm-modal p {
+    margin: 0 0 1.1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--cb-text);
+    line-height: 1.4;
+}
+
+.elda-confirm-buttons {
+    display: flex;
+    gap: 0.65rem;
+    justify-content: center;
+}
+
+.elda-confirm-btn {
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--cb-border);
+    border-radius: var(--cb-radius-pill);
+    font-size: 0.8rem;
+    font-family: var(--cb-font);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 120ms ease;
+    outline: none;
+}
+
+.elda-confirm-btn:focus {
+    box-shadow: 0 0 0 3px rgba(14,106,122,0.18);
+}
+
+.elda-confirm-yes {
+    background: #e03b3b;
+    border-color: #d12e2e;
+    color: #fff;
+}
+
+.elda-confirm-yes:hover {
+    background: #c93030;
+    border-color: #b82525;
+}
+
+.elda-confirm-cancel {
+    background: #f5f8fc;
+    color: var(--cb-text-soft);
+}
+
+.elda-confirm-cancel:hover {
+    background: var(--cb-accent-soft);
+    color: var(--cb-accent);
+}
+
+/* ── Messages area ───────────────────────────────────────────────────────── */
+.elda-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: var(--cb-bg);
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--cb-border) transparent;
+}
+
+.elda-chat-messages::-webkit-scrollbar       { width: 4px; }
+.elda-chat-messages::-webkit-scrollbar-track { background: transparent; }
+.elda-chat-messages::-webkit-scrollbar-thumb { background: var(--cb-border); border-radius: 4px; }
+
+/* ── Message rows ────────────────────────────────────────────────────────── */
+.elda-msg-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    animation: elda-msg-in 200ms ease forwards;
+}
+
+@keyframes elda-msg-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0);   }
+}
+
+.elda-msg-user { flex-direction: row-reverse; }
+
+.elda-msg-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--cb-accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--cb-border);
+}
+
+.elda-msg-avatar svg { width: 15px; height: 15px; stroke: var(--cb-accent); }
+
+/* ── Message bubbles ─────────────────────────────────────────────────────── */
+.elda-msg-bubble {
+    max-width: 84%;
+    padding: 0.65rem 0.9rem;
+    border-radius: var(--cb-radius-sm);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    word-break: break-word;
+}
+
+.elda-msg-bubble-user {
+    background: var(--cb-user-bubble);
+    color: #fff;
+    border-radius: var(--cb-radius-sm) var(--cb-radius-sm) 2px var(--cb-radius-sm);
+}
+
+.elda-msg-bubble-bot {
+    background: #fff;
+    color: var(--cb-text);
+    border: 1px solid var(--cb-border);
+    border-radius: var(--cb-radius-sm) var(--cb-radius-sm) var(--cb-radius-sm) 2px;
+    box-shadow: 0 2px 8px rgba(18,32,49,0.06);
+}
+
+.elda-answer-text { margin-bottom: 0.1rem; }
+
+.elda-msg-bubble code {
+    background: rgba(14,106,122,0.1);
+    color: var(--cb-accent);
+    padding: 0.1em 0.3em;
+    border-radius: 4px;
+    font-family: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.85em;
+}
+
+.elda-msg-bubble-user code { background: rgba(255,255,255,0.22); color: #fff; }
+
+.elda-list-item {
+    display: block;
+    padding-left: 1em;
+    position: relative;
+}
+
+.elda-list-item::before {
+    content: "•";
+    position: absolute;
+    left: 0.1em;
+    color: var(--cb-accent);
+}
+
+/* ── Warning / Note badges ───────────────────────────────────────────────── */
+.elda-badge {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    margin-top: 0.65rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: var(--cb-radius-sm);
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
+
+.elda-badge-warning {
+    background: var(--cb-warn-bg);
+    border: 1px solid var(--cb-warn-border);
+    color: var(--cb-warn-text);
+}
+
+.elda-badge-note {
+    background: var(--cb-note-bg);
+    border: 1px solid var(--cb-note-border);
+    color: var(--cb-note-text);
+}
+
+.elda-badge-icon { flex-shrink: 0; line-height: 1; margin-top: 1px; }
+
+/* ── Code block ──────────────────────────────────────────────────────────── */
+.elda-code-block {
+    position: relative;
+    margin-top: 0.65rem;
+    border-radius: var(--cb-radius-sm);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.elda-code-block pre {
+    margin: 0;
+    padding: 0.75rem 0.85rem;
+    background: var(--cb-code-bg);
+    color: var(--cb-code-text);
+    font-family: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    overflow-x: auto;
+    border: none;
+    border-radius: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #2a3a55 transparent;
+}
+
+.elda-code-block pre::-webkit-scrollbar       { height: 3px; }
+.elda-code-block pre::-webkit-scrollbar-track { background: transparent; }
+.elda-code-block pre::-webkit-scrollbar-thumb { background: #2a3a55; border-radius: 3px; }
+
+.elda-code-copy {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    padding: 0.2rem 0.55rem;
+    background: rgba(255,255,255,0.1);
+    color: rgba(229,237,247,0.8);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 5px;
+    font-size: 0.72rem;
+    font-family: var(--cb-font);
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease;
+}
+
+.elda-code-copy:hover            { background: rgba(255,255,255,0.2); color: #fff; }
+.elda-code-copy.elda-code-copied {
+    background: rgba(94,247,126,0.18);
+    color: #5ef77e;
+    border-color: rgba(94,247,126,0.3);
+}
+
+/* ── Related questions ───────────────────────────────────────────────────── */
+.elda-related {
+    margin-top: 0.75rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--cb-border);
+}
+
+.elda-related-label {
+    margin: 0 0 0.4rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--cb-text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.elda-related-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+.elda-related-chip {
+    padding: 0.28rem 0.65rem;
+    background: var(--cb-accent-soft);
+    color: var(--cb-accent);
+    border: 1px solid rgba(14,106,122,0.2);
+    border-radius: var(--cb-radius-pill);
+    font-size: 0.76rem;
+    font-family: var(--cb-font);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease, transform 100ms ease;
+    text-align: left;
+}
+
+.elda-related-chip:hover {
+    background: rgba(14,106,122,0.15);
+    border-color: var(--cb-accent);
+    transform: translateY(-1px);
+}
+
+/* ── Typing indicator ────────────────────────────────────────────────────── */
+.elda-typing-bubble  { padding: 0.6rem 0.9rem; }
+
+.elda-typing-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 18px;
+}
+
+.elda-typing-dots span {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--cb-accent);
+    opacity: 0.4;
+    animation: elda-dot-bounce 1.2s ease-in-out infinite;
+}
+
+.elda-typing-dots span:nth-child(1) { animation-delay: 0ms;   }
+.elda-typing-dots span:nth-child(2) { animation-delay: 180ms; }
+.elda-typing-dots span:nth-child(3) { animation-delay: 360ms; }
+
+@keyframes elda-dot-bounce {
+    0%, 80%, 100% { transform: translateY(0);    opacity: 0.4; }
+    40%            { transform: translateY(-5px); opacity: 1;   }
+}
+
+/* ── Quick-start strip ───────────────────────────────────────────────────── */
+#elda-chat-quickstart {
+    padding: 0.65rem 0.85rem 0.55rem;
+    background: var(--cb-surface);
+    border-top: 1px solid var(--cb-border);
+    flex-shrink: 0;
+    max-height: 140px;
+    overflow: hidden;
+    transition: max-height 280ms ease, opacity 280ms ease;
+}
+
+.elda-quickstart-label {
+    margin: 0 0 0.4rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--cb-text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.elda-quickstart-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+.elda-quickstart-chip {
+    padding: 0.28rem 0.65rem;
+    background: #f5f8fc;
+    color: var(--cb-accent);
+    border: 1px solid var(--cb-border);
+    border-radius: var(--cb-radius-pill);
+    font-size: 0.76rem;
+    font-family: var(--cb-font);
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease;
+    text-align: left;
+}
+
+.elda-quickstart-chip:hover {
+    background: var(--cb-accent-soft);
+    border-color: rgba(14,106,122,0.3);
+}
+
+/* ── Input area ──────────────────────────────────────────────────────────── */
+.elda-chat-input-area {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.85rem;
+    background: var(--cb-surface);
+    border-top: 1px solid var(--cb-border);
+    flex-shrink: 0;
+}
+
+.elda-chat-input {
+    flex: 1;
+    border: 1px solid var(--cb-border);
+    border-radius: var(--cb-radius-pill);
+    padding: 0.55rem 0.9rem;
+    font: inherit;
+    font-size: 0.88rem;
+    background: #f5f8fc;
+    color: var(--cb-text);
+    outline: none;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.elda-chat-input::placeholder { color: var(--cb-text-soft); opacity: 0.7; }
+
+.elda-chat-input:focus {
+    border-color: var(--cb-accent);
+    box-shadow: 0 0 0 3px rgba(14,106,122,0.12);
+    background: #fff;
+}
+
+/* Send button */
+.elda-chat-send {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: var(--cb-border);
+    color: var(--cb-text-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 150ms ease, color 150ms ease, transform 100ms ease;
+}
+
+.elda-chat-send.elda-send-active {
+    background: linear-gradient(135deg, var(--cb-accent) 0%, var(--cb-accent-mid) 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(14,106,122,0.3);
+}
+
+.elda-chat-send.elda-send-active:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(14,106,122,0.4);
+}
+
+.elda-chat-send svg { width: 16px; height: 16px; }
+
+/* ── Footer branding ─────────────────────────────────────────────────────── */
+.elda-chat-footer {
+    padding: 0.35rem 0.85rem 0.5rem;
+    background: var(--cb-surface);
+    flex-shrink: 0;
+}
+
+.elda-chat-footer p {
+    margin: 0;
+    font-size: 0.72rem;
+    color: var(--cb-text-soft);
+    text-align: center;
+    opacity: 0.75;
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    #elda-chatbot {
+        bottom: 1rem;
+        right: 1rem;
+    }
+
+    #elda-chat-window {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        width: 100%;
+        max-height: 85dvh;
+        border-radius: var(--cb-radius) var(--cb-radius) 0 0;
+        transform-origin: bottom center;
+    }
+
+    #elda-chat-toggle {
+        padding: 0.75rem;
+        border-radius: 50%;
+        width: 54px;
+        height: 54px;
+        justify-content: center;
+    }
+
+    .elda-chat-toggle-label { display: none; }
+
+    .elda-chat-toggle-icon {
+        position: static;
+        width: 22px;
+        height: 22px;
+    }
+
+    .elda-chat-toggle-icon svg { position: static; }
+}
+
+/* ── Reduced-motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    #elda-chat-window,
+    #elda-chat-toggle,
+    .elda-msg-row,
+    .elda-typing-dots span,
+    .elda-status-dot,
+    .elda-chat-badge {
+        animation: none;
+        transition: none;
+    }
+}
