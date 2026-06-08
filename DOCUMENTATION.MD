@@ -2,7 +2,7 @@
 
 ## Overview
 
-ELDA is a C++17 linear algebra library centered around `linalg::matrix`, a mutable dense matrix type backed by `std::vector<std::vector<double>>`. The project builds a static library target named `elda` and a demo executable named `main`.
+ELDA is a C++17 linear algebra library centered around `linalg::matrix`, a mutable dense matrix type backed by a contiguous flat 1D `std::vector<double>`. The project builds a static library target named `elda` and a demo executable named `main`.
 
 The current primary documentation set is the static web reference at `docs/index.html`. That site is organized by public header and documents every exported entry with its declaration, source mapping, behavior notes, and a usage example.
 
@@ -67,7 +67,7 @@ Core matrix type plus matrix algorithms.
 Primary surface areas:
 
 - constants: `PI`, `EPS`
-- public data members: `row`, `col`, `arr`
+- shape queries and data: `get_rows()`, `get_cols()`, `get_data()`
 - construction and I/O: constructors, `input()`, `print()`, and stream output with `operator<<`
 - arithmetic: assignment, addition, subtraction, matrix multiplication, scalar multiplication
 - elementary operations: row and column combination, swap, and scaling helpers
@@ -84,7 +84,9 @@ Example:
 using namespace linalg;
 
 matrix a(3, 3);
-a.arr = {{1, 2, 3}, {0, 1, 4}, {5, 6, 0}};
+a(0, 0) = 1.0; a(0, 1) = 2.0; a(0, 2) = 3.0;
+a(1, 0) = 0.0; a(1, 1) = 1.0; a(1, 2) = 4.0;
+a(2, 0) = 5.0; a(2, 1) = 6.0; a(2, 2) = 0.0;
 
 double determinant = a.det();
 matrix inverse = a.inverse();
@@ -153,13 +155,11 @@ bool in_span = check_lin_comb(v1, v2);
 
 ## `linalg::matrix` Summary
 
-### Public Data Members
+### Shape and Storage Accessors
 
-- `int row`
-- `int col`
-- `std::vector<std::vector<double>> arr`
-
-The design favors direct manipulation of storage. Most examples populate matrices directly through `arr`.
+- `get_rows()`: returns the number of rows as a `size_t`
+- `get_cols()`: returns the number of columns as a `size_t`
+- `get_data()`: returns a read-only reference to the flat underlying `std::vector<double>`
 
 ### Construction
 
@@ -168,8 +168,9 @@ The design favors direct manipulation of storage. Most examples populate matrice
 
 ### Element Access
 
-- `get_element(i, j)`: returns `arr[i][j]` without bounds checking
-- `ref_element(i, j)`: returns a mutable pointer to `arr[i][j]`
+- `operator()(size_t r, size_t c)`: returns a reference to element at row `r` and column `c` with bounds checking
+- `get_element(i, j)`: returns element at row `i` and column `j` without bounds checking
+- `ref_element(i, j)`: returns a mutable pointer to element at row `i` and column `j` without bounds checking
 
 ### Mutation Model
 
