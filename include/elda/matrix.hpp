@@ -63,6 +63,8 @@ class matrix {
 
     /// Reads matrix entries from `std::cin` in row-major order.
     void input();
+    /// Returns a string representation of the matrix.
+    std::string to_string() const;
     /// Prints the matrix to `std::cout`, one row per line.
     void print();
 
@@ -76,6 +78,8 @@ class matrix {
     matrix operator*(const matrix& m2);
     /// Multiplies every entry by a scalar.
     matrix operator*(double d);
+    /// Divides every entry by a scalar.
+    matrix operator/(double scalar);
 
     /// Returns a copy after applying `row[i] += coeff * row[j]`.
     matrix row_op(int i, double coeff, int j);

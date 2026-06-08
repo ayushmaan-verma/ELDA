@@ -184,14 +184,14 @@ This distinction matters when chaining operations.
 ## Behavioral Notes
 
 - The library namespace is `linalg`.
-- Matrix entries are stored in `matrix::arr` as `std::vector<std::vector<double>>`.
+- Matrix entries are stored in `matrix::arr` as a flat, contiguous `std::vector<double>`.
 - Zero-sized matrices are supported, but negative dimensions and negative `identity()` sizes throw `std::runtime_error`.
 - Most dimension mismatches are reported with `std::runtime_error`.
 - Several low-level accessors and replacement helpers assume valid indices and compatible shapes.
 - Angles are measured in radians.
 - `trace()`, `det()`, `minor()`, `cofactor()`, `adjoint()`, `inverse()`, `char_poly()`, and `eigenvalues()` are defined only for square matrices.
 - `solve()` expects an augmented matrix with shape `N x (N + 1)`.
-- `EPS` is `1e-6`, and `fpg()` zeros values whose absolute value is at most that threshold.
+- `EPS` is `1e-6`, and `fpg()` zeros values whose absolute value is at most that threshold. Standard arithmetic operations (`operator+`, `operator-`) and assignment (`operator=`) do not call `fpg()` implicitly, giving the user explicit control over precision cleanup.
 - Exact `double` comparisons are used in `operator==`, `check_upper_tri()`, `check_lower_tri()`, `check_ortho()`, and `check_unitary()`.
 - QR and eigenvalue routines use classical Gram-Schmidt and unshifted QR iteration and are best suited to small real-valued workflows.
 
@@ -294,6 +294,8 @@ lin_alg_lib/
 - `FUNCTIONS.MD`: compact API index
 - `README.md`: build and repository usage summary
 
+### Eigenvalue Convergence Bounds
+The `eigenvalues()` function uses unshifted QR iteration. It enforces a strict iteration limit (1000 iterations) and uses a tolerance-based check (`EPS`) for sub-diagonal convergence. If a matrix has a complex eigenvalue spectrum (e.g., standard rotation matrices), the unshifted real QR algorithm cannot converge to a strictly upper-triangular state. In these asymptotic or non-real scenarios, the function will abort and throw a `std::runtime_error` rather than entering an infinite loop.
 ### Contiguous Flat Vector Memory Layout
 The structural layout of matrix components has been converted from nested pointers (`std::vector<std::vector<double>>`) into a flat, contiguous 1D array profile (`std::vector<double>`).
 * **Hardware Optimizations:** Eliminates pointer indirection steps, optimizing cache lookup loops and maximizing processor pipeline cache-line retention.
