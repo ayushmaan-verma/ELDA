@@ -16,11 +16,13 @@ constexpr double EPS = 1e-6;
 
 /// Dense matrix type backed by a contiguous 1D row-major vector.
 class matrix {
-  /// Constructs a 3x3 zero matrix.
-    matrix() : row(3), col(3), arr(9, 0.0) {}
-
-    /// Constructs an r x c zero matrix.
-    matrix(int r, int c) : row(r), col(c), arr(r * c, 0.0) {}
+  private:
+    static size_t validate_dims(int r, int c) {
+        if (r < 0 || c < 0) {
+            throw std::runtime_error("Matrix dimensions must be non-negative.");
+        }
+        return static_cast<size_t>(r) * static_cast<size_t>(c);
+    }
   public:
     /// Number of rows.
     int row;
@@ -32,8 +34,11 @@ class matrix {
     /// Constructs a 3x3 zero matrix.
     matrix() : row(3), col(3), arr(9, 0.0) {}
 
-    /// Constructs an r x c zero matrix.
-    matrix(int r, int c) : row(r), col(c), arr(r * c, 0.0) {}
+    /// Constructs an r x c zero matrix. Negative dimensions are rejected.
+    matrix(int r, int c) : row(r), col(c), arr(validate_dims(r, c), 0.0) {}
+
+    /// Constructs an r x c matrix initialized with val. Negative dimensions are rejected.
+    matrix(int r, int c, double val) : row(r), col(c), arr(validate_dims(r, c), val) {}
 
     // --- Safe Public Element-Access Overloads ---
     double operator()(size_t r, size_t c) const {
@@ -49,18 +54,6 @@ class matrix {
         }
         return arr[r * col + c];
     }
-    /// Constructs an r x c matrix initialized with val. Negative dimensions are rejected.
-    matrix(int r, int c, double val = 0.0) : row(r), col(c) {
-        if (r < 0 || c < 0) {
-            throw std::runtime_error("Matrix dimensions must be non-negative.");
-        }
-        arr.assign(r, std::vector<double>(c, val));
-    }
-
-    /// Returns the element at (i, j) as a copy. Helper for size_t/int safety.
-    double operator()(size_t r, size_t c) const { return arr[r][c]; }
-    /// Returns a mutable reference to the element at (i, j).
-    double& operator()(size_t r, size_t c) { return arr[r][c]; }
 
     /// Returns the number of rows.
     size_t get_rows() const { return static_cast<size_t>(row); }
