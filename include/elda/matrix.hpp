@@ -12,7 +12,7 @@ namespace linalg {
 /// Pi approximation used by the transform helpers.
 constexpr double PI = 3.141593;
 /// Threshold used to zero tiny floating-point artifacts.
-constexpr double EPS = 1e-6;
+constexpr double EPS = 1e-9;
 
 /// Dense matrix type backed by a contiguous 1D row-major vector.
 class matrix {
@@ -73,13 +73,13 @@ class matrix {
     void print();
 
     /// Assigns another matrix of the same shape.
-    matrix operator=(matrix m2);
+    matrix operator=(const matrix& m2);
     /// Adds two matrices of identical shape.
-    matrix operator+(matrix m2);
+    matrix operator+(const matrix& m2);
     /// Subtracts two matrices of identical shape.
-    matrix operator-(matrix m2);
+    matrix operator-(const matrix& m2);
     /// Multiplies this matrix by another compatible matrix.
-    matrix operator*(matrix m2);
+    matrix operator*(const matrix& m2);
     /// Multiplies every entry by a scalar.
     matrix operator*(double d);
     /// Divides every entry by a scalar.
@@ -155,9 +155,9 @@ class matrix {
     /// Returns column `c` as a row x 1 vector.
     matrix get_col_vec(int c);
     /// Replaces row `r` with the first row of `rw`.
-    void replace_row(int r, matrix rw);
+    void replace_row(int r, const matrix& rw);
     /// Replaces column `c` with the first column of `cn`.
-    void replace_col(int c, matrix cn);
+    void replace_col(int c, const matrix& cn);
 
     /// Returns the characteristic polynomial coefficients as a row vector.
     matrix char_poly();
@@ -173,9 +173,9 @@ class matrix {
 };
 
 /// Returns true when both matrices have identical entries.
-bool operator==(matrix m1, matrix m2);
+bool operator==(const matrix& m1, const matrix& m2);
 /// Returns true when both matrices have the same shape.
-bool shape_comp(matrix m1, matrix m2);
+bool shape_comp(const matrix& m1, const matrix& m2);
 /// Returns the `n x n` identity matrix. Negative sizes are rejected.
 matrix identity(int n);
 /// Normalizes `-0` entries that can appear after elimination.
@@ -185,13 +185,13 @@ void fpg(matrix& m);
 /// Raises a square matrix to a non-negative integer power.
 matrix matpow(matrix mat, long long expo);
 /// Returns true when `transpose() == inverse()`.
-bool check_ortho(matrix mat);
+bool check_ortho(const matrix& mat);
 /// Legacy helper that returns true when `transpose() == adjoint()`.
-bool check_unitary(matrix mat);
+bool check_unitary(const matrix& mat);
 /// Returns the Frobenius inner product of two matrices.
-double inner_product(matrix a, matrix b);
+double inner_product(const matrix& a, const matrix& b);
 /// Returns the angle between two matrices in radians.
-double angle(matrix a, matrix b);
+double angle(const matrix& a, const matrix& b);
 
 std::ostream& operator<<(std::ostream& os, const matrix& m);
 
