@@ -260,11 +260,6 @@ int matrix::echelon() {
             if (std::abs(arr[i * col + c]) > max_val) {
                 max_val = std::abs(arr[i * col + c]);
                 pivot_row = i;
-    for (int k = 0; k < std::min(row, col); k++) {
-        int z = k;
-        while (std::abs(arr[z * col + k]) < 1e-9) {
-            if (z + 1 == std::min(row, col)) {
-                break;
             }
         }
         
@@ -283,12 +278,6 @@ int matrix::echelon() {
         for (int i = r + 1; i < row; i++) {
             const double multiplier = arr[i * col + c] / arr[r * col + c];
             *this = row_op(i, -multiplier, r);
-        if (std::abs(arr[k * col + k]) < 1e-9) {
-            continue;
-        }
-        for (int i = k + 1; i < row; i++) {
-            const double multiplier = arr[i * col + k] / arr[k * col + k];
-            *this = row_op(i, -multiplier, k);
         }
         r++; // Only advance the row tracker if we successfully found and processed a pivot!
     }
@@ -307,12 +296,6 @@ int matrix::gaussian() {
             if (std::abs(arr[i * col + c]) > max_val) {
                 max_val = std::abs(arr[i * col + c]);
                 pivot_row = i;
-
-    for (int k = 0; k < std::min(row, col); k++) {
-        int z = k;
-        while (std::abs(arr[z * col + k]) < 1e-9) {
-            if (z + 1 == std::min(row, col)) {
-                break;
             }
         }
         
@@ -325,7 +308,7 @@ int matrix::gaussian() {
             swaps *= -1;
         }
         
-        // HIGHEST PRECISION: Inline direct division instead of reciprocal multiplication
+        // Normalize the pivot row to have a leading 1
         const double divisor = arr[r * col + c];
         for (int k = 0; k < col; k++) {
             arr[r * col + k] /= divisor;
@@ -335,22 +318,6 @@ int matrix::gaussian() {
         for (int i = r + 1; i < row; i++) {
             const double multiplier = arr[i * col + c];
             *this = row_op(i, -multiplier, r);
-        // Normalize the pivot row to have a leading 1
-        const double divisor = arr[r * col + c];
-        *this = this->row_multi(r, 1.0 / divisor);
-        
-        // Eliminate below
-        for (int i = r + 1; i < row; i++) {
-            const double multiplier = arr[i * col + c];
-            *this = row_op(i, -multiplier, r);
-        const double divisor = arr[k * col + k];
-        if (std::abs(divisor) < 1e-9) {
-            continue;
-        }
-        *this = this->row_multi(k, 1.0 / divisor);
-        for (int i = k + 1; i < row; i++) {
-            const double multiplier = arr[i * col + k];
-            *this = row_op(i, -multiplier, k);
         }
         r++;
     }
@@ -380,10 +347,6 @@ int matrix::gauss_jordan() {
         for (int k = i - 1; k >= 0; k--) {
             const double multiplier = arr[k * col + pivot_col];
             *this = row_op(k, -multiplier, i);
-    for (int k = std::min(row, col) - 1; k > 0; k--) {
-        for (int i = k - 1; i >= 0; i--) {
-            const double multiplier = arr[i * col + k];
-            *this = row_op(i, -multiplier, k);
         }
     }
     fpg(*this);
@@ -401,10 +364,6 @@ int matrix::canonical() {
                 *this = col_op(j, -multiplier, c);
             }
             r++;
-    for (int k = 0; k < std::min(row, col); k++) {
-        for (int j = k + 1; j < col; j++) {
-            const double multiplier = arr[k * col + j];
-            *this = col_op(j, -multiplier, k);
         }
     }
     fpg(*this);
@@ -525,11 +484,7 @@ matrix matrix::inverse() {
 
     for (int k = 0; k < m; k++) {
         int z = k;
-        while (std::abs(mat.arr[z * m + k]) < 1e-9) {
-            if (z + 1 == m) break;
-            z++;
-        }
-        while (z < m && std::abs(mat.arr[z][k]) <= EPS) {
+        while (z < m && std::abs(mat.arr[z * m + k]) < 1e-9) {
             z++;
         }
 
@@ -548,16 +503,6 @@ matrix matrix::inverse() {
             mat.arr[k * m + j] /= divisor;
             inv.arr[k * m + j] /= divisor;
         }
-        const double divisor = mat.arr[k * m + k];
-        mat = mat.row_multi(k, 1.0 / divisor);
-        inv = inv.row_multi(k, 1.0 / divisor);
-
-        const double divisor = mat.arr[k][k];
-        if (std::abs(divisor) <= EPS) {
-            throw std::runtime_error("Inverse is defined only for Non-Singular matrix.");
-        }
-        mat = mat.row_multi(k, 1 / divisor);
-        inv = inv.row_multi(k, 1 / divisor);
 
         for (int i = k + 1; i < m; i++) {
             const double multiplier = mat.arr[i * m + k];
@@ -588,6 +533,33 @@ matrix matrix::solve() {
     }
     matrix mat(*this);
     mat.gaussian();
+
+    bool has_underdetermined = false;
+    bool has_inconsistent = false;
+    for (int i = 0; i < row; i++) {
+        bool coeff_all_zero = true;
+        for (int j = 0; j < row; j++) {
+            if (std::abs(mat.arr[i * col + j]) >= 1e-9) {
+                coeff_all_zero = false;
+                break;
+            }
+        }
+        if (coeff_all_zero) {
+            if (std::abs(mat.arr[i * col + row]) >= 1e-9) {
+                has_inconsistent = true;
+            } else {
+                has_underdetermined = true;
+            }
+        }
+    }
+
+    if (has_inconsistent) {
+        throw std::runtime_error("Inconsistent system: No solution exists.");
+    }
+    if (has_underdetermined) {
+        throw std::runtime_error("Singular/Underdetermined system: Infinitely many solutions exist.");
+    }
+
     matrix solution(row, 1);
     for (int i = row - 1; i >= 0; i--) {
         double subtractor = 0;
@@ -617,23 +589,16 @@ matrix matrix::orthogonalize() {
             }
             for (int k = 0; k < row; k++) {
                 Q.arr[k * col + j] -= projection_coeff * Q.arr[k * col + i];
-                dot_product += Q.arr[k][j] * Q.arr[k][i];
-                norm_sq_i += Q.arr[k][i] * Q.arr[k][i];
-            }
-
-            const double projection_coeff = norm_sq_i > EPS ? dot_product / norm_sq_i : 0.0;
-            for (int k = 0; k < row; k++) {
-                Q.arr[k][j] -= projection_coeff * Q.arr[k][i];
             }
         }
 
         double norm_sq_j = 0.0;
         for (int k = 0; k < row; k++) {
-            norm_sq_j += Q.arr[k][j] * Q.arr[k][j];
+            norm_sq_j += Q.arr[k * col + j] * Q.arr[k * col + j];
         }
         if (norm_sq_j <= EPS) {
             for (int k = 0; k < row; k++) {
-                Q.arr[k][j] = 0.0;
+                Q.arr[k * col + j] = 0.0;
             }
         }
     }
@@ -656,19 +621,6 @@ matrix matrix::orthonormalize() {
         } else {
             for (int k = 0; k < row; k++) {
                 Q.arr[k * col + j] = 0.0;
-        double norm = 0.0;
-        for (int k = 0; k < row; k++) {
-            norm += Q.arr[k][j] * Q.arr[k][j];
-        }
-        norm = std::sqrt(norm);
-        
-        if (norm > EPS) {
-            for (int k = 0; k < row; k++) {
-                Q.arr[k][j] /= norm;
-            }
-        } else {
-            for (int k = 0; k < row; k++) {
-                Q.arr[k][j] = 0.0;
             }
         }
     }
@@ -683,10 +635,6 @@ matrix matrix::qr_decomp_q() {
 matrix matrix::qr_decomp_r() {
     matrix Q = qr_decomp_q();
     matrix R(col, col);
-    // For an m x n matrix, R is a square n x n upper triangular matrix
-    matrix Q = qr_decomp_q();
-    matrix R(col, col); // Strict Reduced/Thin QR Contract
-    
     for (int j = 0; j < col; j++) {
         for (int i = 0; i <= j; i++) {
             double val = 0.0;
@@ -694,9 +642,6 @@ matrix matrix::qr_decomp_r() {
                 val += Q.arr[k * col + i] * arr[k * col + j];
             }
             R.arr[i * col + j] = val;
-                val += Q.arr[k][i] * arr[k][j];
-            }
-            R.arr[i][j] = val;
         }
     }
     fpg(R);
@@ -744,47 +689,6 @@ std::tuple<matrix, matrix, matrix> matrix::lu_decomposition() const {
             L.arr[k * n + i] = factor;
             for (size_t j = i; j < n; j++) {
                 U.arr[k * n + j] -= factor * U.arr[i * n + j];
-    // Initialize P and L as identity matrices
-    for (size_t i = 0; i < n; i++) {
-        P.arr[i][i] = 1.0;
-        L.arr[i][i] = 1.0;
-    }
-
-    for (size_t i = 0; i < n; i++) {
-        // Find the pivot row
-        size_t pivot_row = i;
-        double max_val = std::abs(U.arr[i][i]);
-        
-        for (size_t k = i + 1; k < n; k++) {
-            if (std::abs(U.arr[k][i]) > max_val) {
-                max_val = std::abs(U.arr[k][i]);
-                pivot_row = k;
-            }
-        }
-
-        if (max_val < 1e-9) {
-            throw std::runtime_error("Matrix is singular; LU decomposition cannot proceed uniquely.");
-        }
-
-        // Pivot if necessary
-        if (pivot_row != i) {
-            // Swap rows in U and P
-            for (size_t j = 0; j < n; j++) {
-                std::swap(U.arr[i][j], U.arr[pivot_row][j]);
-                std::swap(P.arr[i][j], P.arr[pivot_row][j]);
-            }
-            // Swap multipliers in L (only columns before the current pivot index i)
-            for (size_t j = 0; j < i; j++) {
-                std::swap(L.arr[i][j], L.arr[pivot_row][j]);
-            }
-        }
-
-        // Elimination pass
-        for (size_t k = i + 1; k < n; k++) {
-            double factor = U.arr[k][i] / U.arr[i][i];
-            L.arr[k][i] = factor; // Store the elimination multiplier inside L
-            for (size_t j = i; j < n; j++) {
-                U.arr[k][j] -= factor * U.arr[i][j];
             }
         }
     }
@@ -848,13 +752,6 @@ matrix matrix::eigenvalues() {
         m = r * q;
         fpg(m); // Snap tiny values to zero using EPS
 
-        // Tolerance-based convergence check on strictly lower-triangular entries
-        converged = true;
-        for (int j = 0; j < m.col; j++) {
-            for (int i = j + 1; i < m.row; i++) {
-                if (std::abs(m.arr[i][j]) > EPS) {
-        fpg(m);
-
         converged = true;
         for (int j = 0; j < m.col; j++) {
             for (int i = j + 1; i < m.row; i++) {
@@ -876,16 +773,6 @@ matrix matrix::eigenvalues() {
         throw std::runtime_error("QR iteration failed to converge after 1000 iterations. The matrix may have complex eigenvalues or require shift techniques.");
     }
 
-    // The diagonal entries of the converged iterate are the eigenvalue estimates.
-    matrix eigen(m.row, 1);
-    for (int i = 0; i < m.row; i++) {
-        eigen.arr[i][0] = m.arr[i][i];
-        if (converged) break;
-        iter++;
-    }
-    if (!converged) {
-        throw std::runtime_error("QR iteration failed to converge.");
-    }
     matrix eigen(row, 1);
     for (int i = 0; i < row; i++) {
         eigen.arr[i] = m.arr[i * col + i];
@@ -914,26 +801,23 @@ matrix matpow(matrix mat, long long expo) {
 }
 
 bool check_ortho(const matrix& mat) {
-    matrix m(*this); // proxy construct
-    return mat.transpose().arr == mat.inverse().arr;
+    matrix temp(mat);
+    return temp.transpose().arr == temp.inverse().arr;
 }
 
 bool check_unitary(const matrix& mat) {
-    return mat.transpose().arr == mat.adjoint().arr;
+    matrix temp(mat);
+    return temp.transpose().arr == temp.adjoint().arr;
 }
 
-double inner_product(matrix a, matrix b) {
+double inner_product(const matrix& a, const matrix& b) {
     if (!shape_comp(a, b)) {
         throw std::runtime_error("Matrices must share identical dimensions to compute a Frobenius inner product.");
-double inner_product(const matrix& a, const matrix& b) {
-    if ((a.row != b.row) || (a.col != b.col)) {
-        throw std::runtime_error("Vectors don't belong same vector space.");
     }
     
     double sum = 0.0;
     size_t total_elements = a.get_rows() * a.get_cols();
     
-    // High performance linear-stride loop pass over flat vectors
     for (size_t i = 0; i < total_elements; i++) {
         sum += a.arr[i] * b.arr[i];
     }
@@ -941,9 +825,11 @@ double inner_product(const matrix& a, const matrix& b) {
     return sum;
 }
 
-double angle(matrix a, matrix b) {
-    double norm_a = a.norm();
-    double norm_b = b.norm();
+double angle(const matrix& a, const matrix& b) {
+    matrix temp_a(a);
+    matrix temp_b(b);
+    double norm_a = temp_a.norm();
+    double norm_b = temp_b.norm();
     
     if (norm_a < 1e-9 || norm_b < 1e-9) {
         throw std::runtime_error("Cannot compute vector angle involving a zero-norm matrix space.");
@@ -952,15 +838,10 @@ double angle(matrix a, matrix b) {
     double dot = inner_product(a, b);
     double cos_theta = dot / (norm_a * norm_b);
     
-    // Bound guarding against minor floating-point overshoots (e.g. 1.0000000002) which breaks acos
     if (cos_theta > 1.0) cos_theta = 1.0;
     if (cos_theta < -1.0) cos_theta = -1.0;
     
     return std::acos(cos_theta);
-double angle(const matrix& a, const matrix& b) {
-    double l_a = a.norm();
-    double l_b = b.norm();
-    return acos(inner_product(a, b) / (l_a * l_b));
 }
 
 } // namespace linalg
