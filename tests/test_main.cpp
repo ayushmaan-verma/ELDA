@@ -380,6 +380,78 @@ void test_fpg_behavior() {
     std::cout << "FPG behavior tests passed!" << std::endl;
 }
 
+bool matrix_is_finite(const linalg::matrix& m) {
+    for (int i = 0; i < m.row; i++) {
+        for (int j = 0; j < m.col; j++) {
+            if (!std::isfinite(m(i, j))) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void assert_reconstructs(linalg::matrix original) {
+    linalg::matrix q = original.qr_decomp_q();
+    linalg::matrix r = original.qr_decomp_r();
+    linalg::matrix rebuilt = q * r;
+
+    assert(q.row == original.row);
+    assert(q.col == original.col);
+    assert(r.row == original.col);
+    assert(r.col == original.col);
+    assert(matrix_is_finite(q));
+    assert(matrix_is_finite(r));
+    assert(matrix_is_finite(rebuilt));
+
+    for (int i = 0; i < original.row; i++) {
+        for (int j = 0; j < original.col; j++) {
+            assert(is_close(original(i, j), rebuilt(i, j), 1e-4));
+        }
+    }
+}
+
+void test_gram_schmidt_bounds_and_dependent_columns() {
+    std::cout << "Running Gram-Schmidt bounds and dependency tests..." << std::endl;
+
+    linalg::matrix one_column(3, 1);
+    one_column(0, 0) = 3.0; one_column(1, 0) = 4.0; one_column(2, 0) = 0.0;
+    linalg::matrix one_column_q = one_column.orthonormalize();
+    assert(matrix_is_finite(one_column_q));
+    assert(is_close(one_column_q(0, 0), 0.6));
+    assert(is_close(one_column_q(1, 0), 0.8));
+    assert_reconstructs(one_column);
+
+    linalg::matrix rectangular(2, 3);
+    rectangular(0, 0) = 1.0; rectangular(0, 1) = 0.0; rectangular(0, 2) = 2.0;
+    rectangular(1, 0) = 0.0; rectangular(1, 1) = 1.0; rectangular(1, 2) = 3.0;
+    assert_reconstructs(rectangular);
+
+    linalg::matrix zero_column(3, 2);
+    zero_column(0, 0) = 0.0; zero_column(0, 1) = 1.0;
+    zero_column(1, 0) = 0.0; zero_column(1, 1) = 2.0;
+    zero_column(2, 0) = 0.0; zero_column(2, 1) = 3.0;
+    linalg::matrix zero_column_q = zero_column.orthonormalize();
+    assert(matrix_is_finite(zero_column_q));
+    assert(is_close(zero_column_q(0, 0), 0.0));
+    assert(is_close(zero_column_q(1, 0), 0.0));
+    assert(is_close(zero_column_q(2, 0), 0.0));
+    assert_reconstructs(zero_column);
+
+    linalg::matrix dependent(3, 3);
+    dependent(0, 0) = 1.0; dependent(0, 1) = 1.0; dependent(0, 2) = 2.0;
+    dependent(1, 0) = 2.0; dependent(1, 1) = 2.0; dependent(1, 2) = 5.0;
+    dependent(2, 0) = 3.0; dependent(2, 1) = 3.0; dependent(2, 2) = 8.0;
+    linalg::matrix dependent_q = dependent.orthonormalize();
+    assert(matrix_is_finite(dependent_q));
+    assert(is_close(dependent_q(0, 1), 0.0));
+    assert(is_close(dependent_q(1, 1), 0.0));
+    assert(is_close(dependent_q(2, 1), 0.0));
+    assert_reconstructs(dependent);
+
+    std::cout << "Gram-Schmidt bounds and dependency tests passed!" << std::endl;
+}
+
 void test_matrix_dimension_validation() {
     std::cout << "Running matrix dimension validation tests..." << std::endl;
 
@@ -430,6 +502,7 @@ int main() {
     test_rectangular_geometric_utilities();
     test_to_string_formatting();
     test_fpg_behavior();
+    test_gram_schmidt_bounds_and_dependent_columns();
     
     test_solve_unique_with_row_swaps();
     test_solve_inconsistent_system();
