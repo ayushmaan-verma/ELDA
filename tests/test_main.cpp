@@ -109,6 +109,12 @@ void test_matpow_validation_and_results() {
     assert(is_close(squared(0, 0), 5.0));
     assert(is_close(squared(0, 1), 4.0));
 
+    expect_runtime_error([&base]() { linalg::matpow(base, -1); });
+    expect_runtime_error([]() {
+        linalg::matrix non_square(2, 3);
+        linalg::matpow(non_square, 2);
+    });
+
     std::cout << "Matpow tests passed!" << std::endl;
 }
 
