@@ -109,11 +109,65 @@ void test_flattened_vector_invariants() {
     std::cout << "Flat vector layout invariants verified successfully!" << std::endl;
 }
 
+void test_solve_unique_with_row_swaps() {
+    std::cout << "Running unique solution requiring row swaps tests..." << std::endl;
+    linalg::matrix A(2, 3);
+    A(0, 0) = 0.0; A(0, 1) = 1.0; A(0, 2) = 2.0;
+    A(1, 0) = 1.0; A(1, 1) = 0.0; A(1, 2) = 3.0;
+
+    linalg::matrix sol = A.solve();
+    assert(sol.get_rows() == 2 && sol.get_cols() == 1);
+    assert(is_close(sol(0, 0), 3.0));
+    assert(is_close(sol(1, 0), 2.0));
+    std::cout << "Unique solution with row swaps tests passed!" << std::endl;
+}
+
+void test_solve_inconsistent_system() {
+    std::cout << "Running inconsistent system tests..." << std::endl;
+    linalg::matrix A(2, 3);
+    A(0, 0) = 1.0; A(0, 1) = 2.0; A(0, 2) = 3.0;
+    A(1, 0) = 2.0; A(1, 1) = 4.0; A(1, 2) = 7.0;
+
+    bool caught_exception = false;
+    try {
+        A.solve();
+    } catch (const std::runtime_error& e) {
+        caught_exception = true;
+        std::string msg = e.what();
+        assert(msg == "Inconsistent system: No solution exists.");
+    }
+    assert(caught_exception && "Should throw for inconsistent system.");
+    std::cout << "Inconsistent system tests passed!" << std::endl;
+}
+
+void test_solve_underdetermined_system() {
+    std::cout << "Running underdetermined system tests..." << std::endl;
+    linalg::matrix A(2, 3);
+    A(0, 0) = 1.0; A(0, 1) = 2.0; A(0, 2) = 3.0;
+    A(1, 0) = 2.0; A(1, 1) = 4.0; A(1, 2) = 6.0;
+
+    bool caught_exception = false;
+    try {
+        A.solve();
+    } catch (const std::runtime_error& e) {
+        caught_exception = true;
+        std::string msg = e.what();
+        assert(msg == "Singular/Underdetermined system: Infinitely many solutions exist.");
+    }
+    assert(caught_exception && "Should throw for underdetermined system.");
+    std::cout << "Underdetermined system tests passed!" << std::endl;
+}
+
 int main() {
     std::cout << "=== STARTING ELDA CORE UNIT TESTS ===" << std::endl;
     test_robust_qr_decomposition();
     test_eigenvalues_convergence();
     test_flattened_vector_invariants();
+    
+    test_solve_unique_with_row_swaps();
+    test_solve_inconsistent_system();
+    test_solve_underdetermined_system();
+    
     std::cout << "=== ALL TESTS PASSED SUCCESSFULLY ===" << std::endl;
     return 0;
 }

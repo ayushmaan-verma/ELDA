@@ -468,6 +468,34 @@ matrix matrix::solve() {
     }
     matrix mat(*this);
     mat.gaussian();
+
+    // Check for inconsistent or singular/underdetermined systems
+    bool has_inconsistent = false;
+    bool has_underdetermined = false;
+    for (int i = 0; i < row; i++) {
+        bool coeff_all_zero = true;
+        for (int j = 0; j < row; j++) {
+            if (std::abs(mat.arr[i * col + j]) >= 1e-9) {
+                coeff_all_zero = false;
+                break;
+            }
+        }
+        if (coeff_all_zero) {
+            if (std::abs(mat.arr[i * col + row]) >= 1e-9) {
+                has_inconsistent = true;
+            } else {
+                has_underdetermined = true;
+            }
+        }
+    }
+
+    if (has_inconsistent) {
+        throw std::runtime_error("Inconsistent system: No solution exists.");
+    }
+    if (has_underdetermined) {
+        throw std::runtime_error("Singular/Underdetermined system: Infinitely many solutions exist.");
+    }
+
     matrix solution(row, 1);
     for (int i = row - 1; i >= 0; i--) {
         double subtractor = 0;
