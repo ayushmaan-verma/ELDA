@@ -372,10 +372,31 @@ void test_fpg_behavior() {
     assert(E(0, 0) == 3e-10);
     assert(E(1, 1) == 3e-10);
 
+    // Test operator* (scalar multiplication)
+    linalg::matrix F = A * 2.0;
+    // Value should be exactly 2e-10, NOT cleaned up to 0.0
+    assert(F(0, 0) == 2e-10);
+    assert(F(1, 1) == 2e-10);
+
+    // Test operator* (matrix multiplication)
+    linalg::matrix G = A * B;
+    // Value should be close to 2e-20, NOT cleaned up to 0.0
+    assert(is_close(G(0, 0), 2e-20, 1e-22));
+    assert(is_close(G(1, 1), 2e-20, 1e-22));
+    assert(G(0, 0) > 0.0);
+
     // Explicit call to fpg() should cleanup the values
     linalg::fpg(E);
     assert(E(0, 0) == 0.0);
     assert(E(1, 1) == 0.0);
+
+    linalg::fpg(F);
+    assert(F(0, 0) == 0.0);
+    assert(F(1, 1) == 0.0);
+
+    linalg::fpg(G);
+    assert(G(0, 0) == 0.0);
+    assert(G(1, 1) == 0.0);
 
     std::cout << "FPG behavior tests passed!" << std::endl;
 }

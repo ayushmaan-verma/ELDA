@@ -126,7 +126,6 @@ matrix matrix::operator*(const matrix& m2) {
             }
         }
     }
-    fpg(m3);
     return m3;
 }
 
@@ -136,7 +135,6 @@ matrix matrix::operator*(double d) {
     for (size_t i = 0; i < total_elements; i++) {
         m3.arr[i] *= d;
     }
-    fpg(m3);
     return m3;
 }
 
