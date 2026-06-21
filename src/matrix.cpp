@@ -117,7 +117,6 @@ matrix matrix::operator*(const matrix& m2) {
         throw std::runtime_error("Matrix multiplication dimensions incompatible.");
     }
     matrix m3(row, m2.col);
-    // Highly optimized cache-friendly index scan loops
     for (int i = 0; i < row; i++) {
         for (int k = 0; k < col; k++) {
             double r = arr[i * col + k];
@@ -126,7 +125,6 @@ matrix matrix::operator*(const matrix& m2) {
             }
         }
     }
-    fpg(m3);
     return m3;
 }
 
@@ -136,7 +134,6 @@ matrix matrix::operator*(double d) {
     for (size_t i = 0; i < total_elements; i++) {
         m3.arr[i] *= d;
     }
-    fpg(m3);
     return m3;
 }
 
@@ -604,7 +601,6 @@ matrix matrix::solve() {
 }
 
 matrix matrix::orthogonalize() {
-    // Modified Gram-Schmidt for arbitrary m x n shapes.
     matrix Q = *this;
     for (int j = 0; j < col; j++) {
         for (int i = 0; i < j; i++) {
@@ -620,27 +616,19 @@ matrix matrix::orthogonalize() {
             }
             for (int k = 0; k < row; k++) {
                 Q.arr[k * col + j] -= projection_coeff * Q.arr[k * col + i];
-                dot_product += Q.arr[k][j] * Q.arr[k][i];
-                norm_sq_i += Q.arr[k][i] * Q.arr[k][i];
-            }
-
-            const double projection_coeff = norm_sq_i > EPS ? dot_product / norm_sq_i : 0.0;
-            for (int k = 0; k < row; k++) {
-                Q.arr[k][j] -= projection_coeff * Q.arr[k][i];
             }
         }
-
+        
         double norm_sq_j = 0.0;
         for (int k = 0; k < row; k++) {
-            norm_sq_j += Q.arr[k][j] * Q.arr[k][j];
+            norm_sq_j += Q.arr[k * col + j] * Q.arr[k * col + j];
         }
-        if (norm_sq_j <= EPS) {
+        if (norm_sq_j <= 1e-9) {
             for (int k = 0; k < row; k++) {
-                Q.arr[k][j] = 0.0;
+                Q.arr[k * col + j] = 0.0;
             }
         }
     }
-    fpg(Q);
     return Q;
 }
 
@@ -659,23 +647,9 @@ matrix matrix::orthonormalize() {
         } else {
             for (int k = 0; k < row; k++) {
                 Q.arr[k * col + j] = 0.0;
-        double norm = 0.0;
-        for (int k = 0; k < row; k++) {
-            norm += Q.arr[k][j] * Q.arr[k][j];
-        }
-        norm = std::sqrt(norm);
-        
-        if (norm > EPS) {
-            for (int k = 0; k < row; k++) {
-                Q.arr[k][j] /= norm;
-            }
-        } else {
-            for (int k = 0; k < row; k++) {
-                Q.arr[k][j] = 0.0;
             }
         }
     }
-    fpg(Q);
     return Q;
 }
 
