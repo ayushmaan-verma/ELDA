@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+
 #include "elda/matrix.hpp"
 
 bool is_close(double a, double b, double epsilon = 1e-4) {
@@ -12,9 +13,15 @@ void test_robust_qr_decomposition() {
     std::cout << "Running Robust QR Decomposition tests..." << std::endl;
 
     linalg::matrix A(3, 3);
-    A(0, 0) = 1.0; A(0, 1) = 1.0; A(0, 2) = 2.0;
-    A(1, 0) = 2.0; A(1, 1) = 2.0; A(1, 2) = 5.0;
-    A(2, 0) = 3.0; A(2, 1) = 3.0; A(2, 2) = 8.0;
+    A(0, 0) = 1.0;
+    A(0, 1) = 1.0;
+    A(0, 2) = 2.0;
+    A(1, 0) = 2.0;
+    A(1, 1) = 2.0;
+    A(1, 2) = 5.0;
+    A(2, 0) = 3.0;
+    A(2, 1) = 3.0;
+    A(2, 2) = 8.0;
 
     linalg::matrix Q = A.qr_decomp_q();
     linalg::matrix R = A.qr_decomp_r();
@@ -27,8 +34,12 @@ void test_robust_qr_decomposition() {
     }
 
     linalg::matrix B(2, 3);
-    B(0, 0) = 1.0; B(0, 1) = 0.0; B(0, 2) = 2.0;
-    B(1, 0) = 0.0; B(1, 1) = 1.0; B(1, 2) = 3.0;
+    B(0, 0) = 1.0;
+    B(0, 1) = 0.0;
+    B(0, 2) = 2.0;
+    B(1, 0) = 0.0;
+    B(1, 1) = 1.0;
+    B(1, 2) = 3.0;
 
     linalg::matrix Q_rect = B.qr_decomp_q();
     linalg::matrix R_rect = B.qr_decomp_r();
@@ -50,21 +61,27 @@ void test_eigenvalues_convergence() {
     std::cout << "Running eigenvalue convergence tests..." << std::endl;
 
     linalg::matrix D(2, 2);
-    D(0, 0) = 5.0; D(0, 1) = 0.0;
-    D(1, 0) = 0.0; D(1, 1) = -3.0;
+    D(0, 0) = 5.0;
+    D(0, 1) = 0.0;
+    D(1, 0) = 0.0;
+    D(1, 1) = -3.0;
     linalg::matrix evD = D.eigenvalues();
     assert(is_close(evD(0, 0), 5.0) || is_close(evD(0, 0), -3.0));
 
     linalg::matrix S(2, 2);
-    S(0, 0) = 2.0; S(0, 1) = 1.0;
-    S(1, 0) = 1.0; S(1, 1) = 2.0;
+    S(0, 0) = 2.0;
+    S(0, 1) = 1.0;
+    S(1, 0) = 1.0;
+    S(1, 1) = 2.0;
     linalg::matrix evS = S.eigenvalues();
     assert((is_close(evS(0, 0), 3.0) && is_close(evS(1, 0), 1.0)) ||
            (is_close(evS(0, 0), 1.0) && is_close(evS(1, 0), 3.0)));
 
     linalg::matrix C(2, 2);
-    C(0, 0) = 0.0; C(0, 1) = -1.0;
-    C(1, 0) = 1.0; C(1, 1) = 0.0;
+    C(0, 0) = 0.0;
+    C(0, 1) = -1.0;
+    C(1, 0) = 1.0;
+    C(1, 1) = 0.0;
 
     bool caught_non_convergence = false;
     try {
@@ -81,8 +98,10 @@ void test_flattened_vector_invariants() {
     std::cout << "Running flat vector representation tests..." << std::endl;
 
     linalg::matrix A(2, 2);
-    A(0, 0) = 1.0; A(0, 1) = 2.0;
-    A(1, 0) = 3.0; A(1, 1) = 4.0;
+    A(0, 0) = 1.0;
+    A(0, 1) = 2.0;
+    A(1, 0) = 3.0;
+    A(1, 1) = 4.0;
 
     assert(A(0, 0) == 1.0);
     assert(A(0, 1) == 2.0);
@@ -102,20 +121,32 @@ void test_pivot_selection_and_rank() {
     std::cout << "Running Pivot Selection and Rank tests..." << std::endl;
 
     linalg::matrix Z(2, 2);
-    Z(0, 0) = 0.0; Z(0, 1) = 1.0;
-    Z(1, 0) = 0.0; Z(1, 1) = 2.0;
+    Z(0, 0) = 0.0;
+    Z(0, 1) = 1.0;
+    Z(1, 0) = 0.0;
+    Z(1, 1) = 2.0;
     assert(Z.rank() == 1);
 
     linalg::matrix T(4, 2);
-    T(0, 0) = 1.0; T(0, 1) = 2.0;
-    T(1, 0) = 2.0; T(1, 1) = 4.0;
-    T(2, 0) = 3.0; T(2, 1) = 6.0;
-    T(3, 0) = 1.0; T(3, 1) = -1.0;
+    T(0, 0) = 1.0;
+    T(0, 1) = 2.0;
+    T(1, 0) = 2.0;
+    T(1, 1) = 4.0;
+    T(2, 0) = 3.0;
+    T(2, 1) = 6.0;
+    T(3, 0) = 1.0;
+    T(3, 1) = -1.0;
     assert(T.rank() == 2);
 
     linalg::matrix W(2, 4);
-    W(0, 0) = 1.0; W(0, 1) = 2.0; W(0, 2) = 3.0; W(0, 3) = 4.0;
-    W(1, 0) = 2.0; W(1, 1) = 4.0; W(1, 2) = 6.0; W(1, 3) = 8.0;
+    W(0, 0) = 1.0;
+    W(0, 1) = 2.0;
+    W(0, 2) = 3.0;
+    W(0, 3) = 4.0;
+    W(1, 0) = 2.0;
+    W(1, 1) = 4.0;
+    W(1, 2) = 6.0;
+    W(1, 3) = 8.0;
     assert(W.rank() == 1);
 
     std::cout << "Pivot Selection and Rank tests passed!" << std::endl;
@@ -125,8 +156,10 @@ void test_precision_row_scaling() {
     std::cout << "Running precision row scaling regression tests..." << std::endl;
 
     linalg::matrix A(2, 2);
-    A(0, 0) = 1e-7; A(0, 1) = 1.0;
-    A(1, 0) = 1.0;  A(1, 1) = 1.0;
+    A(0, 0) = 1e-7;
+    A(0, 1) = 1.0;
+    A(1, 0) = 1.0;
+    A(1, 1) = 1.0;
 
     linalg::matrix invA = A.inverse();
     linalg::matrix I_check = A * invA;
@@ -143,12 +176,24 @@ void test_rectangular_geometric_utilities() {
     std::cout << "Running rectangular geometry inner product and angle tests..." << std::endl;
 
     linalg::matrix A(2, 4);
-    A(0, 0) = 1.0; A(0, 1) = 0.0; A(0, 2) = 0.0; A(0, 3) = 0.0;
-    A(1, 0) = 0.0; A(1, 1) = 0.0; A(1, 2) = 0.0; A(1, 3) = 0.0;
+    A(0, 0) = 1.0;
+    A(0, 1) = 0.0;
+    A(0, 2) = 0.0;
+    A(0, 3) = 0.0;
+    A(1, 0) = 0.0;
+    A(1, 1) = 0.0;
+    A(1, 2) = 0.0;
+    A(1, 3) = 0.0;
 
     linalg::matrix B(2, 4);
-    B(0, 0) = 0.0; B(0, 1) = 1.0; B(0, 2) = 0.0; B(0, 3) = 0.0;
-    B(1, 0) = 0.0; B(1, 1) = 0.0; B(1, 2) = 0.0; B(1, 3) = 0.0;
+    B(0, 0) = 0.0;
+    B(0, 1) = 1.0;
+    B(0, 2) = 0.0;
+    B(0, 3) = 0.0;
+    B(1, 0) = 0.0;
+    B(1, 1) = 0.0;
+    B(1, 2) = 0.0;
+    B(1, 3) = 0.0;
 
     assert(is_close(linalg::inner_product(A, B), 0.0));
     assert(is_close(linalg::angle(A, B), linalg::PI / 2.0));
@@ -169,8 +214,12 @@ void test_solve_unique_with_row_swaps() {
     std::cout << "Running unique solution requiring row swaps tests..." << std::endl;
 
     linalg::matrix A(2, 3);
-    A(0, 0) = 0.0; A(0, 1) = 1.0; A(0, 2) = 2.0;
-    A(1, 0) = 1.0; A(1, 1) = 0.0; A(1, 2) = 3.0;
+    A(0, 0) = 0.0;
+    A(0, 1) = 1.0;
+    A(0, 2) = 2.0;
+    A(1, 0) = 1.0;
+    A(1, 1) = 0.0;
+    A(1, 2) = 3.0;
 
     linalg::matrix sol = A.solve();
     assert(sol.get_rows() == 2 && sol.get_cols() == 1);
@@ -184,8 +233,12 @@ void test_solve_inconsistent_system() {
     std::cout << "Running inconsistent system tests..." << std::endl;
 
     linalg::matrix A(2, 3);
-    A(0, 0) = 1.0; A(0, 1) = 2.0; A(0, 2) = 3.0;
-    A(1, 0) = 2.0; A(1, 1) = 4.0; A(1, 2) = 7.0;
+    A(0, 0) = 1.0;
+    A(0, 1) = 2.0;
+    A(0, 2) = 3.0;
+    A(1, 0) = 2.0;
+    A(1, 1) = 4.0;
+    A(1, 2) = 7.0;
 
     bool caught_exception = false;
     try {
@@ -203,8 +256,12 @@ void test_solve_underdetermined_system() {
     std::cout << "Running underdetermined system tests..." << std::endl;
 
     linalg::matrix A(2, 3);
-    A(0, 0) = 1.0; A(0, 1) = 2.0; A(0, 2) = 3.0;
-    A(1, 0) = 2.0; A(1, 1) = 4.0; A(1, 2) = 6.0;
+    A(0, 0) = 1.0;
+    A(0, 1) = 2.0;
+    A(0, 2) = 3.0;
+    A(1, 0) = 2.0;
+    A(1, 1) = 4.0;
+    A(1, 2) = 6.0;
 
     bool caught_exception = false;
     try {

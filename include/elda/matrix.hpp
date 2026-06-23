@@ -4,8 +4,8 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
-#include <vector>
 #include <tuple>
+#include <vector>
 
 namespace linalg {
 
@@ -16,12 +16,7 @@ constexpr double EPS = 1e-6;
 
 /// Dense matrix type backed by a contiguous 1D row-major vector.
 class matrix {
-  /// Constructs a 3x3 zero matrix.
-    matrix() : row(3), col(3), arr(9, 0.0) {}
-
-    /// Constructs an r x c zero matrix.
-    matrix(int r, int c) : row(r), col(c), arr(r * c, 0.0) {}
-  public:
+   public:
     /// Number of rows.
     int row;
     /// Number of columns.
@@ -31,6 +26,14 @@ class matrix {
 
     /// Constructs a 3x3 zero matrix.
     matrix() : row(3), col(3), arr(9, 0.0) {}
+
+    /// Constructs an r x c matrix initialized with val. Negative dimensions are rejected.
+    matrix(int r, int c, double val = 0.0) : row(r), col(c) {
+        if (r < 0 || c < 0) {
+            throw std::runtime_error("Matrix dimensions must be non-negative.");
+        }
+        arr.assign(static_cast<size_t>(r * c), val);
+    }
 
     // --- Safe Public Element-Access Overloads ---
     double operator()(size_t r, size_t c) const {
@@ -46,23 +49,24 @@ class matrix {
         }
         return arr[r * col + c];
     }
-    /// Constructs an r x c matrix initialized with val. Negative dimensions are rejected.
-    matrix(int r, int c, double val = 0.0) : row(r), col(c) {
-        if (r < 0 || c < 0) {
-            throw std::runtime_error("Matrix dimensions must be non-negative.");
-        }
-        arr.assign(static_cast<size_t>(r * c), val);
-    }
 
     /// Returns the number of rows.
-    size_t get_rows() const { return static_cast<size_t>(row); }
+    size_t get_rows() const {
+        return static_cast<size_t>(row);
+    }
     /// Returns the number of columns.
-    size_t get_cols() const { return static_cast<size_t>(col); }
+    size_t get_cols() const {
+        return static_cast<size_t>(col);
+    }
 
     /// Returns the value at (i, j) without bounds checking.
-    double get_element(int i, int j) { return arr[i * col + j]; }
+    double get_element(int i, int j) {
+        return arr[i * col + j];
+    }
     /// Returns a mutable pointer to the element at (i, j).
-    double* ref_element(int i, int j) { return &arr[i * col + j]; }
+    double* ref_element(int i, int j) {
+        return &arr[i * col + j];
+    }
 
     /// Reads matrix entries from `std::cin` in row-major order.
     void input();
@@ -142,7 +146,8 @@ class matrix {
     matrix qr_decomp_r();
 
     /// Performs LU decomposition with partial pivoting: P * A = L * U.
-    /// Returns a tuple of {P, L, U}. Throws std::runtime_error if matrix is rectangular or singular.
+    /// Returns a tuple of {P, L, U}. Throws std::runtime_error if matrix is rectangular or
+    /// singular.
     std::tuple<matrix, matrix, matrix> lu_decomposition() const;
 
     /// Returns a matrix containing row `r` and zeros elsewhere.
@@ -194,6 +199,6 @@ double angle(const matrix& a, const matrix& b);
 
 std::ostream& operator<<(std::ostream& os, const matrix& m);
 
-}
+}  // namespace linalg
 
-#endif // ELDA_MATRIX_H
+#endif  // ELDA_MATRIX_H

@@ -1,11 +1,12 @@
 #include "elda/matrix.hpp"
+
 #include <algorithm>
-#include <string>
-#include <sstream>
-#include <tuple>
-#include <stdexcept>
 #include <cmath>
 #include <ostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <tuple>
 
 namespace linalg {
 
@@ -31,10 +32,10 @@ std::string matrix::to_string() const {
         for (int j = 0; j < col; j++) {
             oss << arr[i * col + j];
             if (j < col - 1) {
-                oss << " "; // Space between columns
+                oss << " ";  // Space between columns
             }
         }
-        oss << "\n"; // Newline at the end of each row
+        oss << "\n";  // Newline at the end of each row
     }
     return oss.str();
 }
@@ -88,7 +89,8 @@ matrix matrix::operator=(const matrix& m2) {
 
 matrix matrix::operator+(const matrix& m2) {
     if ((row != m2.row) || (col != m2.col)) {
-        throw std::runtime_error("Addition defined only if both matrices share identical dimensions.");
+        throw std::runtime_error(
+            "Addition defined only if both matrices share identical dimensions.");
     }
     matrix m3(row, col);
     size_t total_elements = get_rows() * get_cols();
@@ -101,7 +103,8 @@ matrix matrix::operator+(const matrix& m2) {
 
 matrix matrix::operator-(const matrix& m2) {
     if ((row != m2.row) || (col != m2.col)) {
-        throw std::runtime_error("Subtraction defined only if both matrices share identical dimensions.");
+        throw std::runtime_error(
+            "Subtraction defined only if both matrices share identical dimensions.");
     }
     matrix m3(row, col);
     size_t total_elements = get_rows() * get_cols();
@@ -253,25 +256,28 @@ matrix matrix::col_multi(int i, double factor) {
 
 int matrix::echelon() {
     int swaps = 1;
-    for (int k = 0; k < std::min(row, col); k++) {
-        int z = k;
-        while (std::abs(arr[z * col + k]) < 1e-9) {
-            if (z + 1 == std::min(row, col)) {
-                break;
-            }
+    int pivot_row = 0;
+    for (int pivot_col = 0; pivot_col < col && pivot_row < row; ++pivot_col) {
+        int z = pivot_row;
+        while (z < row && std::abs(arr[z * col + pivot_col]) < 1e-9) {
             z++;
         }
-        if (k != z) {
-            *this = row_swap(k, z);
-            swaps *= -1;
-        }
-        if (std::abs(arr[k * col + k]) < 1e-9) {
+        if (z == row) {
             continue;
         }
-        for (int i = k + 1; i < row; i++) {
-            const double multiplier = arr[i * col + k] / arr[k * col + k];
-            *this = row_op(i, -multiplier, k);
+        if (pivot_row != z) {
+            *this = row_swap(pivot_row, z);
+            swaps *= -1;
         }
+        const double pivot = arr[pivot_row * col + pivot_col];
+        if (std::abs(pivot) < 1e-9) {
+            continue;
+        }
+        for (int i = pivot_row + 1; i < row; ++i) {
+            const double multiplier = arr[i * col + pivot_col] / pivot;
+            *this = row_op(i, -multiplier, pivot_row);
+        }
+        ++pivot_row;
     }
     neg_zero(*this);
     fpg(*this);
@@ -280,27 +286,29 @@ int matrix::echelon() {
 
 int matrix::gaussian() {
     int swaps = 1;
-    for (int k = 0; k < std::min(row, col); k++) {
-        int z = k;
-        while (std::abs(arr[z * col + k]) < 1e-9) {
-            if (z + 1 == std::min(row, col)) {
-                break;
-            }
+    int pivot_row = 0;
+    for (int pivot_col = 0; pivot_col < col && pivot_row < row; ++pivot_col) {
+        int z = pivot_row;
+        while (z < row && std::abs(arr[z * col + pivot_col]) < 1e-9) {
             z++;
         }
-        if (k != z) {
-            *this = row_swap(k, z);
+        if (z == row) {
+            continue;
+        }
+        if (pivot_row != z) {
+            *this = row_swap(pivot_row, z);
             swaps *= -1;
         }
-        const double divisor = arr[k * col + k];
+        const double divisor = arr[pivot_row * col + pivot_col];
         if (std::abs(divisor) < 1e-9) {
             continue;
         }
-        *this = this->row_multi(k, 1.0 / divisor);
-        for (int i = k + 1; i < row; i++) {
-            const double multiplier = arr[i * col + k];
-            *this = row_op(i, -multiplier, k);
+        *this = this->row_multi(pivot_row, 1.0 / divisor);
+        for (int i = pivot_row + 1; i < row; ++i) {
+            const double multiplier = arr[i * col + pivot_col];
+            *this = row_op(i, -multiplier, pivot_row);
         }
+        ++pivot_row;
     }
     neg_zero(*this);
     fpg(*this);
@@ -309,9 +317,19 @@ int matrix::gaussian() {
 
 int matrix::gauss_jordan() {
     const int swaps = this->gaussian();
-    for (int k = std::min(row, col) - 1; k > 0; k--) {
-        for (int i = k - 1; i >= 0; i--) {
-            const double multiplier = arr[i * col + k];
+    for (int k = row - 1; k > 0; --k) {
+        int pivot_col = -1;
+        for (int j = 0; j < col; ++j) {
+            if (std::abs(arr[k * col + j]) > 1e-9) {
+                pivot_col = j;
+                break;
+            }
+        }
+        if (pivot_col < 0) {
+            continue;
+        }
+        for (int i = k - 1; i >= 0; --i) {
+            const double multiplier = arr[i * col + pivot_col];
             *this = row_op(i, -multiplier, k);
         }
     }
@@ -321,10 +339,20 @@ int matrix::gauss_jordan() {
 
 int matrix::canonical() {
     const int swaps = this->gaussian();
-    for (int k = 0; k < std::min(row, col); k++) {
-        for (int j = k + 1; j < col; j++) {
+    for (int k = 0; k < row; ++k) {
+        int pivot_col = -1;
+        for (int j = 0; j < col; ++j) {
+            if (std::abs(arr[k * col + j]) > 1e-9) {
+                pivot_col = j;
+                break;
+            }
+        }
+        if (pivot_col < 0) {
+            continue;
+        }
+        for (int j = pivot_col + 1; j < col; ++j) {
             const double multiplier = arr[k * col + j];
-            *this = col_op(j, -multiplier, k);
+            *this = col_op(j, -multiplier, pivot_col);
         }
     }
     fpg(*this);
@@ -445,38 +473,55 @@ matrix matrix::inverse() {
 
     for (int k = 0; k < m; k++) {
         int z = k;
-        while (std::abs(mat.arr[z * m + k]) < 1e-9) {
-            if (z + 1 == m) break;
-            z++;
+        double max_val = std::abs(mat.arr[k * m + k]);
+        for (int i = k + 1; i < m; ++i) {
+            const double candidate = std::abs(mat.arr[i * m + k]);
+            if (candidate > max_val) {
+                max_val = candidate;
+                z = i;
+            }
+        }
+        if (max_val < 1e-9) {
+            throw std::runtime_error("Inverse is defined only for Non-Singular matrix.");
         }
         if (z != k) {
-            mat = mat.row_swap(k, z);
-            inv = inv.row_swap(k, z);
+            for (int j = 0; j < m; ++j) {
+                std::swap(mat.arr[k * m + j], mat.arr[z * m + j]);
+                std::swap(inv.arr[k * m + j], inv.arr[z * m + j]);
+            }
         }
+
         const double divisor = mat.arr[k * m + k];
-        mat = mat.row_multi(k, 1.0 / divisor);
-        inv = inv.row_multi(k, 1.0 / divisor);
+        for (int j = 0; j < m; ++j) {
+            mat.arr[k * m + j] /= divisor;
+            inv.arr[k * m + j] /= divisor;
+        }
 
         for (int i = k + 1; i < m; i++) {
             const double multiplier = mat.arr[i * m + k];
-            mat = mat.row_op(i, -multiplier, k);
-            inv = inv.row_op(i, -multiplier, k);
+            if (std::abs(multiplier) < 1e-12) {
+                continue;
+            }
+            for (int j = 0; j < m; ++j) {
+                mat.arr[i * m + j] -= multiplier * mat.arr[k * m + j];
+                inv.arr[i * m + j] -= multiplier * inv.arr[k * m + j];
+            }
         }
     }
     for (int k = m - 1; k > 0; k--) {
         for (int i = k - 1; i >= 0; i--) {
             const double multiplier = mat.arr[i * m + k];
-            mat = mat.row_op(i, -multiplier, k);
-            inv = inv.row_op(i, -multiplier, k);
+            if (std::abs(multiplier) < 1e-12) {
+                continue;
+            }
+            for (int j = 0; j < m; ++j) {
+                mat.arr[i * m + j] -= multiplier * mat.arr[k * m + j];
+                inv.arr[i * m + j] -= multiplier * inv.arr[k * m + j];
+            }
         }
     }
-    for (int i = 0; i < m; i++) {
-        if (std::abs(mat.arr[i * m + i] - 1.0) > 1e-5) {
-            throw std::runtime_error("Inverse is defined only for Non-Singular matrix.");
-        }
-    }
+    neg_zero(mat);
     neg_zero(inv);
-    fpg(inv);
     return inv;
 }
 
@@ -511,7 +556,8 @@ matrix matrix::solve() {
         throw std::runtime_error("Inconsistent system: No solution exists.");
     }
     if (has_underdetermined) {
-        throw std::runtime_error("Singular/Underdetermined system: Infinitely many solutions exist.");
+        throw std::runtime_error(
+            "Singular/Underdetermined system: Infinitely many solutions exist.");
     }
 
     matrix solution(row, 1);
@@ -596,10 +642,10 @@ std::tuple<matrix, matrix, matrix> matrix::lu_decomposition() const {
         throw std::runtime_error("LU decomposition requires a square matrix.");
     }
     size_t n = static_cast<size_t>(row);
-    matrix P(row, col); 
+    matrix P(row, col);
     matrix L(row, col);
     matrix U = *this;
-    
+
     for (size_t i = 0; i < n; i++) {
         P.arr[i * n + i] = 1.0;
         L.arr[i * n + i] = 1.0;
@@ -634,8 +680,10 @@ std::tuple<matrix, matrix, matrix> matrix::lu_decomposition() const {
             }
         }
     }
-    neg_zero(L); fpg(L);
-    neg_zero(U); fpg(U);
+    neg_zero(L);
+    fpg(L);
+    neg_zero(U);
+    fpg(U);
     return {P, L, U};
 }
 
@@ -681,61 +729,43 @@ matrix matrix::eigenvalues() {
     if (row != col) {
         throw std::runtime_error("Eigenvalues are defined only for square matrix.");
     }
-    
+
     matrix m(*this);
-    int max_iter = 1000;
-    int iter = 0;
+    constexpr int max_iter = 1000;
     bool converged = false;
 
-    // Unshifted QR iteration with hard convergence limits
-    while (iter < max_iter) {
+    for (int iter = 0; iter < max_iter; ++iter) {
         matrix q = m.qr_decomp_q();
         matrix r = m.qr_decomp_r();
         m = r * q;
-        fpg(m); // Snap tiny values to zero using EPS
-
-        // Tolerance-based convergence check on strictly lower-triangular entries
-        converged = true;
-        for (int j = 0; j < m.col; j++) {
-            for (int i = j + 1; i < m.row; i++) {
-                if (std::abs(m.arr[i][j]) > EPS) {
         fpg(m);
 
         converged = true;
-        for (int j = 0; j < m.col; j++) {
-            for (int i = j + 1; i < m.row; i++) {
+        for (int j = 0; j < m.col && converged; ++j) {
+            for (int i = j + 1; i < m.row; ++i) {
                 if (std::abs(m.arr[i * m.col + j]) > EPS) {
                     converged = false;
                     break;
                 }
             }
-            if (!converged) break;
         }
 
         if (converged) {
             break;
         }
-        iter++;
     }
 
     if (!converged) {
-        throw std::runtime_error("QR iteration failed to converge after 1000 iterations. The matrix may have complex eigenvalues or require shift techniques.");
+        throw std::runtime_error(
+            "QR iteration failed to converge after 1000 iterations. The matrix may have complex "
+            "eigenvalues or require shift techniques.");
     }
 
-    // The diagonal entries of the converged iterate are the eigenvalue estimates.
-    matrix eigen(m.row, 1);
-    for (int i = 0; i < m.row; i++) {
-        eigen.arr[i][0] = m.arr[i][i];
-        if (converged) break;
-        iter++;
-    }
-    if (!converged) {
-        throw std::runtime_error("QR iteration failed to converge.");
-    }
     matrix eigen(row, 1);
     for (int i = 0; i < row; i++) {
         eigen.arr[i] = m.arr[i * col + i];
     }
+    fpg(eigen);
     return eigen;
 }
 
@@ -808,4 +838,4 @@ double angle(const matrix& a, const matrix& b) {
     return acos(cosine);
 }
 
-} // namespace linalg
+}  // namespace linalg
