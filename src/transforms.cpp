@@ -2,6 +2,7 @@
 
 namespace linalg {
 
+// cppcheck-suppress unusedFunction
 matrix shift(double dx, double dy) {
     matrix m = identity(3);
     *m.ref_element(0, 2) = dx;
@@ -9,6 +10,7 @@ matrix shift(double dx, double dy) {
     return m;
 }
 
+// cppcheck-suppress unusedFunction
 matrix scale(double kx, double ky) {
     matrix m = identity(3);
     *m.ref_element(0, 0) = kx;
@@ -16,6 +18,7 @@ matrix scale(double kx, double ky) {
     return m;
 }
 
+// cppcheck-suppress unusedFunction
 matrix rotate(double angle) {
     matrix m = identity(3);
     *m.ref_element(0, 0) = cos(angle);
@@ -25,6 +28,7 @@ matrix rotate(double angle) {
     return m;
 }
 
+// cppcheck-suppress unusedFunction
 matrix shift(double dx, double dy, double dz) {
     matrix m = identity(4);
     *m.ref_element(0, 3) = dx;
@@ -33,6 +37,7 @@ matrix shift(double dx, double dy, double dz) {
     return m;
 }
 
+// cppcheck-suppress unusedFunction
 matrix scale(double kx, double ky, double kz) {
     matrix m = identity(4);
     *m.ref_element(0, 0) = kx;
@@ -41,6 +46,7 @@ matrix scale(double kx, double ky, double kz) {
     return m;
 }
 
+// cppcheck-suppress unusedFunction
 matrix rot_x(double angle) {
     matrix m = identity(4);
     *m.ref_element(1, 1) = cos(angle);
@@ -50,6 +56,7 @@ matrix rot_x(double angle) {
     return m;
 }
 
+// cppcheck-suppress unusedFunction
 matrix rot_y(double angle) {
     matrix m = identity(4);
     *m.ref_element(0, 0) = cos(angle);
@@ -59,6 +66,7 @@ matrix rot_y(double angle) {
     return m;
 }
 
+// cppcheck-suppress unusedFunction
 matrix rot_z(double angle) {
     matrix m = identity(4);
     *m.ref_element(0, 0) = cos(angle);

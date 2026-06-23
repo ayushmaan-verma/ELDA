@@ -5,18 +5,23 @@
 namespace linalg {
 
 // Convenience constructors for zero-initialized column vectors.
+// cppcheck-suppress unusedFunction
 matrix vec1() {
     return matrix(1, 1);
 }
+// cppcheck-suppress unusedFunction
 matrix vec2() {
     return matrix(2, 1);
 }
+// cppcheck-suppress unusedFunction
 matrix vec3() {
     return matrix(3, 1);
 }
+// cppcheck-suppress unusedFunction
 matrix vec4() {
     return matrix(4, 1);
 }
+// cppcheck-suppress unusedFunction
 matrix vec5() {
     return matrix(5, 1);
 }
@@ -62,6 +67,7 @@ matrix vec5(double x, double y, double z, double w, double u) {
     return m;
 }
 
+// cppcheck-suppress unusedFunction
 bool check_lin_comb(matrix m1, matrix m2) {
     if (m1.get_cols() != 1 || m2.get_cols() != 1) {
         throw std::runtime_error("All inputs must be column vectors (exactly 1 column).");
