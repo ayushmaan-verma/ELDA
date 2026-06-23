@@ -80,9 +80,8 @@ void fpg(matrix& m) {
 }
 
 matrix matrix::operator=(const matrix& m2) {
-    if ((row != m2.row) || (col != m2.col)) {
-        throw std::runtime_error("Assignment Operator : Dimension Mismatch in LHS & RHS !!!");
-    }
+    row = m2.row;
+    col = m2.col;
     arr = m2.arr;
     return *this;
 }
@@ -152,8 +151,7 @@ bool operator==(const matrix& m1, const matrix& m2) {
     return m1.arr == m2.arr;
 }
 
-// cppcheck-suppress unusedFunction
-bool shape_comp(const matrix& m1, const matrix& m2) {
+[[maybe_unused]] bool shape_comp(const matrix& m1, const matrix& m2) {
     return (m1.row == m2.row) && (m1.col == m2.col);
 }
 
@@ -774,8 +772,7 @@ double matrix::norm() {
     return sqrt(inner_product(*this, *this));
 }
 
-// cppcheck-suppress unusedFunction
-matrix matpow(matrix mat, long long expo) {
+[[maybe_unused]] matrix matpow(matrix mat, long long expo) {
     if (mat.row != mat.col) {
         throw std::runtime_error("Matrix exponentiation is defined only for square matrix.");
     }
@@ -791,8 +788,7 @@ matrix matpow(matrix mat, long long expo) {
     return res;
 }
 
-// cppcheck-suppress unusedFunction
-bool check_ortho(const matrix& mat) {
+[[maybe_unused]] bool check_ortho(const matrix& mat) {
     matrix m(mat);
     matrix mt = m.transpose();
     matrix inv = m.inverse();
@@ -805,8 +801,7 @@ bool check_ortho(const matrix& mat) {
     return true;
 }
 
-// cppcheck-suppress unusedFunction
-bool check_unitary(const matrix& mat) {
+[[maybe_unused]] bool check_unitary(const matrix& mat) {
     matrix m(mat);
     matrix mt = m.transpose();
     matrix adj = m.adjoint();
@@ -831,8 +826,7 @@ double inner_product(const matrix& a, const matrix& b) {
     return sum;
 }
 
-// cppcheck-suppress unusedFunction
-double angle(const matrix& a, const matrix& b) {
+[[maybe_unused]] double angle(const matrix& a, const matrix& b) {
     double l_a = std::sqrt(inner_product(a, a));
     double l_b = std::sqrt(inner_product(b, b));
     if (l_a <= EPS || l_b <= EPS) {

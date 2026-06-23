@@ -28,16 +28,17 @@ matrix vec4(double x, double y, double z, double w);
 matrix vec5(double x, double y, double z, double w, double u);
 
 /// Returns true if `m2` is a linear combination of `m1`.
-bool check_lin_comb(matrix m1, matrix m2);
+bool check_lin_comb(const matrix& m1, const matrix& m2);
 /// Returns true if `m3` is a linear combination of `m1` and `m2`.
-bool check_lin_comb(matrix m1, matrix m2, matrix m3);
+bool check_lin_comb(const matrix& m1, const matrix& m2, const matrix& m3);
 /// Returns true if `m4` is a linear combination of `m1`, `m2`, and `m3`.
-bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4);
+bool check_lin_comb(const matrix& m1, const matrix& m2, const matrix& m3, const matrix& m4);
 /// Returns true if `m5` is a linear combination of `m1`, `m2`, `m3`, and `m4`.
-bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5);
+bool check_lin_comb(const matrix& m1, const matrix& m2, const matrix& m3, const matrix& m4,
+                    const matrix& m5);
 
 /// Returns true if `target` is a linear combination of the given `vectors`.
-bool check_lin_comb(matrix target, const std::vector<matrix>& vectors);
+bool check_lin_comb(const matrix& target, const std::vector<matrix>& vectors);
 }  // namespace linalg
 
 #endif  // ELDA_VECTOR_UTILS_H

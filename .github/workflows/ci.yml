@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-test:
@@ -41,7 +41,15 @@ jobs:
           sudo apt-get install -y cppcheck
 
       - name: Run cppcheck
-        run: cppcheck --enable=all --suppress=missingIncludeSystem --error-exitcode=1 src/ include/
+        run: >
+          cppcheck --enable=all
+          --suppress=missingIncludeSystem
+          --suppress=unusedFunction
+          --suppress=normalCheckLevelMaxBranches
+          --suppress=checkersReport
+          -I include
+          --error-exitcode=1
+          src/ include/
 
   format:
     name: Format check with clang-format

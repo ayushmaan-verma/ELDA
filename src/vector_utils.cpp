@@ -5,42 +5,37 @@
 namespace linalg {
 
 // Convenience constructors for zero-initialized column vectors.
-// cppcheck-suppress unusedFunction
-matrix vec1() {
+[[maybe_unused]] matrix vec1() {
     return matrix(1, 1);
 }
-// cppcheck-suppress unusedFunction
-matrix vec2() {
+[[maybe_unused]] matrix vec2() {
     return matrix(2, 1);
 }
-// cppcheck-suppress unusedFunction
-matrix vec3() {
+[[maybe_unused]] matrix vec3() {
     return matrix(3, 1);
 }
-// cppcheck-suppress unusedFunction
-matrix vec4() {
+[[maybe_unused]] matrix vec4() {
     return matrix(4, 1);
 }
-// cppcheck-suppress unusedFunction
-matrix vec5() {
+[[maybe_unused]] matrix vec5() {
     return matrix(5, 1);
 }
 
 // Convenience constructors for value-initialized column vectors.
-matrix vec1(double x) {
+[[maybe_unused]] matrix vec1(double x) {
     matrix m(1, 1);
     m.arr[0] = x;
     return m;
 }
 
-matrix vec2(double x, double y) {
+[[maybe_unused]] matrix vec2(double x, double y) {
     matrix m(2, 1);
     m.arr[0] = x;
     m.arr[1] = y;
     return m;
 }
 
-matrix vec3(double x, double y, double z) {
+[[maybe_unused]] matrix vec3(double x, double y, double z) {
     matrix m(3, 1);
     m.arr[0] = x;
     m.arr[1] = y;
@@ -48,7 +43,7 @@ matrix vec3(double x, double y, double z) {
     return m;
 }
 
-matrix vec4(double x, double y, double z, double w) {
+[[maybe_unused]] matrix vec4(double x, double y, double z, double w) {
     matrix m(4, 1);
     m.arr[0] = x;
     m.arr[1] = y;
@@ -57,7 +52,7 @@ matrix vec4(double x, double y, double z, double w) {
     return m;
 }
 
-matrix vec5(double x, double y, double z, double w, double u) {
+[[maybe_unused]] matrix vec5(double x, double y, double z, double w, double u) {
     matrix m(5, 1);
     m.arr[0] = x;
     m.arr[1] = y;
@@ -67,8 +62,7 @@ matrix vec5(double x, double y, double z, double w, double u) {
     return m;
 }
 
-// cppcheck-suppress unusedFunction
-bool check_lin_comb(matrix m1, matrix m2) {
+[[maybe_unused]] bool check_lin_comb(const matrix& m1, const matrix& m2) {
     if (m1.get_cols() != 1 || m2.get_cols() != 1) {
         throw std::runtime_error("All inputs must be column vectors (exactly 1 column).");
     }
@@ -88,7 +82,7 @@ bool check_lin_comb(matrix m1, matrix m2) {
     return aug.rank() == coeff.rank();
 }
 
-bool check_lin_comb(matrix m1, matrix m2, matrix m3) {
+[[maybe_unused]] bool check_lin_comb(const matrix& m1, const matrix& m2, const matrix& m3) {
     if (m1.get_cols() != 1 || m2.get_cols() != 1 || m3.get_cols() != 1) {
         throw std::runtime_error("All inputs must be column vectors (exactly 1 column).");
     }
@@ -110,7 +104,8 @@ bool check_lin_comb(matrix m1, matrix m2, matrix m3) {
     return aug.rank() == coeff.rank();
 }
 
-bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4) {
+[[maybe_unused]] bool check_lin_comb(const matrix& m1, const matrix& m2, const matrix& m3,
+                                     const matrix& m4) {
     if (m1.get_cols() != 1 || m2.get_cols() != 1 || m3.get_cols() != 1 || m4.get_cols() != 1) {
         throw std::runtime_error("All inputs must be column vectors (exactly 1 column).");
     }
@@ -135,7 +130,8 @@ bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4) {
     return aug.rank() == coeff.rank();
 }
 
-bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5) {
+[[maybe_unused]] bool check_lin_comb(const matrix& m1, const matrix& m2, const matrix& m3,
+                                     const matrix& m4, const matrix& m5) {
     if (m1.get_cols() != 1 || m2.get_cols() != 1 || m3.get_cols() != 1 || m4.get_cols() != 1 ||
         m5.get_cols() != 1) {
         throw std::runtime_error("All inputs must be column vectors (exactly 1 column).");
@@ -163,7 +159,7 @@ bool check_lin_comb(matrix m1, matrix m2, matrix m3, matrix m4, matrix m5) {
     return aug.rank() == coeff.rank();
 }
 
-bool check_lin_comb(matrix target, const std::vector<matrix>& vectors) {
+[[maybe_unused]] bool check_lin_comb(const matrix& target, const std::vector<matrix>& vectors) {
     if (target.get_cols() != 1) {
         throw std::runtime_error("Target matrix must be a column vector (exactly 1 column).");
     }
