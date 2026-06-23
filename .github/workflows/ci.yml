@@ -43,9 +43,9 @@ jobs:
       - name: Run cppcheck
         run: >
           cppcheck --enable=all
+          --check-level=exhaustive
           --suppress=missingIncludeSystem
           --suppress=unusedFunction
-          --suppress=normalCheckLevelMaxBranches
           --suppress=checkersReport
           -I include
           --error-exitcode=1
