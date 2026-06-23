@@ -2,30 +2,30 @@
 
 namespace linalg {
 
-matrix shift(double dx, double dy) {
+[[maybe_unused]] matrix shift(double dx, double dy) {
     matrix m = identity(3);
     *m.ref_element(0, 2) = dx;
     *m.ref_element(1, 2) = dy;
     return m;
 }
 
-matrix scale(double kx, double ky) {
+[[maybe_unused]] matrix scale(double kx, double ky) {
     matrix m = identity(3);
     *m.ref_element(0, 0) = kx;
     *m.ref_element(1, 1) = ky;
     return m;
 }
 
-matrix rotate(double angle) {
+[[maybe_unused]] matrix rotate(double theta) {
     matrix m = identity(3);
-    *m.ref_element(0, 0) = cos(angle);
-    *m.ref_element(0, 1) = -sin(angle);
-    *m.ref_element(1, 0) = sin(angle);
-    *m.ref_element(1, 1) = cos(angle);
+    *m.ref_element(0, 0) = cos(theta);
+    *m.ref_element(0, 1) = -sin(theta);
+    *m.ref_element(1, 0) = sin(theta);
+    *m.ref_element(1, 1) = cos(theta);
     return m;
 }
 
-matrix shift(double dx, double dy, double dz) {
+[[maybe_unused]] matrix shift(double dx, double dy, double dz) {
     matrix m = identity(4);
     *m.ref_element(0, 3) = dx;
     *m.ref_element(1, 3) = dy;
@@ -33,7 +33,7 @@ matrix shift(double dx, double dy, double dz) {
     return m;
 }
 
-matrix scale(double kx, double ky, double kz) {
+[[maybe_unused]] matrix scale(double kx, double ky, double kz) {
     matrix m = identity(4);
     *m.ref_element(0, 0) = kx;
     *m.ref_element(1, 1) = ky;
@@ -41,31 +41,31 @@ matrix scale(double kx, double ky, double kz) {
     return m;
 }
 
-matrix rot_x(double angle) {
+[[maybe_unused]] matrix rot_x(double theta) {
     matrix m = identity(4);
-    *m.ref_element(1, 1) = cos(angle);
-    *m.ref_element(1, 2) = -sin(angle);
-    *m.ref_element(2, 1) = sin(angle);
-    *m.ref_element(2, 2) = cos(angle);
+    *m.ref_element(1, 1) = cos(theta);
+    *m.ref_element(1, 2) = -sin(theta);
+    *m.ref_element(2, 1) = sin(theta);
+    *m.ref_element(2, 2) = cos(theta);
     return m;
 }
 
-matrix rot_y(double angle) {
+[[maybe_unused]] matrix rot_y(double theta) {
     matrix m = identity(4);
-    *m.ref_element(0, 0) = cos(angle);
-    *m.ref_element(0, 2) = -sin(angle);
-    *m.ref_element(2, 0) = sin(angle);
-    *m.ref_element(2, 2) = cos(angle);
+    *m.ref_element(0, 0) = cos(theta);
+    *m.ref_element(0, 2) = -sin(theta);
+    *m.ref_element(2, 0) = sin(theta);
+    *m.ref_element(2, 2) = cos(theta);
     return m;
 }
 
-matrix rot_z(double angle) {
+[[maybe_unused]] matrix rot_z(double theta) {
     matrix m = identity(4);
-    *m.ref_element(0, 0) = cos(angle);
-    *m.ref_element(0, 1) = -sin(angle);
-    *m.ref_element(1, 0) = sin(angle);
-    *m.ref_element(1, 1) = cos(angle);
+    *m.ref_element(0, 0) = cos(theta);
+    *m.ref_element(0, 1) = -sin(theta);
+    *m.ref_element(1, 0) = sin(theta);
+    *m.ref_element(1, 1) = cos(theta);
     return m;
 }
 
-}
+}  // namespace linalg

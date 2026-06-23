@@ -6,4 +6,4 @@
 #include "transforms.hpp"
 #include "vector_utils.hpp"
 
-#endif // ELDA_LINALG_H
+#endif  // ELDA_LINALG_H

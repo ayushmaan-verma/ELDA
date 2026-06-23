@@ -11,7 +11,7 @@ matrix shift(double dx, double dy);
 matrix scale(double kx, double ky);
 /// Returns a 3x3 homogeneous rotation matrix for 2D coordinates.
 /// `angle` is measured in radians.
-matrix rotate(double angle);
+matrix rotate(double theta);
 
 /// Returns a 4x4 homogeneous translation matrix for 3D coordinates.
 matrix shift(double dx, double dy, double dz);
@@ -19,13 +19,13 @@ matrix shift(double dx, double dy, double dz);
 matrix scale(double kx, double ky, double kz);
 /// Returns a 4x4 homogeneous rotation matrix around the x-axis.
 /// `angle` is measured in radians.
-matrix rot_x(double angle);
+matrix rot_x(double theta);
 /// Returns a 4x4 homogeneous rotation matrix around the y-axis.
 /// `angle` is measured in radians.
-matrix rot_y(double angle);
+matrix rot_y(double theta);
 /// Returns a 4x4 homogeneous rotation matrix around the z-axis.
 /// `angle` is measured in radians.
-matrix rot_z(double angle);
+matrix rot_z(double theta);
 
-}
-#endif // ELDA_TRANSFORMS_H
+}  // namespace linalg
+#endif  // ELDA_TRANSFORMS_H
