@@ -16,6 +16,11 @@ constexpr double EPS = 1e-6;
 
 /// Dense matrix type backed by a contiguous 1D row-major vector.
 class matrix {
+  /// Constructs a 3x3 zero matrix.
+    matrix() : row(3), col(3), arr(9, 0.0) {}
+
+    /// Constructs an r x c zero matrix.
+    matrix(int r, int c) : row(r), col(c), arr(r * c, 0.0) {}
   public:
     /// Number of rows.
     int row;
@@ -61,6 +66,8 @@ class matrix {
 
     /// Reads matrix entries from `std::cin` in row-major order.
     void input();
+    /// Returns a string representation of the matrix.
+    std::string to_string() const;
     /// Prints the matrix to `std::cout`, one row per line.
     void print();
 
@@ -74,6 +81,8 @@ class matrix {
     matrix operator*(const matrix& m2);
     /// Multiplies every entry by a scalar.
     matrix operator*(double d);
+    /// Divides every entry by a scalar.
+    matrix operator/(double scalar);
 
     /// Returns a copy after applying `row[i] += coeff * row[j]`.
     matrix row_op(int i, double coeff, int j);

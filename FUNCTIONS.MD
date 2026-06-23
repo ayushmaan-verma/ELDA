@@ -26,6 +26,7 @@ This file lists the public API declared by the headers under `include/elda/`.
 | `matrix operator-(matrix m2)` | Subtract matrices with identical shapes. |
 | `matrix operator*(matrix m2)` | Multiply compatible matrices. |
 | `matrix operator*(double d)` | Multiply every entry by a scalar. |
+| `matrix operator/(double scalar)` | Divide every entry by a scalar. |
 | `matrix row_op(int i, double coeff, int j)` | Return a copy with `row[i] += coeff * row[j]`. |
 | `matrix col_op(int i, double coeff, int j)` | Return a copy with `col[i] += coeff * col[j]`. |
 | `matrix row_swap(int i, int j)` | Return a copy with rows `i` and `j` swapped. |

@@ -1,5 +1,7 @@
 #include "elda/matrix.hpp"
 #include <algorithm>
+#include <string>
+#include <sstream>
 #include <tuple>
 #include <stdexcept>
 #include <cmath>
@@ -22,6 +24,19 @@ void matrix::print() {
         }
         std::cout << std::endl;
     }
+}
+std::string matrix::to_string() const {
+    std::ostringstream oss;
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            oss << arr[i * col + j];
+            if (j < col - 1) {
+                oss << " "; // Space between columns
+            }
+        }
+        oss << "\n"; // Newline at the end of each row
+    }
+    return oss.str();
 }
 
 std::ostream& operator<<(std::ostream& os, const matrix& m) {
@@ -68,7 +83,6 @@ matrix matrix::operator=(const matrix& m2) {
         throw std::runtime_error("Assignment Operator : Dimension Mismatch in LHS & RHS !!!");
     }
     arr = m2.arr;
-    fpg(*this);
     return *this;
 }
 
@@ -82,7 +96,6 @@ matrix matrix::operator+(const matrix& m2) {
     for (size_t i = 0; i < total_elements; i++) {
         m3.arr[i] = this->arr[i] + m2.arr[i];
     }
-    fpg(m3);
     return m3;
 }
 
@@ -95,7 +108,6 @@ matrix matrix::operator-(const matrix& m2) {
     for (size_t i = 0; i < total_elements; i++) {
         m3.arr[i] = this->arr[i] - m2.arr[i];
     }
-    fpg(m3);
     return m3;
 }
 
@@ -125,6 +137,12 @@ matrix matrix::operator*(double d) {
     }
     fpg(m3);
     return m3;
+}
+
+matrix matrix::operator/(double scalar) {
+    if (std::abs(scalar) <= EPS)
+        throw std::runtime_error("Division by zero in matrix scalar division.");
+    return (*this) * (1.0 / scalar);
 }
 
 bool operator==(const matrix& m1, const matrix& m2) {
@@ -663,15 +681,24 @@ matrix matrix::eigenvalues() {
     if (row != col) {
         throw std::runtime_error("Eigenvalues are defined only for square matrix.");
     }
+    
     matrix m(*this);
     int max_iter = 1000;
     int iter = 0;
     bool converged = false;
 
+    // Unshifted QR iteration with hard convergence limits
     while (iter < max_iter) {
         matrix q = m.qr_decomp_q();
         matrix r = m.qr_decomp_r();
         m = r * q;
+        fpg(m); // Snap tiny values to zero using EPS
+
+        // Tolerance-based convergence check on strictly lower-triangular entries
+        converged = true;
+        for (int j = 0; j < m.col; j++) {
+            for (int i = j + 1; i < m.row; i++) {
+                if (std::abs(m.arr[i][j]) > EPS) {
         fpg(m);
 
         converged = true;
@@ -684,6 +711,21 @@ matrix matrix::eigenvalues() {
             }
             if (!converged) break;
         }
+
+        if (converged) {
+            break;
+        }
+        iter++;
+    }
+
+    if (!converged) {
+        throw std::runtime_error("QR iteration failed to converge after 1000 iterations. The matrix may have complex eigenvalues or require shift techniques.");
+    }
+
+    // The diagonal entries of the converged iterate are the eigenvalue estimates.
+    matrix eigen(m.row, 1);
+    for (int i = 0; i < m.row; i++) {
+        eigen.arr[i][0] = m.arr[i][i];
         if (converged) break;
         iter++;
     }
