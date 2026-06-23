@@ -68,4 +68,4 @@ matrix rot_z(double angle) {
     return m;
 }
 
-}
+}  // namespace linalg

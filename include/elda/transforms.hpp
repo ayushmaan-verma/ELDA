@@ -27,5 +27,5 @@ matrix rot_y(double angle);
 /// `angle` is measured in radians.
 matrix rot_z(double angle);
 
-}
-#endif // ELDA_TRANSFORMS_H
+}  // namespace linalg
+#endif  // ELDA_TRANSFORMS_H
