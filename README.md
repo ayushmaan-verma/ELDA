@@ -68,6 +68,8 @@ cmake -S . -B build
 cmake --build build
 ```
 
+> **Verification:** Confirm that both `build/libelda.a` and `build/main` are present after the build completes. If either file is missing, rerun the build and check the compiler output for errors.
+
 This produces:
 
 - `build/libelda.a`
