@@ -309,7 +309,7 @@ matrix b(2, 2);
 a.arr = {{1.0, 2.0}, {3.0, 4.0}};
 b.arr = {{1.0, 2.0}, {3.0, 4.0}};
 
-bool same = (a == b);`,
+bool same = (a === b);`,
                         notes: ["This is not a tolerance-based numerical comparison."]
                     }),
                     createEntry({
