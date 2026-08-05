@@ -470,6 +470,25 @@ matrix matrix::solve() {
     matrix mat(*this);
     mat.gaussian();
     matrix solution(row, 1);
+    // Detect singular and inconsistent systems before back-substitution.
+    // A zero coefficient row means the system has no unique solution:
+    //  - 0x = 0  -> infinitely many solutions (singular / underdetermined)
+    //  - 0x = c  -> no solution at all (inconsistent)
+    for (int i = 0; i < row; i++) {
+        bool zero_row = true;
+        for (int j = 0; j < col - 1; j++) {
+            if (mat.arr[i][j] != 0) {
+                zero_row = false;
+                break;
+            }
+        }
+        if (zero_row) {
+            if (mat.arr[i][col - 1] != 0) {
+                throw std::runtime_error("System is inconsistent: the augmented matrix contains a row of the form 0 = c (c != 0), so it has no solution.");
+            }
+            throw std::runtime_error("System is singular: the coefficient matrix has a zero row after elimination, so the system has infinitely many solutions.");
+        }
+    }
     // Perform back-substitution on the upper-triangular system.
     for (int i = row - 1; i >= 0; i--) {
         double subtractor = 0;

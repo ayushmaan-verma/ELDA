@@ -280,7 +280,7 @@ a.arr = {{1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}};
 b.arr = {{1.0}, {0.0}, {1.0}};
 
 matrix product = a * b;`,
-                        notes: ["Requires lhs.col == rhs.row."]
+                        notes: ["Requires lhs.col === rhs.row."]
                     }),
                     createEntry({
                         id: "matrix-scale-operator",
